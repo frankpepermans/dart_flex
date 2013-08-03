@@ -1,0 +1,8 @@
+name: dart_flex
+version: 0.5.0
+author: Frank Pepermans <frank@igindo.com>
+description: A proof of concept to bring Flex to dartlang
+homepage: http://www.igindo.com
+dependencies:
+  browser: any
+  observe: any
