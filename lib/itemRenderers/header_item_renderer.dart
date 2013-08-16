@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class HeaderItemRenderer extends ItemRenderer {
 
@@ -9,6 +9,8 @@ class HeaderItemRenderer extends ItemRenderer {
   //---------------------------------
 
   Button _button;
+  
+  Button get button => _button;
 
   //---------------------------------
   //
@@ -22,12 +24,9 @@ class HeaderItemRenderer extends ItemRenderer {
   //
   //---------------------------------
 
-  HeaderItemRenderer({String elementId: null}) : super(elementId: null, autoDrawBackground: false) {
-  }
+  HeaderItemRenderer({String elementId: null}) : super(elementId: null, autoDrawBackground: false);
 
-  static HeaderItemRenderer construct() {
-    return new HeaderItemRenderer();
-  }
+  static HeaderItemRenderer construct() => new HeaderItemRenderer();
 
   //---------------------------------
   //
@@ -40,9 +39,7 @@ class HeaderItemRenderer extends ItemRenderer {
     ..percentWidth = 100.0
     ..percentHeight = 100.0;
 
-    if (data != null) {
-      _button.label = data['label'];
-    }
+    invalidateData();
 
     _button.onButtonClick.listen(
         (FrameworkEvent event) => notify(
@@ -60,8 +57,6 @@ class HeaderItemRenderer extends ItemRenderer {
     if (
        (_button != null) &&
        (data != null)
-    ) {
-      _button.label = data['label'];
-    }
+    ) _button.label = data['label'];
   }
 }

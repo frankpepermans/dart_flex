@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class HorizontalLayout implements ILayout {
 
@@ -97,6 +97,8 @@ class HorizontalLayout implements ILayout {
     for (i=0; i<len; i++) {
       element = elements[i];
       
+      w = h = 0;
+      
       if (element.includeInLayout) {
         if (element.percentWidth > 0.0) {
           w = (element.percentWidth * .01 * (percWidth - _gap * (sx - 1)) / sx).toInt() - element.paddingLeft - element.paddingRight;
@@ -110,9 +112,9 @@ class HorizontalLayout implements ILayout {
           h = element.height - element.paddingTop - element.paddingBottom;
         }
 
-        w = (w == null) ? 0 : w;
-        h = (h == null) ? 0 : h;
-
+        if (w == null) w = 0;
+        if (h == null) h = 0;
+        
         if (
             (pageSize == 0) ||
             ((offset + w) <= pageSize)
@@ -126,7 +128,7 @@ class HorizontalLayout implements ILayout {
           element.x = element.paddingLeft;
         }
 
-        if (_constrainToBounds) {
+        if (_constrainToBounds && (h > 0)) {
           element.y = (height * .5 - h * .5).toInt() + element.paddingTop;
         }
 

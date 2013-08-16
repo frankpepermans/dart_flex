@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 abstract class IViewStackElement implements IUIWrapper {
   
@@ -160,11 +160,14 @@ class ViewStack extends UIWrapper {
         return false;
       }
       
-      viewStackElement.element.visible = true;
+      viewStackElement.element.visible = false;
+      
       viewStackElement.element.preInitialize(this);
       
       if (currentIndex >= 0) {
         _inactiveViewStackElement = _activeViewStackElement;
+        
+        _inactiveViewStackElement.element.visible = false;
         
         if (newIndex > currentIndex) {
           --_xOffset;
@@ -175,17 +178,47 @@ class ViewStack extends UIWrapper {
       
       _activeViewStackElement = viewStackElement;
       
-      _reflowManager.invalidateCSS(_container.control, 'transition', 'left .75s ease-out');
-      _reflowManager.invalidateCSS(_container.control, 'transitionDelay', '.6s');
+      _reflowManager.invalidateCSS(_container.control, 'transition', 'left 0.5s ease-out');
       
       _container.addComponent(viewStackElement.element);
       
       _updateLayout();
       
+      _activeViewStackElement.element.visible = true;
+      
       return true;
     }
     
     return false;
+  }
+  
+  bool removeView(String uniqueId) {
+    ViewStackElementData viewStackElement;
+    int i = _registeredViews.length;
+    
+    while (i > 0) {
+      viewStackElement = _registeredViews[--i];
+      
+      if (viewStackElement.uniqueId == uniqueId) {
+        _container.removeComponent(viewStackElement.element);
+        
+        return _registeredViews.remove(viewStackElement);
+      }
+    }
+    
+    return false;
+  }
+  
+  void removeAllViews() {
+    int i = _registeredViews.length;
+    
+    while (i > 0) {
+      removeView(_registeredViews[--i].uniqueId);
+    }
+    
+    _xOffset = 0;
+    
+    _updateLayout();
   }
 
   //---------------------------------
@@ -214,8 +247,6 @@ class ViewStack extends UIWrapper {
     
     super.addComponent(_container);
     
-    _container.control.onTransitionEnd.listen(_container_transitionEndHandler);
-
     super._createChildren();
     
     notify(
@@ -267,21 +298,6 @@ class ViewStack extends UIWrapper {
       
       show(requestedElement.uniqueId);
     }
-  }
-  
-  void _container_transitionEndHandler(Event event) {
-    if (_inactiveViewStackElement != null) {
-      _reflowManager.scheduleMethod(this, _container_hideInactiveView, [], forceSingleExecution: true);
-    }
-    
-    _reflowManager.invalidateCSS(_container.control, 'transition', 'left 0s ease-out');
-    _reflowManager.invalidateCSS(_container.control, 'transitionDelay', '0s');
-  }
-  
-  void _container_hideInactiveView() {
-    _inactiveViewStackElement.element.visible = false;
-    
-    _inactiveViewStackElement = null;
   }
 }
 

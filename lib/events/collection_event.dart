@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class CollectionEvent extends FrameworkEvent {
   CollectionEvent.construct(String ident, String type, {Object relatedObject: null}) : super.construct('CollectionEvent', type, relatedObject: relatedObject);

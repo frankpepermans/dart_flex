@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class RichText extends UIWrapper {
   
@@ -16,7 +16,18 @@ class RichText extends UIWrapper {
   // Public properties
   //
   //---------------------------------
+  
+  static const EventHook<FrameworkEvent> onClickEvent = const EventHook<FrameworkEvent>('click');
+  Stream<FrameworkEvent> get onClick => RichText.onClickEvent.forTarget(this);
 
+  //---------------------------------
+  // label
+  //---------------------------------
+  
+  LabelElement _label;
+  
+  LabelElement get label => _label;
+  
   //---------------------------------
   // text
   //---------------------------------
@@ -33,6 +44,29 @@ class RichText extends UIWrapper {
       notify(
         new FrameworkEvent(
           'textChanged'
+        )
+      );
+
+      _commitText();
+    }
+  }
+  
+  //---------------------------------
+  // richText
+  //---------------------------------
+
+  static const EventHook<FrameworkEvent> onRichTextChangedEvent = const EventHook<FrameworkEvent>('richTextChanged');
+  Stream<FrameworkEvent> get onRichTextChanged => RichText.onRichTextChangedEvent.forTarget(this);
+  String _richText;
+
+  String get richText => _richText;
+  set richText(String value) {
+    if (value != _richText) {
+      _richText = value;
+
+      notify(
+        new FrameworkEvent(
+          'richTextChanged'
         )
       );
 
@@ -111,99 +145,36 @@ class RichText extends UIWrapper {
   void _createChildren() {
     super._createChildren();
     
-    LabelElement label = new LabelElement();
+    _label = new LabelElement();
     
     _autoSize = false;
 
-    _setControl(label);
+    _setControl(_label);
 
     _commitTextAlign();
     _commitTextVerticalAlign();
     _commitText();
-
-    _reflowManager.invalidateCSS(_control, 'overflow', 'hidden');
   }
 
   void _commitTextAlign() {
-    if (_control != null) {
-      _reflowManager.invalidateCSS(_control, 'text-align', _align);
-    }
+    if (_label != null) _reflowManager.invalidateCSS(_control, 'text-align', _align);
   }
   
   void _commitTextVerticalAlign() {
-    if (_control != null) {
-      _reflowManager.invalidateCSS(_control, 'vertical-align', _verticalAlign);
-    }
+    if (_label != null) _reflowManager.invalidateCSS(_control, 'vertical-align', _verticalAlign);
   }
 
   void _commitText() {
-    if (_control != null) {
-      _reflowManager.scheduleMethod(this, _commitTextOnReflow, []);
-    }
+    if (_label != null) _reflowManager.scheduleMethod(this, _commitTextOnReflow, []);
   }
   
   void _commitTextOnReflow() {
-    final String newText = (_text != null) ? _text : '';
+    final String newText = (_richText != null) ? _richText : (_text != null) ? _text : '';
     
-    if (newText == _control.text) {
-      return;
-    }
-    
-    _control.text = newText;
-    
-    if (
-        _isWidthAutoScaled ||
-        (
-          (_width == 0) &&
-          (_percentWidth == .0)
-        )
-    ) {
-      _isWidthAutoScaled = true;
-      
-      _reflowManager.scheduleMethod(this, _updateWidth, [_control.client.width]);
-    }
-    
-    if (
-        _isHeightAutoScaled ||
-        (
-          (_height == 0) &&
-          (_percentHeight == .0)
-        )
-    ) {
-      _isHeightAutoScaled = true;
-      
-      _reflowManager.scheduleMethod(this, _updateHeight, [_control.client.height]);
-    }
-  }
-  
-  void _updateWidth(int newSize) {
-    final int newWidth = newSize;
-    
-    if (newWidth > 0) {
-      if (newWidth != _width) {
-        width = newWidth;
-      
-        _owner.invalidateProperties();
-      }
+    if (_richText != null) {
+      _label.innerHtml = newText;
     } else {
-      _reflowManager.scheduleMethod(this, _updateWidth, [_control.client.width]);
-    }
-  }
-  
-  void _updateHeight(int newSize) {
-    final int newHeight = newSize;
-    
-    if (newHeight > 0) {
-      if (newHeight != _height) {
-        height = newHeight;
-        
-        _owner.invalidateProperties();
-      }
-    } else {
-      _reflowManager.scheduleMethod(this, _updateHeight, [_control.client.height]);
+      _label.text = newText;
     }
   }
 }
-
-
-

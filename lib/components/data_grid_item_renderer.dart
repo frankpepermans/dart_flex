@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class DataGridItemRenderer extends ItemRenderer {
 
@@ -15,6 +15,9 @@ class DataGridItemRenderer extends ItemRenderer {
   // Public properties
   //
   //---------------------------------
+  
+  static const EventHook<FrameworkEvent> onRendererAddedEvent = const EventHook<FrameworkEvent>('rendererAdded');
+  Stream<FrameworkEvent> get onRendererAdded => DataGridItemRenderer.onRendererAddedEvent.forTarget(this);
 
   //---------------------------------
   // itemRenderers
@@ -23,11 +26,11 @@ class DataGridItemRenderer extends ItemRenderer {
   static const EventHook<FrameworkEvent> onColumnsChangedEvent = const EventHook<FrameworkEvent>('columnsChanged');
   Stream<FrameworkEvent> get onColumnsChanged => DataGridItemRenderer.onColumnsChangedEvent.forTarget(this);
 
-  ObservableList _columns;
+  ObservableList<DataGridColumn> _columns;
   bool _isColumnsChanged = false;
 
-  ObservableList get columns => _columns;
-  set columns(ObservableList value) {
+  ObservableList<DataGridColumn> get columns => _columns;
+  set columns(ObservableList<DataGridColumn> value) {
     if (value != _columns) {
       if (_columns != null) {
         //_columns.changes.
@@ -49,6 +52,14 @@ class DataGridItemRenderer extends ItemRenderer {
       invalidateProperties();
     }
   }
+  
+  //---------------------------------
+  // grid
+  //---------------------------------
+  
+  DataGrid _grid;
+  
+  DataGrid get grid => _grid;
 
   //---------------------------------
   //
@@ -80,6 +91,18 @@ class DataGridItemRenderer extends ItemRenderer {
 
   void invalidateData() {
   }
+  
+  void _refreshColumns() {
+    _isColumnsChanged = true;
+
+    notify(
+      new FrameworkEvent(
+        'columnsChanged'
+      )
+    );
+
+    invalidateProperties();
+  }
 
   void _commitProperties() {
     super._commitProperties();
@@ -92,40 +115,38 @@ class DataGridItemRenderer extends ItemRenderer {
   }
 
   void _updateItemRenderers() {
-    DataGridColumn column;
-    IItemRenderer renderer;
-    int i, len;
-
     removeAll();
-
+    
     _itemRendererInstances = new List<IItemRenderer>();
 
-    if (
-      (_columns != null) &&
-      (_columns.length > 0)
-    ) {
-      len = _columns.length;
+    if (_columns != null) {
+      _columns.forEach(
+        (DataGridColumn column) {
+          if (column._isActive) {
+            IItemRenderer renderer = column.columnItemRendererFactory.immediateInstance()
+                ..data = _data
+                ..field = column.field
+                ..height = _grid.rowHeight;
 
-      for (i=0; i<len; i++) {
-        column = _columns[i];
+            if (column.percentWidth > .0) {
+              renderer.percentWidth = column.percentWidth;
+            } else {
+              renderer.width = column.width;
+            }
 
-        renderer = column.columnItemRendererFactory.immediateInstance();
+            _itemRendererInstances.add(renderer);
 
-        renderer.data = _data;
-        renderer.field = column.field;
-
-        if (column.percentWidth > .0) {
-          renderer.percentWidth = column.percentWidth;
-        } else {
-          renderer.width = column.width;
+            addComponent(renderer);
+            
+            notify(
+                new FrameworkEvent(
+                    'rendererAdded',
+                    relatedObject: renderer
+                )
+            );
+          }
         }
-
-        renderer.percentHeight = 100.0;
-
-        _itemRendererInstances.add(renderer);
-
-        addComponent(renderer);
-      }
+      );
     }
   }
 
@@ -135,26 +156,14 @@ class DataGridItemRenderer extends ItemRenderer {
     if (
         (_itemRendererInstances != null) &&
         (_itemRendererInstances.length > 0)
-    ) {
-      IItemRenderer renderer;
-      int len = _itemRendererInstances.length;
-      int i;
-
-      for (i=0; i<len; i++) {
-        renderer = _itemRendererInstances[i];
-
-        renderer.data = _data;
-      }
-    }
+    ) _itemRendererInstances.forEach(
+        (IItemRenderer renderer) => renderer.data = _data
+    );
   }
 
-  void _itemRenderers_collectionChangedHandler(List<ChangeRecord> changes) {
-    _updateItemRenderers();
-  }
+  void _itemRenderers_collectionChangedHandler(List<ChangeRecord> changes) => _updateItemRenderers();
 
-  void _itemRendererSizes_collectionChangedHandler() {
-    _invalidateData();
-  }
+  void _itemRendererSizes_collectionChangedHandler() => _invalidateData();
 
   void _updateLayout() {
     _layout.gap = _gap;
@@ -162,8 +171,3 @@ class DataGridItemRenderer extends ItemRenderer {
     super._updateLayout();
   }
 }
-
-
-
-
-

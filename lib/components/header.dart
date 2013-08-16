@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class Header extends Group {
   
@@ -155,7 +155,11 @@ class Header extends Group {
     _layout = new AbsoluteLayout();
     
     _headerLabel = new RichText()
-    ..text = _label;
+    ..width = 400
+    ..height = 20
+    ..align = 'center'
+    ..text = _label
+    ..cssClasses = ['header-title'];
     
     _leftSideContainer = new HGroup();
     

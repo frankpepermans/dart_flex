@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class LabelItemRenderer extends ItemRenderer {
 
@@ -8,13 +8,20 @@ class LabelItemRenderer extends ItemRenderer {
   //
   //---------------------------------
 
-  RichText _label;
-
   //---------------------------------
   //
   // Public properties
   //
   //---------------------------------
+  
+  //---------------------------------
+  // label
+  //---------------------------------
+  
+  RichText _label;
+  
+  RichText get label => _label;
+  set label(RichText value) => _label = value;
 
   //---------------------------------
   //
@@ -39,9 +46,9 @@ class LabelItemRenderer extends ItemRenderer {
   void createChildren() {
     _label = new RichText()
     ..percentWidth = 100.0
-    ..height = 18
-    ..paddingLeft = 5
-    ..text = itemToLabel();
+    ..autoSize = true
+    ..text = itemToLabel()
+    ..className = 'item-renderer-label';
 
     addComponent(_label);
   }
@@ -49,6 +56,8 @@ class LabelItemRenderer extends ItemRenderer {
   void invalidateData() {
     if (_label != null) {
       _label.text = itemToLabel();
+      
+      //reflowManager.scheduleMethod(this, invalidateSize, [], forceSingleExecution:true);
     }
   }
   
@@ -57,7 +66,9 @@ class LabelItemRenderer extends ItemRenderer {
         (_data != null) &&
         (_field != null)
     ) {
-      return _data[_field].toString();
+      dynamic value = _data[_field];
+      
+      return (value != null) ? _data[_field].toString() : null;
     }
     
     return '';

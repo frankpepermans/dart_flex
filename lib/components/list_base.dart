@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class ListBase extends Group {
 
@@ -46,6 +46,21 @@ class ListBase extends Group {
       );
 
       invalidateProperties();
+    }
+  }
+  
+  //---------------------------------
+  // presentationHandler
+  //---------------------------------
+
+  CompareHandler _presentationHandler;
+  
+  CompareHandler get presentationHandler => _presentationHandler;
+  set presentationHandler(CompareHandler value) {
+    if (value != _presentationHandler) {
+      _presentationHandler = value;
+      
+      if (_dataProvider != null) _dataProvider.sort(value);
     }
   }
   
@@ -194,7 +209,7 @@ class ListBase extends Group {
       if (_isElementUpdateRequired) {
         _isElementUpdateRequired = false;
 
-        _updateElements();
+        _updateAfterScrollPositionChanged();
       }
     }
   }
@@ -208,6 +223,8 @@ class ListBase extends Group {
 
     _childWrappers = new List<IUIWrapper>();
   }
+  
+  void _updateAfterScrollPositionChanged() {}
 
   void _updateElements() {
     if (_dataProvider == null) {

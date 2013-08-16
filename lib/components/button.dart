@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class Button extends UIWrapper {
 
@@ -93,7 +93,7 @@ class Button extends UIWrapper {
   void _updateElementText(String label) {
     ButtonElement element = _control as ButtonElement;
     
-    element.text = label;
+    element.innerHtml = label;
   }
 }
 

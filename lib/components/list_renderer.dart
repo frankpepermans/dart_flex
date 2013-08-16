@@ -1,8 +1,6 @@
-part of dartflex;
+part of dart_flex;
 
 class ListRenderer extends ListBase {
-
-  List<IItemRenderer> _itemRenderers;
 
   Group _scrollTarget;
   
@@ -13,6 +11,14 @@ class ListRenderer extends ListBase {
   // Public properties
   //
   //---------------------------------
+  
+  //---------------------------------
+  // itemRenderers
+  //---------------------------------
+  
+  List<IItemRenderer> _itemRenderers;
+  
+  List<IItemRenderer> get itemRenderers => _itemRenderers;
 
   //---------------------------------
   // width
@@ -237,8 +243,8 @@ class ListRenderer extends ListBase {
   // scrollPosition
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onScrollPositionChangedEvent = const EventHook<FrameworkEvent>('scrollPositionChanged');
-  Stream<FrameworkEvent> get onScrollPositionChanged => ListRenderer.onScrollPositionChangedEvent.forTarget(this);
+  static const EventHook<FrameworkEvent> onListScrollPositionChangedEvent = const EventHook<FrameworkEvent>('listScrollPositionChanged');
+  Stream<FrameworkEvent> get onListScrollPositionChanged => ListRenderer.onListScrollPositionChangedEvent.forTarget(this);
   int _scrollPosition = 0;
 
   int get scrollPosition => _scrollPosition;
@@ -248,11 +254,32 @@ class ListRenderer extends ListBase {
 
       notify(
         new FrameworkEvent(
-          'scrollPositionChanged'
+          'listScrollPositionChanged'
         )
       );
 
       _updateAfterScrollPositionChanged();
+    }
+  }
+  
+  //---------------------------------
+  // headerScrollPosition
+  //---------------------------------
+
+  static const EventHook<FrameworkEvent> onHeaderScrollPositionChangedEvent = const EventHook<FrameworkEvent>('headerScrollPositionChanged');
+  Stream<FrameworkEvent> get onHeaderScrollPositionChanged => ListRenderer.onHeaderScrollPositionChangedEvent.forTarget(this);
+  int _headerScrollPosition = 0;
+
+  int get headerScrollPosition => _headerScrollPosition;
+  set headerScrollPosition(int value) {
+    if (value != _headerScrollPosition) {
+      _headerScrollPosition = value;
+
+      notify(
+        new FrameworkEvent(
+          'headerScrollPositionChanged'
+        )
+      );
     }
   }
 
@@ -332,9 +359,7 @@ class ListRenderer extends ListBase {
       layout = defaultLayout;
     }
 
-    if (_layout != null) {
-      _layout.gap = _rowSpacing;
-    }
+    if (_layout != null) _layout.gap = _rowSpacing;
     
     if (_isUseSelectionEffectsChanged) {
       _isUseSelectionEffectsChanged = false;
@@ -370,9 +395,7 @@ class ListRenderer extends ListBase {
   }
 
   void _removeAllElements() {
-    if (_itemRenderers != null) {
-      _itemRenderers.removeRange(0, _itemRenderers.length);
-    }
+    if (_itemRenderers != null) _itemRenderers.removeRange(0, _itemRenderers.length);
 
     removeAll();
 
@@ -396,10 +419,11 @@ class ListRenderer extends ListBase {
   static const EventHook<FrameworkEvent> onRendererAddedEvent = const EventHook<FrameworkEvent>('rendererAdded');
   Stream<FrameworkEvent> get onRendererAdded => ListRenderer.onRendererAddedEvent.forTarget(this);
   
+  static const EventHook<FrameworkEvent> onRendererRemovedEvent = const EventHook<FrameworkEvent>('rendererRemoved');
+  Stream<FrameworkEvent> get onRendererRemoved => ListRenderer.onRendererRemovedEvent.forTarget(this);
+  
   void _createElement(Object item, int index) {
-    if (_itemRenderers == null) {
-      _itemRenderers = new List<IItemRenderer>();
-    }
+    if (_itemRenderers == null) _itemRenderers = new List<IItemRenderer>();
 
     final IItemRenderer renderer = (_itemRendererFactory.immediateInstance() as IItemRenderer)
       ..index = index
@@ -461,33 +485,27 @@ class ListRenderer extends ListBase {
     if (
         (_dataProvider == null) ||
         (_dataProvider.length == 0)
-    ) {
-      return super._getPageItemSize();
-    }
+    ) return super._getPageItemSize();
 
     return (_layout is VerticalLayout) ? _rowHeight : _colWidth;
   }
 
-  int _getPageOffset() {
-    return _scrollPosition;
-  }
+  int _getPageOffset() => _scrollPosition;
 
-  int _getPageSize() {
-    return (_dataProvider != null) ? ((_dataProvider.length * _getPageItemSize())) : 0;
-  }
+  int _getPageSize() => (_dataProvider != null) ? ((_dataProvider.length * _getPageItemSize())) : 0;
 
-  void removeComponent(IUIWrapper element) {
-    super.removeComponent(element);
+  void removeComponent(IUIWrapper element, {bool flush:false}) {
+    super.removeComponent(element, flush:flush);
 
-    if (_itemRenderers != null) {
-      _itemRenderers.remove(element);
-    }
+    if (_itemRenderers != null) _itemRenderers.remove(element);
+    
+    notify(
+      new FrameworkEvent('rendererRemoved')    
+    );
   }
 
   bool _updateElements() {
-    if (_dataProvider == null) {
-      return false;
-    }
+    if (_dataProvider == null) return false;
     
     final bool hasWidth = ((_colWidth > 0) || (_colPercentWidth > .0));
     final bool hasHeight = ((_rowHeight > 0) || (_rowPercentHeight > .0));
@@ -531,13 +549,9 @@ class ListRenderer extends ListBase {
       final int len = elementsRequired - existingLen;
       int i;
 
-      for (i=len; i<0; i++) {
-        removeComponent(_itemRenderers.removeLast());
-      }
-
-      for (i=0; i<len; i++) {
-        _createElement(null, i);
-      }
+      for (i=len; i<0; i++) removeComponent(_itemRenderers.removeLast());
+      
+      for (i=0; i<len; i++) _createElement(null, i);
 
       if (_scrollTarget != null) {
         if (isVerticalLayout) {
@@ -569,17 +583,13 @@ class ListRenderer extends ListBase {
     if (
         (_dataProvider != null) &&
         !_updateElements()
-    ) {
-      _updateVisibleItemRenderers();
-    }
-
+    ) _updateVisibleItemRenderers();
+    
     _updateLayout();
   }
 
   void _updateVisibleItemRenderers() {
-    if (_itemRenderers == null) {
-      return;
-    }
+    if (_itemRenderers == null) return;
     
     final int dpLen = _dataProvider.length;
     final int pageItemSize = _getPageItemSize();
@@ -632,9 +642,7 @@ class ListRenderer extends ListBase {
       if (
         (data != null) &&
         (_labelFunction != null)
-      ) {
-        data = _labelFunction(data);
-      }
+      ) data = _labelFunction(data);
 
       _updateRenderer(
         _itemRenderers[rendererIndex++]
@@ -669,51 +677,33 @@ class ListRenderer extends ListBase {
         } else {
           renderer.selected = false;
         }
-      } else {
-        if (renderer.control == target) {
-          renderer.state = event.type;
-        } else {
-          renderer.state = 'mouseout';
-        }
       }
     }
 
     selectedItem = newSelectedItem;
   }
 
-  void _container_scrollHandler(Event event) {
-    _updateScrollPosition();
-  }
+  void _container_scrollHandler(Event event) => _updateScrollPosition();
   
   void _updateScrollPosition() {
-    final int pos = (_layout is VerticalLayout) ? _control.scrollTop : _control.scrollLeft;
-    
     _hasScrolled = true;
     
-    if (pos != _scrollPosition) {
-      scrollPosition = pos;
+    if (_layout is VerticalLayout) {
+      scrollPosition = _control.scrollTop;
+      headerScrollPosition = _control.scrollLeft;
     } else {
-      notify(
-          new FrameworkEvent(
-              'scrollPositionChanged'
-          )
-      );
+      scrollPosition = _control.scrollLeft;
+      headerScrollPosition = _control.scrollTop;
     }
   }
+  
+  void _updateSelection() => _updateVisibleItemRenderers();
 
-  void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
-    _updateAfterScrollPositionChanged();
-  }
+  void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) => _updateAfterScrollPositionChanged();
 
   void _itemRenderer_controlChangedHandler(FrameworkEvent event) {
     final DivElement renderer = event.relatedObject as DivElement;
 
-    renderer.onMouseOver.listen(_handleMouseInteraction);
-    renderer.onMouseOut.listen(_handleMouseInteraction);
     renderer.onMouseDown.listen(_handleMouseInteraction);
-    renderer.onMouseUp.listen(_handleMouseInteraction);
   }
 }
-
-
-

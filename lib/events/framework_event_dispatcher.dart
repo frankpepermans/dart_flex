@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 abstract class IFrameworkEventDispatcher {
 
@@ -25,7 +25,7 @@ class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
 
   IFrameworkEventDispatcher _dispatcher;
 
-  Map _observers = new Map();
+  Map<String, List<Function>> _observers = new Map();
 
   //-----------------------------------
   //
@@ -87,6 +87,10 @@ class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
         //_observers.remove(type);
       }
     }
+  }
+  
+  void ignoreAllEventTypes() {
+    _observers = new Map<String, List<Function>>();
   }
 
   void notify(FrameworkEvent event) {

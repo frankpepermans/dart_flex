@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 abstract class IUIWrapper implements IFrameworkEventDispatcher {
   
@@ -34,9 +34,6 @@ abstract class IUIWrapper implements IFrameworkEventDispatcher {
   // Public properties
   //
   //---------------------------------
-
-  Graphics _graphics;
-  Graphics get graphics;
 
   bool get includeInLayout;
   set includeInLayout(bool value);
@@ -96,6 +93,7 @@ abstract class IUIWrapper implements IFrameworkEventDispatcher {
   String get elementId;
   
   String get className;
+  set className(String value);
 
   Element get control;
   
@@ -165,24 +163,6 @@ class UIWrapper implements IUIWrapper {
   ReflowManager _reflowManager;
 
   ReflowManager get reflowManager => _reflowManager;
-
-  //---------------------------------
-  // graphics
-  //---------------------------------
-
-  Graphics _graphics;
-
-  Graphics get graphics {
-    if (_graphics == null) {
-      _graphics = new Graphics()
-      ..width = _width
-      ..height = _height;
-
-      addComponent(_graphics, prepend: true);
-    }
-
-    return _graphics;
-  }
   
   //---------------------------------
   // stylePrefix
@@ -213,7 +193,7 @@ class UIWrapper implements IUIWrapper {
 
   static const EventHook<FrameworkEvent> onCSSClassesChangedEvent = const EventHook<FrameworkEvent>('cssClassesChanged');
   Stream<FrameworkEvent> get onCSSClassesChanged => UIWrapper.onCSSClassesChangedEvent.forTarget(this);
-  List<String> _cssClasses;
+  List<String> _cssClasses = <String>[];
   bool _isCSSClassesChanged = false;
 
   List<String> get cssClasses => _cssClasses;
@@ -610,7 +590,7 @@ class UIWrapper implements IUIWrapper {
 
   List<IUIWrapper> _childWrappers = new List<IUIWrapper>();
 
-  List get childWrappers => _childWrappers;
+  List<IUIWrapper> get childWrappers => _childWrappers;
 
   //---------------------------------
   // elementId
@@ -713,21 +693,13 @@ class UIWrapper implements IUIWrapper {
   //
   //---------------------------------
 
-  bool hasObserver(String type) {
-    return _eventDispatcher.hasObserver(type);
-  }
+  bool hasObserver(String type) => _eventDispatcher.hasObserver(type);
 
-  void observeEventType(String type, Function eventHandler) {
-    _eventDispatcher.observeEventType(type, eventHandler);
-  }
+  void observeEventType(String type, Function eventHandler) => _eventDispatcher.observeEventType(type, eventHandler);
 
-  void ignoreEventType(String type, Function eventHandler) {
-    _eventDispatcher.ignoreEventType(type, eventHandler);
-  }
+  void ignoreEventType(String type, Function eventHandler) => _eventDispatcher.ignoreEventType(type, eventHandler);
 
-  void notify(FrameworkEvent event) {
-    _eventDispatcher.notify(event);
-  }
+  void notify(FrameworkEvent event) => _eventDispatcher.notify(event);
 
   //---------------------------------
   //
@@ -806,15 +778,9 @@ class UIWrapper implements IUIWrapper {
       
       if (_elementId != null) {
         if (prepend) {
-          new Timer(
-              new Duration(milliseconds: 250), 
-              () => _control.children.insert(0, element.control)
-          );
+          _control.children.insert(0, element.control);
         } else {
-          new Timer(
-              new Duration(milliseconds: 250), 
-              () => _control.append(element.control)
-          );
+          _control.append(element.control);
         }
       } else {
         if (prepend) {
@@ -854,39 +820,33 @@ class UIWrapper implements IUIWrapper {
     }
   }*/
   
-  void _prependControl(Element controlToPrepend) {
-    _control.children.insert(0, controlToPrepend);
-  }
+  void _prependControl(Element controlToPrepend) => _control.children.insert(0, controlToPrepend);
   
-  void _appendControl(Element controlToAppend) {
-    _control.append(controlToAppend);
-  }
+  Node _appendControl(Element controlToAppend) => _control.append(controlToAppend);
 
-  void removeComponent(IUIWrapper element) {
+  void removeComponent(IUIWrapper element, {bool flush: true}) {
     if (
         (_control != null) &&
+        (element != null) &&
+        (element.control != null) &&
         _control.contains(element.control)
-    ) {
-      _control.children.remove(element.control);
-    }
+    ) _control.children.remove(element.control);
     
     _childWrappers.remove(element);
     _addLaterElements.remove(element);
-
-    element.removeAll();
+    
+    if (flush) element.removeAll();
   }
 
   void removeAll() {
-    while (_childWrappers.length > 0) {
-      removeComponent(_childWrappers.removeLast());
-    }
-
-    if (_control != null) {
-      while (_control.children.length > 0) {
-        _control.children.removeLast();
-      }
-    }
+    int i = _childWrappers.length;
+    
+    while (i > 0) {
+      removeComponent(_childWrappers[--i]);
+    } 
   }
+  
+  void propertiesInvalidated() {}
 
   //---------------------------------
   //
@@ -897,13 +857,11 @@ class UIWrapper implements IUIWrapper {
   void _setControl(Element element) {
     _control = element;
     
-    if (_inheritsDefaultCSS) {
+    if (_inheritsDefaultCSS)
       _reflowManager.scheduleMethod(this, _addDefaultClass, [], forceSingleExecution: true);
-    }
     
-    if (_cssClasses != null) {
+    if (_cssClasses != null)
       _reflowManager.scheduleMethod(this, _addAllPendingClasses, [], forceSingleExecution: true);
-    }
 
     _updateVisibility();
     _updateControl(5);
@@ -928,13 +886,9 @@ class UIWrapper implements IUIWrapper {
     }
   }
   
-  void _addDefaultClass() {
-    _control.classes.add('_' + _className);
-  }
+  void _addDefaultClass() => _control.classes.add('_' + _className);
   
-  void _addAllPendingClasses() {
-    _control.classes.addAll(_cssClasses);
-  }
+  void _addAllPendingClasses() => _control.classes.addAll(_cssClasses);
 
   void _updateControl(int type) {
     if (_control != null) {
@@ -1001,9 +955,7 @@ class UIWrapper implements IUIWrapper {
     if (_isCSSClassesChanged) {
       _isCSSClassesChanged = false;
       
-      if (_control != null) {
-        _control.classes.addAll(_cssClasses);
-      }
+      if (_control != null) _control.classes.addAll(_cssClasses);
     }
     
     if (_isLayoutUpdateRequired) {
@@ -1011,14 +963,11 @@ class UIWrapper implements IUIWrapper {
 
       _updateLayout();
     }
+    
+    propertiesInvalidated();
   }
 
   void _updateLayout() {
-    if (_graphics != null) {
-      _graphics.width = _width;
-      _graphics.height = _height;
-    }
-
     if (
       (_width > 0) &&
       (_height > 0)
@@ -1051,9 +1000,7 @@ class UIWrapper implements IUIWrapper {
   int _getPageOffset() => 0;
   int _getPageSize() => 0;
 
-  void _invalidateSize(Event event) {
-    later > _updateSize;
-  }
+  void _invalidateSize(Event event) => later > _updateSize;
 
   void _updateSize() {
     /*if (host != null) {
@@ -1070,9 +1017,7 @@ class UIWrapper implements IUIWrapper {
       _control.hidden = !_visible;
     } else {
       onControlChanged.listen(
-          (FrameworkEvent event) {
-            _control.hidden = !_visible;
-          }
+          (_) => _updateVisibility()
       );
     }
   }

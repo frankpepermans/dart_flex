@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class VerticalLayout implements ILayout {
 
@@ -99,6 +99,8 @@ class VerticalLayout implements ILayout {
     for (i=0; i<len; i++) {
       element = elements[i];
       
+      w = h = 0;
+      
       if (element.includeInLayout) {
         if (element.percentWidth > 0.0) {
           w = (width * element.percentWidth * .01).toInt() - element.paddingLeft - element.paddingRight;
@@ -112,10 +114,10 @@ class VerticalLayout implements ILayout {
           h = element.height - element.paddingTop - element.paddingBottom;
         }
 
-        w = (w == null) ? 0 : w;
-        h = (h == null) ? 0 : h;
+        if (w == null) w = 0;
+        if (h == null) h = 0;
 
-        if (_constrainToBounds) {
+        if (_constrainToBounds && (w > 0)) {
           element.x = (width * .5 - w * .5).toInt() + element.paddingLeft;
         }
 

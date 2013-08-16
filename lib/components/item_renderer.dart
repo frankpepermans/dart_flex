@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 abstract class IItemRenderer implements IUIWrapper {
 
@@ -20,17 +20,10 @@ abstract class IItemRenderer implements IUIWrapper {
   bool get autoDrawBackground;
   set autoDrawBackground(bool value);
 
-  double get opacity;
-  set opacity(double value);
-
   int get gap;
   set gap(int value);
 
   String get interactionStyle;
-
-  void setOpacityDimmed();
-
-  void setOpacityNormal();
 
   void createChildren();
 
@@ -55,6 +48,18 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   // Public properties
   //
   //---------------------------------
+  
+  static const EventHook<FrameworkEvent> onDataChangedEvent = const EventHook<FrameworkEvent>('dataChanged');
+  Stream<FrameworkEvent> get onDataChanged => ItemRenderer.onDataChangedEvent.forTarget(this);
+  
+  static const EventHook<FrameworkEvent> onClickEvent = const EventHook<FrameworkEvent>('click');
+  Stream<FrameworkEvent> get onClick => ItemRenderer.onClickEvent.forTarget(this);
+  
+  static const EventHook<FrameworkEvent> onMouseOverEvent = const EventHook<FrameworkEvent>('mouseOver');
+  Stream<FrameworkEvent> get onMouseOver => ItemRenderer.onMouseOverEvent.forTarget(this);
+  
+  static const EventHook<FrameworkEvent> onMouseOutEvent = const EventHook<FrameworkEvent>('mouseOut');
+  Stream<FrameworkEvent> get onMouseOut => ItemRenderer.onMouseOutEvent.forTarget(this);
 
   //---------------------------------
   // index
@@ -85,6 +90,10 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
           (List<ChangeRecord> changes) => _invalidateData()   
         );
       }
+      
+      notify(
+        new FrameworkEvent('dataChanged')    
+      );
 
       _invalidateData();
     }
@@ -130,6 +139,8 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   set selected(bool value) {
     if (value != _selected) {
       _selected = value;
+      
+      _className = value ? '${_className} datagrid-selected' : '${_className}';
 
       later > _updateAfterInteraction;
     }
@@ -157,21 +168,6 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   set autoDrawBackground(bool value) {
     if (value != _autoDrawBackground) {
       _autoDrawBackground = value;
-    }
-  }
-
-  //---------------------------------
-  // opacity
-  //---------------------------------
-
-  double _opacity = 1.0;
-
-  double get opacity => _opacity;
-  set opacity(double value) {
-    if (value != _opacity) {
-      _opacity = value;
-
-      _updateOpacity();
     }
   }
 
@@ -224,36 +220,42 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   void updateAfterInteraction() {
   }
 
-  void setOpacityDimmed() {
-    opacity = .25;
-  }
-
-  void setOpacityNormal() {
-    opacity = 1.0;
-  }
-
   //---------------------------------
   //
   // Protected methods
   //
   //---------------------------------
 
-  void _setControl(Element element) {
-    super._setControl(element);
-
-    _updateOpacity();
-  }
-
   void _createChildren() {
     super._createChildren();
 
-    DivElement container = new DivElement();
-
+    DivElement container = new DivElement()..className = 'item-renderer-control';
+    
     _setControl(container);
-
-    //_reflowManager.invalidateCSS(container, 'transition', 'y 2s');
-    _reflowManager.invalidateCSS(container, 'overflow', 'hidden');
-    //_reflowManager.invalidateCSS(container, 'border', '1px solid #cccccc');
+    
+    container.onClick.listen(
+        (MouseEvent event) => notify(
+            new FrameworkEvent(
+                'click'
+            )
+        )
+    );
+    
+    container.onMouseOver.listen(
+        (MouseEvent event) => notify(
+            new FrameworkEvent(
+                'mouseOver'
+            )
+        )
+    );
+    
+    container.onMouseOut.listen(
+        (MouseEvent event) => notify(
+            new FrameworkEvent(
+                'mouseOut'
+            )
+        )
+    );
 
     createChildren();
 
@@ -268,12 +270,6 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     super._updateLayout();
 
     updateLayout();
-  }
-
-  void _updateOpacity() {
-    if (_control != null) {
-      //_reflowManager.invalidateCSS(_control, 'opacity', _opacity.toString());
-    }
   }
 
   void _updateAfterInteraction() {

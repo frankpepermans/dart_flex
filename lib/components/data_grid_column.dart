@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class DataGridColumn {
 
@@ -60,11 +60,11 @@ class DataGridColumn {
   // headerData
   //---------------------------------
 
-  Object _headerData = 0;
+  Map<String, String> _headerData = new Map<String, String>();
 
-  Object get headerData => _headerData;
+  Map<String, String> get headerData => _headerData;
 
-  set headerData(Object value) {
+  set headerData(Map<String, String> value) {
     if (value != _headerData) {
       _headerData = value;
     }
@@ -87,9 +87,9 @@ class DataGridColumn {
   // columnItemRendererFactory
   //---------------------------------
 
-  ClassFactory _columnItemRendererFactory;
+  ClassFactory<IItemRenderer> _columnItemRendererFactory;
 
-  ClassFactory get columnItemRendererFactory => _columnItemRendererFactory;
+  ClassFactory<IItemRenderer> get columnItemRendererFactory => _columnItemRendererFactory;
   set columnItemRendererFactory(ClassFactory value) {
     if (value != _columnItemRendererFactory) {
       _columnItemRendererFactory = value;
@@ -100,9 +100,9 @@ class DataGridColumn {
   // headerItemRendererFactory
   //---------------------------------
 
-  ClassFactory _headerItemRendererFactory;
+  ClassFactory<IItemRenderer> _headerItemRendererFactory;
 
-  ClassFactory get headerItemRendererFactory => _headerItemRendererFactory;
+  ClassFactory<IItemRenderer> get headerItemRendererFactory => _headerItemRendererFactory;
   set headerItemRendererFactory(ClassFactory value) {
     if (value != _headerItemRendererFactory) {
       _headerItemRendererFactory = value;
@@ -119,6 +119,19 @@ class DataGridColumn {
   set property(String value) {
     if (value != _property) {
       _property = value;
+    }
+  }
+  
+  //---------------------------------
+  // isActive
+  //---------------------------------
+
+  bool _isActive = true;
+
+  bool get isActive => _isActive;
+  set isActive(bool value) {
+    if (value != _isActive) {
+      _isActive = value;
     }
   }
 

@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 abstract class ILayout {
 

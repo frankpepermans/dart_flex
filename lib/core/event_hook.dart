@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class EventHook<T extends FrameworkEvent> {
   final String _eventType;

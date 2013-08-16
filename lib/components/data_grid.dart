@@ -1,4 +1,8 @@
-part of dartflex;
+part of dart_flex;
+
+typedef String SortHandler(dynamic data, String property);
+typedef int CompareHandler(dynamic dataA, dynamic dataB);
+typedef void HeaderMouseHandler(IItemRenderer header);
 
 class DataGrid extends ListBase {
 
@@ -30,11 +34,11 @@ class DataGrid extends ListBase {
   static const EventHook<FrameworkEvent> onColumnsChangedEvent = const EventHook<FrameworkEvent>('columnsChanged');
   Stream<FrameworkEvent> get onColumnsChanged => DataGrid.onColumnsChangedEvent.forTarget(this);
   
-  ObservableList _columns;
+  ObservableList<DataGridColumn> _columns;
   bool _isColumnsChanged = false;
 
-  ObservableList get columns => _columns;
-  set columns(ObservableList value) {
+  ObservableList<DataGridColumn> get columns => _columns;
+  set columns(ObservableList<DataGridColumn> value) {
     if (value != _columns) {
       /*if (_columns != null) {
         _columns.ignoreEventType(
@@ -57,6 +61,36 @@ class DataGrid extends ListBase {
       );
 
       invalidateProperties();
+    }
+  }
+  
+  //---------------------------------
+  // headerMouseOverHandler
+  //---------------------------------
+
+  HeaderMouseHandler _headerMouseOverHandler;
+
+  HeaderMouseHandler get headerMouseOverHandler => _headerMouseOverHandler;
+  set headerMouseOverHandler(HeaderMouseHandler value) {
+    if (value != _headerMouseOverHandler) {
+      _headerMouseOverHandler = value;
+
+      later > _invalidateHeaderHoverHandlers;
+    }
+  }
+  
+  //---------------------------------
+  // headerMouseOutHandler
+  //---------------------------------
+
+  HeaderMouseHandler _headerMouseOutHandler;
+
+  HeaderMouseHandler get headerMouseOutHandler => _headerMouseOutHandler;
+  set headerMouseOutHandler(HeaderMouseHandler value) {
+    if (value != _headerMouseOutHandler) {
+      _headerMouseOutHandler = value;
+
+      later > _invalidateHeaderHoverHandlers;
     }
   }
 
@@ -177,6 +211,26 @@ class DataGrid extends ListBase {
       invalidateProperties();
     }
   }
+  
+  //---------------------------------
+  // dataProvider
+  //---------------------------------
+
+  set dataProvider(ObservableList value) {
+    if (
+        (value != _dataProvider) &&
+        (value != null) &&
+        (_presentationHandler != null)
+    ) value.sort(_presentationHandler);
+    
+    super.dataProvider = value;
+  }
+  
+  //---------------------------------
+  // sortHandler
+  //---------------------------------
+
+  SortHandler sortHandler;
 
   //---------------------------------
   //
@@ -185,7 +239,7 @@ class DataGrid extends ListBase {
   //---------------------------------
 
   DataGrid() : super(elementId: null) {
-	_className = 'DataGrid';
+	   _className = 'DataGrid';
   }
 
   //---------------------------------
@@ -193,6 +247,26 @@ class DataGrid extends ListBase {
   // Public properties
   //
   //---------------------------------
+  
+  void refreshColumns() {
+    _isColumnsChanged = true;
+    
+    notify(
+      new FrameworkEvent(
+        'columnsChanged'
+      )
+    );
+
+    invalidateProperties();
+  }
+  
+  void refreshColumnData() {
+    _list._itemRenderers.forEach(
+      (DataGridItemRenderer renderer) => renderer._itemRendererInstances.forEach(
+        (ItemRenderer subRenderer) => subRenderer._invalidateData()
+      )
+    );
+  }
 
   //---------------------------------
   //
@@ -205,12 +279,14 @@ class DataGrid extends ListBase {
 
     _gridContainer = new VGroup(gap: 0)
     ..percentWidth = 100.0
-    ..percentHeight = 100.0;
+    ..percentHeight = 100.0
+    ..className = 'data-grid-container';
 
     _headerContainer = new HGroup(gap: _columnSpacing)
     ..percentWidth = 100.0
     ..height = _headerHeight
-    ..autoSize = false;
+    ..autoSize = false
+    ..className = 'data-grid-header-container';
 
     _list = new ListRenderer(orientation: 'grid')
     ..percentWidth = 100.0
@@ -230,13 +306,21 @@ class DataGrid extends ListBase {
     _setControl(container);
 
     _list.onRendererAdded.listen(_list_rendererAddedHandler);
-    _list.onScrollPositionChanged.listen(_list_scrollChangedHandler);
+    _list.onHeaderScrollPositionChanged.listen(_list_headerScrollChangedHandler);
 
     super._createChildren();
   }
 
   void _commitProperties() {
     super._commitProperties();
+    
+    if (
+      _isElementUpdateRequired &&
+      (_dataProvider != null) &&
+      (_presentationHandler != null)
+    ) {
+      _dataProvider.sort(_presentationHandler);
+    }
 
     if (
         _isColumnsChanged &&
@@ -250,26 +334,18 @@ class DataGrid extends ListBase {
     if (_isUseSelectionEffectsChanged) {
       _isUseSelectionEffectsChanged = false;
       
-      if (_list != null) {
-        _list.useSelectionEffects = _useSelectionEffects;
-      }
+      if (_list != null) _list.useSelectionEffects = _useSelectionEffects;
     }
   }
 
   void _removeAllElements() {
-    if (_headerItemRenderers != null) {
-      _headerItemRenderers.removeRange(0, _headerItemRenderers.length);
-    }
+    if (_headerItemRenderers != null) _headerItemRenderers.removeRange(0, _headerItemRenderers.length);
     
-    if (_headerContainer != null) {
-      _headerContainer.removeAll();
-    }
+    if (_headerContainer != null) _headerContainer.removeAll();
   }
 
   void _updateElements() {
-    if (_list != null) {
-      _list.dataProvider = _dataProvider;
-    }
+    if (_list != null) _list.dataProvider = _dataProvider;
   }
 
   void _updateColumnsAndHeaders() {
@@ -286,19 +362,23 @@ class DataGrid extends ListBase {
 
       for (i=0; i<len; i++) {
         column = _columns[i] as DataGridColumn;
+        
+        if (column._isActive) {
+          header = column.headerItemRendererFactory.immediateInstance()
+            ..height = _headerHeight
+            ..data =  column.headerData
+            ..['buttonClick'] = _header_clickHandler;
 
-        header = (column.headerItemRendererFactory.immediateInstance() as IItemRenderer)
-          ..height = _headerHeight
-          ..data =  column.headerData
-          ..['buttonClick'] = _header_clickHandler;
+          if (column.width > 0) {
+            header.width = column.width;
+          } else {
+            header.percentWidth = column.percentWidth;
+          }
+          
+          _headerItemRenderers.add(header);
 
-        if (column.width > 0) {
-          header.width = column.width;
-        } else {
-          header.percentWidth = column.percentWidth;
+          _headerContainer.addComponent(header);
         }
-
-        _headerContainer.addComponent(header);
       }
 
       if (
@@ -308,7 +388,12 @@ class DataGrid extends ListBase {
         _list._itemRenderers.forEach(
           (DataGridItemRenderer renderer) {
             renderer.gap = _columnSpacing;
-            renderer.columns = _columns;
+            
+            if (renderer.columns != _columns) {
+              renderer.columns = _columns;
+            } else {
+              renderer._refreshColumns();
+            }
           }
         );
       }
@@ -318,32 +403,11 @@ class DataGrid extends ListBase {
   void _header_clickHandler(FrameworkEvent event) {
     final String property = event.relatedObject['property'];
 
-    if (event.relatedObject['isAscSort'] == null) {
-      event.relatedObject['isAscSort'] = true;
-    }
+    if (event.relatedObject['isAscSort'] == null) event.relatedObject['isAscSort'] = true;
 
     final bool isAscSort = event.relatedObject['isAscSort'];
     
-    _dataProvider.sort(
-        (dynamic itemA, dynamic itemB) {
-          dynamic valA = (itemA[property] is bool) ? itemA[property] ? 1 : 0 : itemA[property];
-          dynamic valB = (itemA[property] is bool) ? itemB[property] ? 1 : 0 : itemB[property];
-          
-          if (valA == null && valB == null) {
-            return 0;
-          } else if (valB == null) {
-            return -1;
-          } else if (valA == null) {
-            return 1;
-          }
-          
-          if (isAscSort) {
-            return valA.toString().compareTo(valB.toString());
-          } else {
-            return valB.toString().compareTo(valA.toString());
-          }
-        }
-    );
+    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, property, isAscSort);
 
     event.relatedObject['isAscSort'] = !isAscSort;
   }
@@ -362,13 +426,15 @@ class DataGrid extends ListBase {
 
       while (i > 0) {
         column = _columns[--i];
+        
+        if (column._isActive) {
+          if (column.percentWidth > .0) {
+            procCount += column.percentWidth;
 
-        if (column.percentWidth > .0) {
-          procCount += column.percentWidth;
-
-          tw += column.minWidth;
-        } else if (column.width > .0) {
-          w += column.width + ((i > 0) ? _columnSpacing : 0);
+            tw += column.minWidth;
+          } else if (column.width > .0) {
+            w += column.width + ((i > 0) ? _columnSpacing : 0);
+          }
         }
       }
 
@@ -384,7 +450,10 @@ class DataGrid extends ListBase {
         while (i > 0) {
           column = _columns[--i];
 
-          if (column.percentWidth > .0) {
+          if (
+              column._isActive &&
+              (column.percentWidth > .0)
+          ) {
             w += max(column.minWidth, (remainingWidth * column.percentWidth / procCount).toInt());
           }
         }
@@ -406,7 +475,8 @@ class DataGrid extends ListBase {
   void _list_rendererAddedHandler(FrameworkEvent event) {
     final DataGridItemRenderer renderer = event.relatedObject as DataGridItemRenderer
       ..gap = _columnSpacing
-      ..columns = _columns;
+      ..columns = _columns
+      .._grid = this;
     
     invalidateProperties();
     
@@ -417,13 +487,39 @@ class DataGrid extends ListBase {
       )
     );
   }
-
-  void _list_scrollChangedHandler(FrameworkEvent event) {
-    _reflowManager.scheduleMethod(this, _updateHeaderContainerPosition, []);
+  
+  void _list_headerScrollChangedHandler(FrameworkEvent event) {
+    final String newValue = (_headerContainer.x - _list._headerScrollPosition).toString() + 'px';
+    
+    if (_headerContainer._control.style.left != newValue) _headerContainer._control.style.left = newValue;
   }
   
-  void _updateHeaderContainerPosition() {
-    _headerContainer.x = -_list._control.scrollLeft;
+  int _list_dynamicSortHandler(dynamic itemA, dynamic itemB, String property, bool isAscSort) {
+    if (sortHandler != null) {
+      String strA = sortHandler(itemA, property);
+      String strB = sortHandler(itemB, property);
+      
+      return isAscSort ? strA.compareTo(strB) : strB.compareTo(strA);
+    }
+    
+    dynamic valA = (itemA[property] is bool) ? itemA[property] ? 1 : 0 : itemA[property];
+    dynamic valB = (itemA[property] is bool) ? itemB[property] ? 1 : 0 : itemB[property];
+    
+    if (valA == null && valB == null) {
+      return 0;
+    } else if (valB == null) {
+      return -1;
+    } else if (valA == null) {
+      return 1;
+    }
+    
+    if (isAscSort) {
+      return valA.toString().compareTo(valB.toString());
+    } else {
+      return valB.toString().compareTo(valA.toString());
+    }
+    
+    return 0;
   }
 
   void _columns_collectionChangedHandler(List<ChangeRecord> changes) {
@@ -435,8 +531,26 @@ class DataGrid extends ListBase {
   void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
     super._dataProvider_collectionChangedHandler(changes);
 
-    if (_list != null) {
-      _list._updateVisibleItemRenderers();
+    if (_list != null) _list._updateVisibleItemRenderers();
+  }
+  
+  void _invalidateHeaderHoverHandlers() {
+    if (_headerItemRenderers != null) {
+      _headerItemRenderers.forEach(
+        (ItemRenderer header) {
+          if (_headerMouseOutHandler != null) {
+            header.onMouseOut.listen(
+                (FrameworkEvent event) => _headerMouseOutHandler(event.currentTarget as IItemRenderer)
+            );
+          }
+          
+          if (_headerMouseOverHandler != null) {
+            header.onMouseOver.listen(
+                (FrameworkEvent event) => _headerMouseOverHandler(event.currentTarget as IItemRenderer)    
+            );
+          }
+        }
+      );
     }
   }
 }

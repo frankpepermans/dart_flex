@@ -1,18 +1,18 @@
-part of dartflex;
+part of dart_flex;
 
-class ClassFactory {
+class ClassFactory<T> {
 
   Function _constructorMethod;
 
   Function get constructorMethod => _constructorMethod;
 
-  Object _library;
+  String _library;
 
-  Object get library => _library;
+  String get library => _library;
 
-  Object _className;
+  String _className;
 
-  Object get className => _className;
+  String get className => _className;
 
   ClassFactory({String library: null, String className: null, Function constructorMethod: null}) {
     _library = library;
@@ -21,9 +21,7 @@ class ClassFactory {
 
   }
 
-  Object immediateInstance() {
-    return _constructorMethod();
-  }
+  T immediateInstance() => _constructorMethod();
 
   /*Future futureInstance() {
     if (_constructorMethod != null) {
@@ -37,8 +35,8 @@ class ClassFactory {
     }
   }*/
 
-  Future _createFutureInstance() {
-    Completer completer = new Completer();
+  Future<T> _createFutureInstance() {
+    Completer<T> completer = new Completer<T>();
 
     completer.complete(_constructorMethod());
 

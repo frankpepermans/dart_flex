@@ -1,4 +1,4 @@
-part of dartflex;
+part of dart_flex;
 
 class ReflowManager {
 
@@ -8,12 +8,10 @@ class ReflowManager {
   //
   //---------------------------------
 
-  static ReflowManager _instance;
+  static final ReflowManager _instance = new ReflowManager._construct();
   
-  List<MethodInvokationMap> _scheduledHandlers = new List<MethodInvokationMap>();
-  List<ElementCSSMap> _elements = new List<ElementCSSMap>();
-
-  final HtmlElement _detachedElement = new HtmlElement();
+  final List<_MethodInvokationMap> _scheduledHandlers = new List<_MethodInvokationMap>();
+  final List<_ElementCSSMap> _elements = new List<_ElementCSSMap>();
   
   //---------------------------------
   //
@@ -27,22 +25,21 @@ class ReflowManager {
   
   Completer _animationFrameCompleter;
   
-  Future<num> get animationFrame {
-    if (_animationFrameCompleter != null) {
-      return _animationFrameCompleter.future;
-    }
+  Future get animationFrame {
+    if (_animationFrameCompleter != null) return _animationFrameCompleter.future;
     
     _animationFrameCompleter = new Completer();
     
-    /*window.requestAnimationFrame(
-      (num highResTimer) => _animationFrameCompleter.complete(highResTimer)
-    );*/
-    
-    window.setImmediate(
-        () => _animationFrameCompleter.complete()
+    window.requestAnimationFrame(
+      (_) => _animationFrameCompleter.complete()
     );
     
-    final Future<num> currentFuture = _animationFrameCompleter.future;
+    /*Timer timer = new Timer(
+      const Duration(milliseconds: 30),
+      () => _animationFrameCompleter.complete()
+    );*/
+    
+    final Future currentFuture = _animationFrameCompleter.future;
     
     currentFuture.whenComplete(
         () => _animationFrameCompleter = null 
@@ -63,13 +60,7 @@ class ReflowManager {
 
   ReflowManager._construct();
 
-  factory ReflowManager() {
-    if (_instance == null) {
-      _instance = new ReflowManager._construct();
-    }
-
-    return _instance;
-  }
+  factory ReflowManager() => _instance;
 
   //-----------------------------------
   //
@@ -78,107 +69,82 @@ class ReflowManager {
   //-----------------------------------
   
   void scheduleMethod(dynamic owner, Function method, List arguments, {bool forceSingleExecution: false}) {
-    //Function.apply(method, arguments); return;
+    _MethodInvokationMap invokation;
     
-    MethodInvokationMap invokation;
-    bool hasOccurance = false;
-    int i = _scheduledHandlers.length;
+    if (forceSingleExecution) invokation = _scheduledHandlers.firstWhere(
+        (_MethodInvokationMap tmpInvokation) => (
+            (tmpInvokation._owner == owner) &&
+            FunctionEqualityUtil.equals(tmpInvokation._method, method)
+        ),
+        orElse: () => null
+    );
     
-    if (forceSingleExecution) {
-      while (i > 0) {
-        invokation = _scheduledHandlers[--i];
-
-        if (
-            (invokation.owner == owner) &&
-            FunctionEqualityUtil.equals(invokation.method, method)
-        ) {
-          hasOccurance = true;
-
-          break;
-        }
-      }
-    }
-    
-    if (!hasOccurance) {
-      invokation = new MethodInvokationMap()
-      ..owner = owner
-      ..method = method
-      ..arguments = arguments;
+    if (invokation == null) {
+      invokation = new _MethodInvokationMap(owner, method)
+        .._arguments = arguments;
 
       _scheduledHandlers.add(invokation);
       
       animationFrame.then(
-          (num highResTimer) {
+          (_) {
             _scheduledHandlers.remove(invokation);
             
-            Function.apply(invokation.method, invokation.arguments);
+            Function.apply(invokation._method, invokation._arguments);
           }
       );
-    }
-    
-    invokation.arguments = arguments;
+    } else invokation._arguments = arguments;
   }
 
   void invalidateCSS(Element element, String property, String value) {
-    if (element == null) {
-      return;
-    }
+    if (element == null) return;
 
-    ElementCSSMap elementCSSMap;
-    bool hasOccurance = false;
-    int i = _elements.length;
+    bool hasOccurance = true;
     
-    while (i > 0) {
-      elementCSSMap = _elements[--i];
-
-      if (elementCSSMap.element == element) {
-        hasOccurance = true;
-
-        break;
+    _ElementCSSMap elementCSSMap = _elements.firstWhere(
+      (_ElementCSSMap tmpElementCSSMap) => (tmpElementCSSMap._element == element),
+      orElse: () {
+        hasOccurance = false;
+        
+        return null;
       }
-    }
+    );
 
     if (!hasOccurance) {
-      elementCSSMap = new ElementCSSMap()
-      ..element = element
-      ..cssDecl = new Map();
+      elementCSSMap = new _ElementCSSMap(element)
+      .._detachedElement.style.cssText = element.style.cssText
+      .._detachedElement.style.setProperty(property, value, '');
 
       _elements.add(elementCSSMap);
       
-      animationFrame.whenComplete(
-          () {
-            final String cssCache = elementCSSMap.element.style.cssText;
-            
+      animationFrame.then(
+          (_) {
             _elements.remove(elementCSSMap);
             
-            _detachedElement.style.cssText = cssCache;
-
-            elementCSSMap.cssDecl.forEach(
-                (String propertyName, String value) => _detachedElement.style.setProperty(propertyName, value, '')
-            );
-            
-            if (cssCache != _detachedElement.style.cssText) {
-              elementCSSMap.element.style.cssText = _detachedElement.style.cssText;
-            }
+            if (elementCSSMap._element.style.cssText != elementCSSMap._detachedElement.style.cssText) elementCSSMap._element.style.cssText = elementCSSMap._detachedElement.style.cssText;
           }    
       );
+    } else {
+      elementCSSMap._detachedElement.style.setProperty(property, value, '');
     }
-
-    elementCSSMap.cssDecl[property] = value;
   }
 }
 
-class MethodInvokationMap {
+class _MethodInvokationMap {
 
-  dynamic owner;
-  Function method;
-  List arguments;
+  final dynamic _owner;
+  final Function _method;
+  
+  List _arguments;
+  
+  _MethodInvokationMap(this._owner, this._method);
 
 }
 
-class ElementCSSMap {
+class _ElementCSSMap {
 
-  Element element;
-  Map cssDecl;
+  final Element _element;
+  final HtmlElement _detachedElement = new HtmlElement();
+  
+  _ElementCSSMap(this._element);
 
 }
