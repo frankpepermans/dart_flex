@@ -494,7 +494,7 @@ class ListRenderer extends ListBase {
 
   int _getPageSize() => (_dataProvider != null) ? ((_dataProvider.length * _getPageItemSize())) : 0;
 
-  void removeComponent(IUIWrapper element, {bool flush:false}) {
+  void removeComponent(IUIWrapper element, {bool flush: true}) {
     super.removeComponent(element, flush:flush);
 
     if (_itemRenderers != null) _itemRenderers.remove(element);

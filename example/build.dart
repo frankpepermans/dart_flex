@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:mirrors';
-import 'package:polymer/polymer.dart';
 
 main() {
   /*Directory dir = new Directory('packages/dart_flex/components');

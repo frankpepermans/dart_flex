@@ -21,6 +21,7 @@ class ViewStack extends UIWrapper {
   //---------------------------------
 
   bool _isScrollPolicyInvalid = false;
+  int _xOffset = 0;
 
   //---------------------------------
   //
@@ -115,22 +116,17 @@ class ViewStack extends UIWrapper {
     while (i > 0) {
       viewStackElement = _registeredViews[--i];
       
-      if (viewStackElement.uniqueId == uniqueId) {
-        return;
-      }
+      if (viewStackElement.uniqueId == uniqueId) return;
     }
     
-    viewStackElement = new ViewStackElementData();
-    
-    viewStackElement.element = element;
-    viewStackElement.uniqueId = uniqueId;
+    viewStackElement = new ViewStackElementData()
+    ..element = element
+    ..uniqueId = uniqueId;
     
     element.onRequestViewChange.listen(_viewStackElement_requestViewChangeHandler);
     
     _registeredViews.add(viewStackElement);
   }
-  
-  int _xOffset = 0;
   
   bool show(String uniqueId) {
     if (_container == null) {
@@ -178,8 +174,6 @@ class ViewStack extends UIWrapper {
       
       _activeViewStackElement = viewStackElement;
       
-      _reflowManager.invalidateCSS(_container.control, 'transition', 'left 0.5s ease-out');
-      
       _container.addComponent(viewStackElement.element);
       
       _updateLayout();
@@ -212,9 +206,7 @@ class ViewStack extends UIWrapper {
   void removeAllViews() {
     int i = _registeredViews.length;
     
-    while (i > 0) {
-      removeView(_registeredViews[--i].uniqueId);
-    }
+    while (i > 0) removeView(_registeredViews[--i].uniqueId);
     
     _xOffset = 0;
     
@@ -226,6 +218,12 @@ class ViewStack extends UIWrapper {
   // Protected methods
   //
   //---------------------------------
+  
+  void _setControl(Element element) {
+    super._setControl(element);
+    
+    _reflowManager.invalidateCSS(element, 'transition', 'left 0.5s ease-out');
+  }
 
   void _createChildren() {
     if (_control == null) {
@@ -282,14 +280,11 @@ class ViewStack extends UIWrapper {
       ViewStackElementData requestedElement;
       int requestedIndex;
       
-      if (event.sequentialView == ViewStackEvent.REQUEST_PREVIOUS_VIEW) {
-        requestedIndex = index - 1;
-      } else if (event.sequentialView == ViewStackEvent.REQUEST_NEXT_VIEW) {
-        requestedIndex = index + 1;
-      } else if (event.sequentialView == ViewStackEvent.REQUEST_FIRST_VIEW) {
-        requestedIndex = 0;
-      } else if (event.sequentialView == ViewStackEvent.REQUEST_LAST_VIEW) {
-        requestedIndex = len - 1;
+      switch (event.sequentialView) {
+        case ViewStackEvent.REQUEST_PREVIOUS_VIEW : requestedIndex = index - 1;   break;
+        case ViewStackEvent.REQUEST_NEXT_VIEW :     requestedIndex = index + 1;   break;
+        case ViewStackEvent.REQUEST_FIRST_VIEW :    requestedIndex = 0;           break;
+        case ViewStackEvent.REQUEST_LAST_VIEW :     requestedIndex = len - 1;     break;
       }
       
       requestedIndex = (requestedIndex < 0) ? (len - 1) : (requestedIndex >= len) ? 0 : requestedIndex;
@@ -307,4 +302,3 @@ class ViewStackElementData {
   String uniqueId;
   
 }
-

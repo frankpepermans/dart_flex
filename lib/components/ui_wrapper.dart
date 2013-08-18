@@ -738,9 +738,7 @@ class UIWrapper implements IUIWrapper {
   }
 
   void addComponent(IUIWrapper element, {bool prepend: false}) {
-    if (_childWrappers.indexOf(element) >= 0) {
-      return;
-    }
+    if (_childWrappers.indexOf(element) >= 0) return;
     
     final UIWrapper elementCast = element as UIWrapper;
     
@@ -770,9 +768,7 @@ class UIWrapper implements IUIWrapper {
       if (
           (_stylePrefix != null) &&
           (elementCast._stylePrefix == null)
-      ) {
-        elementCast._stylePrefix = _stylePrefix;
-      }
+      ) elementCast._stylePrefix = _stylePrefix;
       
       elementCast._initialize();
       
@@ -841,9 +837,7 @@ class UIWrapper implements IUIWrapper {
   void removeAll() {
     int i = _childWrappers.length;
     
-    while (i > 0) {
-      removeComponent(_childWrappers[--i]);
-    } 
+    while (i > 0) removeComponent(_childWrappers[--i]); 
   }
   
   void propertiesInvalidated() {}
