@@ -119,16 +119,20 @@ class Group extends UIWrapper {
       _reflowManager.invalidateCSS(_control, 'overflow-x', 'hidden');
     } else if (_horizontalScrollPolicy == ScrollPolicy.AUTO) {
       _reflowManager.invalidateCSS(_control, 'overflow-x', 'auto');
-    } else {
-      _reflowManager.invalidateCSS(_control, 'overflow-x', 'auto');
+    } else if (_horizontalScrollPolicy == ScrollPolicy.ON) {
+      _reflowManager.invalidateCSS(_control, 'overflow-x', 'scroll');
+    } else if (_horizontalScrollPolicy == ScrollPolicy.DISABLED) {
+      _reflowManager.invalidateCSS(_control, 'overflow-x', 'visible');
     }
 
     if (_verticalScrollPolicy == ScrollPolicy.NONE) {
       _reflowManager.invalidateCSS(_control, 'overflow-y', 'hidden');
     } else if (_verticalScrollPolicy == ScrollPolicy.AUTO) {
       _reflowManager.invalidateCSS(_control, 'overflow-y', 'auto');
-    } else {
-      _reflowManager.invalidateCSS(_control, 'overflow-y', 'auto');
+    } else if (_verticalScrollPolicy == ScrollPolicy.ON) {
+      _reflowManager.invalidateCSS(_control, 'overflow-y', 'scroll');
+    } else if (_verticalScrollPolicy == ScrollPolicy.DISABLED) {
+      _reflowManager.invalidateCSS(_control, 'overflow-y', 'visible');
     }
   }
 }

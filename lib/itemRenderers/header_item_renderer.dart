@@ -37,11 +37,8 @@ class HeaderItemRenderer extends ItemRenderer {
   void createChildren() {
     _button = new Button()
     ..percentWidth = 100.0
-    ..percentHeight = 100.0;
-
-    invalidateData();
-
-    _button.onButtonClick.listen(
+    ..percentHeight = 100.0
+    ..onButtonClick.listen(
         (FrameworkEvent event) => notify(
             new FrameworkEvent(
                 'buttonClick',
@@ -49,6 +46,8 @@ class HeaderItemRenderer extends ItemRenderer {
             )
         )
     );
+
+    invalidateData();
 
     addComponent(_button);
   }

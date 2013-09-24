@@ -143,7 +143,7 @@ class _MethodInvokationMap {
 class _ElementCSSMap {
 
   final Element _element;
-  final HtmlElement _detachedElement = new HtmlElement();
+  final HtmlHtmlElement _detachedElement = new HtmlHtmlElement();
   
   _ElementCSSMap(this._element);
 

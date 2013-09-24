@@ -61,16 +61,29 @@ class LabelItemRenderer extends ItemRenderer {
     }
   }
   
-  String itemToLabel() {
-    if (
-        (_data != null) &&
-        (_field != null)
-    ) {
-      dynamic value = _data[_field];
+  String obtainValue() {
+    dynamic value;
+    
+    if (_data != null) {
+      if (_fields != null) {
+        value = _data;
+        
+        _fields.forEach(
+          (String subField) {
+            if (value != null) value = value[subField];
+          }
+        );
+      } else if (_field != null) {
+        value = _data[_field];
+      }
       
-      return (value != null) ? _data[_field].toString() : null;
+      if (_labelHandler != null) return _labelHandler(value);
+      
+      return (value != null) ? value.toString() : '';
     }
     
     return '';
   }
+  
+  String itemToLabel() => obtainValue();
 }

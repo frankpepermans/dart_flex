@@ -82,6 +82,19 @@ class DataGridColumn {
       _field = value;
     }
   }
+  
+  //---------------------------------
+  // fields
+  //---------------------------------
+
+  List<String> _fields;
+
+  List<String> get fields => _fields;
+  set fields(List<String> value) {
+    if (value != _fields) {
+      _fields = value;
+    }
+  }
 
   //---------------------------------
   // columnItemRendererFactory
@@ -134,6 +147,19 @@ class DataGridColumn {
       _isActive = value;
     }
   }
+  
+  //---------------------------------
+  // labelHandler
+  //---------------------------------
+
+  Function _labelHandler;
+
+  Function get labelHandler => _labelHandler;
+  set labelHandler(Function value) {
+    if (value != _labelHandler) {
+      _labelHandler = value;
+    }
+  }
 
   //---------------------------------
   //
@@ -141,8 +167,7 @@ class DataGridColumn {
   //
   //---------------------------------
 
-  DataGridColumn() {
-  }
+  DataGridColumn();
 
   //---------------------------------
   //

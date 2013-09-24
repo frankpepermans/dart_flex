@@ -1,16 +1,12 @@
 part of dart_flex;
 
 class ComboBox extends ListBase {
-
+  
   //---------------------------------
   //
-  // Constructor
+  // Protected properties
   //
   //---------------------------------
-
-  ComboBox() : super(elementId: null) {
-    _className = 'ComboBox';
-  }
 
   //---------------------------------
   //
@@ -34,6 +30,30 @@ class ComboBox extends ListBase {
 
     later > _updateSelection;
   }
+  
+  //---------------------------------
+  // selectedIndex
+  //---------------------------------
+
+  bool _addNullSelectOptions = true;
+  bool get addNullSelectOptions => _addNullSelectOptions;
+  set addNullSelectOptions(bool value) {
+    if (value != _addNullSelectOptions) {
+      _addNullSelectOptions = value;
+      
+      later > _updateElements;
+    }
+  }
+  
+  //---------------------------------
+  //
+  // Constructor
+  //
+  //---------------------------------
+
+  ComboBox() : super(elementId: null) {
+    _className = 'ComboBox';
+  }
 
   //---------------------------------
   //
@@ -52,9 +72,7 @@ class ComboBox extends ListBase {
   }
   
   void _updateElements() {
-    if (_dataProvider == null) {
-      return;
-    }
+    if (_dataProvider == null || _control == null) return;
     
     Object element;
     int maxElementToStringLen = 6;
@@ -65,13 +83,15 @@ class ComboBox extends ListBase {
 
     _removeAllElements();
     
-    _control.children.add(
-        new OptionElement(
-            '', '-1'
-        )
-    );
-    
-    _control.children.add(divider);
+    if (_addNullSelectOptions) {
+      _control.children.add(
+          new OptionElement(
+              '', '-1'
+          )
+      );
+      
+      _control.children.add(divider);
+    }
 
     for (i=0; i<len; i++) {
       element = _dataProvider[i];
@@ -132,7 +152,7 @@ class ComboBox extends ListBase {
         (controlCast.selectedOptions.length > 0) &&
         (controlCast.selectedIndex > 1)
     ) {
-      selectedIndex = controlCast.selectedIndex - 2;
+      selectedIndex = controlCast.selectedIndex - (_addNullSelectOptions ? 2 : 0);
       selectedItem = _dataProvider[selectedIndex];
       
       controlCast.selectedOptions.forEach(

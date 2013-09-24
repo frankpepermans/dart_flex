@@ -16,6 +16,12 @@ abstract class IItemRenderer implements IUIWrapper {
   
   String get field;
   set field(String value);
+  
+  List<String> get fields;
+  set fields(List<String> value);
+
+  Function get labelHandler;
+  set labelHandler(Function value);
 
   bool get autoDrawBackground;
   set autoDrawBackground(bool value);
@@ -69,9 +75,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
 
   int get index => _index;
   set index(int value) {
-    if (value != _index) {
-      _index = value;
-    }
+    if (value != _index) _index = value;
   }
 
   //---------------------------------
@@ -85,17 +89,15 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     if (value != _data) {
       _data = value;
       
-      if (value is Observable) {
-        value.changes.listen(
-          (List<ChangeRecord> changes) => _invalidateData()   
-        );
-      }
+      if (value is Observable) value.changes.listen(
+        (List<ChangeRecord> changes) => _invalidateData()   
+      );
       
       notify(
         new FrameworkEvent('dataChanged')    
       );
 
-      _invalidateData();
+      later > _invalidateData;
     }
   }
   
@@ -110,7 +112,37 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     if (value != _field) {
       _field = value;
       
-      _invalidateData();
+      later > _invalidateData;
+    }
+  }
+  
+  //---------------------------------
+  // fields
+  //---------------------------------
+
+  List<String> _fields;
+
+  List<String> get fields => _fields;
+  set fields(List<String> value) {
+    if (value != _fields) {
+      _fields = value;
+      
+      later > _invalidateData;
+    }
+  }
+  
+  //---------------------------------
+  // labelHandler
+  //---------------------------------
+
+  Function _labelHandler;
+
+  Function get labelHandler => _labelHandler;
+  set labelHandler(Function value) {
+    if (value != _labelHandler) {
+      _labelHandler = value;
+      
+      later > _invalidateData;
     }
   }
 
@@ -140,7 +172,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     if (value != _selected) {
       _selected = value;
       
-      _className = value ? '${_className} datagrid-selected' : '${_className}';
+      className = value ? 'ItemRenderer ItemRenderer-selected' : 'ItemRenderer';
 
       later > _updateAfterInteraction;
     }
@@ -151,9 +183,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   //---------------------------------
 
   String get interactionStyle {
-    if (_selected) {
-      return 'selected_$_state';
-    }
+    if (_selected) return 'selected_$_state';
 
     return _state;
   }
@@ -166,9 +196,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
 
   bool get autoDrawBackground => _autoDrawBackground;
   set autoDrawBackground(bool value) {
-    if (value != _autoDrawBackground) {
-      _autoDrawBackground = value;
-    }
+    if (value != _autoDrawBackground) _autoDrawBackground = value;
   }
 
   //---------------------------------
@@ -262,9 +290,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     later > _invalidateData;
   }
 
-  void _invalidateData() {
-    invalidateData();
-  }
+  void _invalidateData() => invalidateData();
 
   void _updateLayout() {
     super._updateLayout();
@@ -272,8 +298,6 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     updateLayout();
   }
 
-  void _updateAfterInteraction() {
-    updateAfterInteraction();
-  }
+  void _updateAfterInteraction() => updateAfterInteraction();
 }
 

@@ -208,7 +208,8 @@ class ListBase extends Group {
     if (_control != null) {
       if (_isElementUpdateRequired) {
         _isElementUpdateRequired = false;
-
+        
+        _updateElements();
         _updateAfterScrollPositionChanged();
       }
     }

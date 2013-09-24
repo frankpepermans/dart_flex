@@ -139,6 +139,10 @@ class ViewStack extends UIWrapper {
       int newIndex = -1;
       int i = _registeredViews.length;
       
+      if (currentIndex == -1) _xOffset = 0;
+      
+      _reflowManager.invalidateCSS(_container._control, 'transition', 'left 0.5s ease-out');
+      
       while (i > 0) {
         viewStackElement = _registeredViews[--i];
         
@@ -218,12 +222,6 @@ class ViewStack extends UIWrapper {
   // Protected methods
   //
   //---------------------------------
-  
-  void _setControl(Element element) {
-    super._setControl(element);
-    
-    _reflowManager.invalidateCSS(element, 'transition', 'left 0.5s ease-out');
-  }
 
   void _createChildren() {
     if (_control == null) {

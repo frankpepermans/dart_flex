@@ -58,7 +58,8 @@ class Button extends UIWrapper {
 
   void _createChildren() {
     if (_control == null) {
-      ButtonElement element = new ButtonElement();
+      ButtonElement element = new ButtonElement()
+      ..type = 'button';
 
       element.onClick.listen(
         (Event event) => notify(
@@ -93,7 +94,7 @@ class Button extends UIWrapper {
   void _updateElementText(String label) {
     ButtonElement element = _control as ButtonElement;
     
-    element.innerHtml = label;
+    element.setInnerHtml(label);
   }
 }
 

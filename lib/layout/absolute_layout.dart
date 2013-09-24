@@ -16,9 +16,7 @@ class AbsoluteLayout implements ILayout {
 
   bool get useVirtualLayout => _useVirtualLayout;
   set useVirtualLayout(bool value) {
-    if (value != _useVirtualLayout) {
-      _useVirtualLayout = value;
-    }
+    if (value != _useVirtualLayout) _useVirtualLayout = value;
   }
 
   //---------------------------------

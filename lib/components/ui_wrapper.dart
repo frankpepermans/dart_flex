@@ -80,7 +80,7 @@ abstract class IUIWrapper implements IFrameworkEventDispatcher {
   ILayout get layout;
   set layout(ILayout value);
   
-  XTagRegistry get xTagRegistry;
+  //XTagRegistry get xTagRegistry;
 
   UpdateManager get later;
 
@@ -94,6 +94,9 @@ abstract class IUIWrapper implements IFrameworkEventDispatcher {
   
   String get className;
   set className(String value);
+  
+  List<String> get cssClasses;
+  set cssClasses(List<String> value);
 
   Element get control;
   
@@ -103,6 +106,7 @@ abstract class IUIWrapper implements IFrameworkEventDispatcher {
   //
   //---------------------------------
   
+  void wrapTarget(Element target);
   void preInitialize(IUIWrapper forOwner);
   void invalidateProperties();
   void addComponent(IUIWrapper element, {bool prepend: false});
@@ -147,14 +151,14 @@ class UIWrapper implements IUIWrapper {
   // xTagRegistry
   //---------------------------------
   
-  String get xId => _xTagRegistry.getXTagId(this);
+  /*String get xId => _xTagRegistry.getXTagId(this);
   set xId(String value) {
     _xTagRegistry.registerXTag(this, value);
   }
 
   XTagRegistry _xTagRegistry;
 
-  XTagRegistry get xTagRegistry => _xTagRegistry;
+  XTagRegistry get xTagRegistry => _xTagRegistry;*/
 
   //---------------------------------
   // reflowManager
@@ -201,6 +205,7 @@ class UIWrapper implements IUIWrapper {
   set cssClasses(List<String> value) {
     if (value != _cssClasses) {
       _cssClasses = value;
+      _isCSSClassesChanged = true;
 
       notify(
         new FrameworkEvent('cssClassesChanged')
@@ -228,9 +233,7 @@ class UIWrapper implements IUIWrapper {
         new FrameworkEvent('includeInLayoutChanged')
       );
 
-      if (_owner != null) {
-        _owner.invalidateProperties();
-      }
+      if (_owner != null) _owner.invalidateProperties();
 
       invalidateProperties();
     }
@@ -254,9 +257,7 @@ class UIWrapper implements IUIWrapper {
         new FrameworkEvent('autoSizeChanged')
       );
 
-      if (_owner != null) {
-        _owner.invalidateProperties();
-      }
+      if (_owner != null) _owner.invalidateProperties();
 
       invalidateProperties();
     }
@@ -611,12 +612,10 @@ class UIWrapper implements IUIWrapper {
   String get className => _className;
   set className(String value) {
     if (value != _className) {
-      if (
-          _isInitialized &&
-          (_className != null) &&
-          _control.classes.contains('_' + _className)
-      ) {
-        _control.classes.remove('_' + _className);
+      if (_isInitialized) {
+        _control.classes.removeWhere(
+            (String classNameEntry) => true    
+        );
       }
       
       _className = value;
@@ -678,7 +677,7 @@ class UIWrapper implements IUIWrapper {
   //---------------------------------
 
   UIWrapper({String elementId: null}) {
-    _xTagRegistry = new XTagRegistry();
+    //_xTagRegistry = new XTagRegistry();
     _later = new UpdateManager(this);
     _eventDispatcher = new FrameworkEventDispatcher(dispatcher: this);
 
@@ -714,6 +713,8 @@ class UIWrapper implements IUIWrapper {
   // Public methods
   //
   //---------------------------------
+  
+  void wrapTarget(Element target) => _wrapDOMTarget(target: target);
   
   void preInitialize(IUIWrapper forOwner) {
     _reflowManager = new ReflowManager();
@@ -873,24 +874,31 @@ class UIWrapper implements IUIWrapper {
   }
   
   void _updateDefaultClass() {
-    if (_inheritsDefaultCSS) {
-      _control.classes.add('_' + _className);
-    } else {
-      _control.classes.remove('_' + _className);
-    }
+    String cssValue = '_${_className}';
+    List<String> cssList = cssValue.split(' ');
+    
+    cssList.forEach(
+      (String css) {
+        if (_inheritsDefaultCSS) {
+          if (!_control.classes.contains(css)) _control.classes.add(css);
+        } else {
+          _control.classes.remove(css);
+        }
+      }
+    );
   }
   
-  void _addDefaultClass() => _control.classes.add('_' + _className);
+  void _addDefaultClass() => _control.classes.add('_$_className');
   
   void _addAllPendingClasses() => _control.classes.addAll(_cssClasses);
 
   void _updateControl(int type) {
     if (_control != null) {
       if (_elementId == null) {
-        final String cssX = _x.toString() + 'px';
-        final String cssY = _y.toString() + 'px';
-        final String cssWidth = (_width == 0) ? 'auto' : _width.toString() + 'px';
-        final String cssHeight = (_height == 0) ? 'auto' : _height.toString() + 'px';
+        final String cssX = '${_x}px';
+        final String cssY = '${_y}px';
+        final String cssWidth = (_width == 0) ? 'auto' : '${_width}px';
+        final String cssHeight = (_height == 0) ? 'auto' : '${_height}px';
 
         switch (type) {
           case 1 : _reflowManager.invalidateCSS(_control, 'left', cssX);        break;
@@ -912,13 +920,21 @@ class UIWrapper implements IUIWrapper {
     }
   }
 
-  void _wrapDOMTarget() {
-    if (_elementId != null) {
-      _control = query(_elementId);
+  void _wrapDOMTarget({Element target: null}) {
+    if (
+        (target == null) &&
+        (_elementId != null)
+    ) target = query(_elementId);
+    
+    if (target != null) {
+      _control = target;
+      
       _reflowManager = new ReflowManager();
 
       window.$dom_addEventListener('resize', _invalidateSize, true);
-
+      
+      _initialize();
+      
       later > _updateSize;
     }
   }
@@ -942,14 +958,19 @@ class UIWrapper implements IUIWrapper {
     }
   }
 
-  void _createChildren() {
-  }
+  void _createChildren() {}
 
   void _commitProperties() {
     if (_isCSSClassesChanged) {
       _isCSSClassesChanged = false;
       
-      if (_control != null) _control.classes.addAll(_cssClasses);
+      if (_control != null) {
+        _control.classes.removeWhere((_) => true);
+        
+        _updateDefaultClass();
+        
+        _control.classes.addAll(_cssClasses);
+      }
     }
     
     if (_isLayoutUpdateRequired) {
@@ -1003,12 +1024,14 @@ class UIWrapper implements IUIWrapper {
     } else if (_control != null && _control.client != null) {*/
       width = _control.client.width;
       height = _control.client.height;
+      
+      if (width == 0 && height == 0) later > _updateSize;
     /*}*/
   }
 
   void _updateVisibility() {
     if (_control != null) {
-      _control.hidden = !_visible;
+      _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
     } else {
       onControlChanged.listen(
           (_) => _updateVisibility()
@@ -1018,7 +1041,7 @@ class UIWrapper implements IUIWrapper {
 
   void _addAllPendingElements() {
     _addLaterElements.forEach(
-        (element) => addComponent(element)
+        (IUIWrapper element) => addComponent(element)
     );
 
     _addLaterElements = new List<IUIWrapper>();

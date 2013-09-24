@@ -1,39 +1,25 @@
 part of dart_flex;
 
-class RichText extends UIWrapper {
+class EditableTextArea extends UIWrapper {
   
   //---------------------------------
   //
   // Private properties
   //
   //---------------------------------
-  
-  bool _isWidthAutoScaled = false;
-  bool _isHeightAutoScaled = false;
 
   //---------------------------------
   //
   // Public properties
   //
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onClickEvent = const EventHook<FrameworkEvent>('click');
-  Stream<FrameworkEvent> get onClick => RichText.onClickEvent.forTarget(this);
 
-  //---------------------------------
-  // label
-  //---------------------------------
-  
-  Element _label;
-  
-  Element get label => _label;
-  
   //---------------------------------
   // text
   //---------------------------------
 
   static const EventHook<FrameworkEvent> onTextChangedEvent = const EventHook<FrameworkEvent>('textChanged');
-  Stream<FrameworkEvent> get onTextChanged => RichText.onTextChangedEvent.forTarget(this);
+  Stream<FrameworkEvent> get onTextChanged => EditableTextArea.onTextChangedEvent.forTarget(this);
   String _text;
 
   String get text => _text;
@@ -50,36 +36,13 @@ class RichText extends UIWrapper {
       _commitText();
     }
   }
-  
-  //---------------------------------
-  // richText
-  //---------------------------------
-
-  static const EventHook<FrameworkEvent> onRichTextChangedEvent = const EventHook<FrameworkEvent>('richTextChanged');
-  Stream<FrameworkEvent> get onRichTextChanged => RichText.onRichTextChangedEvent.forTarget(this);
-  String _richText;
-
-  String get richText => _richText;
-  set richText(String value) {
-    if (value != _richText) {
-      _richText = value;
-
-      notify(
-        new FrameworkEvent(
-          'richTextChanged'
-        )
-      );
-
-      _commitText();
-    }
-  }
 
   //---------------------------------
   // align
   //---------------------------------
 
   static const EventHook<FrameworkEvent> onAlignChangedEvent = const EventHook<FrameworkEvent>('alignChanged');
-  Stream<FrameworkEvent> get onAlignChanged => RichText.onAlignChangedEvent.forTarget(this);
+  Stream<FrameworkEvent> get onAlignChanged => EditableTextArea.onAlignChangedEvent.forTarget(this);
   String _align = 'left';
 
   String get align => _align;
@@ -102,7 +65,7 @@ class RichText extends UIWrapper {
   //---------------------------------
 
   static const EventHook<FrameworkEvent> onVerticalAlignChangedEvent = const EventHook<FrameworkEvent>('verticalAlignChanged');
-  Stream<FrameworkEvent> get onVerticalAlignChanged => RichText.onVerticalAlignChangedEvent.forTarget(this);
+  Stream<FrameworkEvent> get onVerticalAlignChanged => EditableTextArea.onVerticalAlignChangedEvent.forTarget(this);
   String _verticalAlign = 'text-top';
 
   String get verticalAlign => _verticalAlign;
@@ -126,8 +89,8 @@ class RichText extends UIWrapper {
   //
   //---------------------------------
 
-  RichText({String elementId: null}) : super(elementId: elementId) {
-  	_className = 'RichText';
+  EditableTextArea({String elementId: null}) : super(elementId: elementId) {
+    _className = 'EditableTextArea';
   }
 
   //---------------------------------
@@ -145,11 +108,14 @@ class RichText extends UIWrapper {
   void _createChildren() {
     super._createChildren();
     
-    _label = new LabelElement();
+    TextAreaElement label = new TextAreaElement()
+    ..style.resize = 'none';
     
-    _autoSize = false;
+    label.onInput.listen(_label_inputHandler);
+    
+    _autoSize = true;
 
-    _setControl(_label);
+    _setControl(label);
 
     _commitTextAlign();
     _commitTextVerticalAlign();
@@ -157,24 +123,37 @@ class RichText extends UIWrapper {
   }
 
   void _commitTextAlign() {
-    if (_label != null) _reflowManager.invalidateCSS(_control, 'text-align', _align);
+    if (_control != null) {
+      _reflowManager.invalidateCSS(_control, 'text-align', _align);
+    }
   }
   
   void _commitTextVerticalAlign() {
-    if (_label != null) _reflowManager.invalidateCSS(_control, 'vertical-align', _verticalAlign);
+    if (_control != null) {
+      _reflowManager.invalidateCSS(_control, 'vertical-align', _verticalAlign);
+    }
   }
 
   void _commitText() {
-    if (_label != null) _reflowManager.scheduleMethod(this, _commitTextOnReflow, []);
+    if (_control != null) {
+      _reflowManager.scheduleMethod(this, _commitTextOnReflow, []);
+    }
   }
   
   void _commitTextOnReflow() {
-    final String newText = (_richText != null) ? _richText : (_text != null) ? _text : '';
+    final String newText = (_text != null) ? _text : '';
+    final TextAreaElement controlCast = _control as TextAreaElement;
     
-    if (_richText != null) {
-      _label.innerHtml = newText;
-    } else {
-      _label.text = newText;
+    if (newText == controlCast.value) {
+      return;
     }
+    
+    controlCast.value = newText;
+  }
+  
+  void _label_inputHandler(Event event) {
+    final TextAreaElement label = _control as TextAreaElement;
+    
+    text = label.value;
   }
 }

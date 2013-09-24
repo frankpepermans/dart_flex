@@ -149,9 +149,8 @@ class Slider extends UIWrapper {
   }
   
   void _commit() {
-    if (_control != null) {
+    if (_control != null)
       _reflowManager.scheduleMethod(this, _commitOnReflow, []);
-    }
   }
   
   void _commitOnReflow() {

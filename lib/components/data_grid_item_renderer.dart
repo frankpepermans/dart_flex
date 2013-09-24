@@ -60,6 +60,16 @@ class DataGridItemRenderer extends ItemRenderer {
   DataGrid _grid;
   
   DataGrid get grid => _grid;
+  
+  //---------------------------------
+  // selected
+  //---------------------------------
+  
+  set selected(bool value) {
+    super.selected = value;
+    
+    className = value ? 'DataGridItemRenderer DataGridItemRenderer-selected' : 'DataGridItemRenderer';
+  }
 
   //---------------------------------
   //
@@ -125,7 +135,9 @@ class DataGridItemRenderer extends ItemRenderer {
           if (column._isActive) {
             IItemRenderer renderer = column.columnItemRendererFactory.immediateInstance()
                 ..data = _data
-                ..field = column.field
+                ..field = column._field
+                ..fields = column._fields
+                ..labelHandler = column.labelHandler
                 ..height = _grid.rowHeight;
 
             if (column.percentWidth > .0) {

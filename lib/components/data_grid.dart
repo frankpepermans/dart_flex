@@ -244,9 +244,21 @@ class DataGrid extends ListBase {
 
   //---------------------------------
   //
-  // Public properties
+  // Public methods
   //
   //---------------------------------
+  
+  void setScrollTarget(DataGridItemRenderer target, int offset) {
+    final int low = target.y;
+    final int high = target.y + offset;
+    final int lowCompare = _list._scrollPosition;
+    final int highCompare = _list._scrollPosition + _list._height;
+    
+    if (
+        (low < lowCompare) ||
+        (high >= highCompare)
+    ) target._control.scrollIntoView(ScrollAlignment.CENTER);
+  }
   
   void refreshColumns() {
     _isColumnsChanged = true;
@@ -498,6 +510,9 @@ class DataGrid extends ListBase {
     if (sortHandler != null) {
       String strA = sortHandler(itemA, property);
       String strB = sortHandler(itemB, property);
+      
+      strA = (strA == null) ? '' : strA;
+      strB = (strB == null) ? '' : strB;
       
       return isAscSort ? strA.compareTo(strB) : strB.compareTo(strA);
     }
