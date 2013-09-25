@@ -100,9 +100,9 @@ class DataGridColumn {
   // columnItemRendererFactory
   //---------------------------------
 
-  ClassFactory<IItemRenderer> _columnItemRendererFactory;
+  ClassFactory<ItemRenderer> _columnItemRendererFactory;
 
-  ClassFactory<IItemRenderer> get columnItemRendererFactory => _columnItemRendererFactory;
+  ClassFactory<ItemRenderer> get columnItemRendererFactory => _columnItemRendererFactory;
   set columnItemRendererFactory(ClassFactory value) {
     if (value != _columnItemRendererFactory) {
       _columnItemRendererFactory = value;
@@ -113,9 +113,9 @@ class DataGridColumn {
   // headerItemRendererFactory
   //---------------------------------
 
-  ClassFactory<IItemRenderer> _headerItemRendererFactory;
+  ClassFactory<ItemRenderer> _headerItemRendererFactory;
 
-  ClassFactory<IItemRenderer> get headerItemRendererFactory => _headerItemRendererFactory;
+  ClassFactory<ItemRenderer> get headerItemRendererFactory => _headerItemRendererFactory;
   set headerItemRendererFactory(ClassFactory value) {
     if (value != _headerItemRendererFactory) {
       _headerItemRendererFactory = value;

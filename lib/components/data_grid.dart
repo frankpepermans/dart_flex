@@ -373,7 +373,7 @@ class DataGrid extends ListBase {
       len = _columns.length;
 
       for (i=0; i<len; i++) {
-        column = _columns[i] as DataGridColumn;
+        column = _columns[i];
         
         if (column._isActive) {
           header = column.headerItemRendererFactory.immediateInstance()
@@ -466,7 +466,7 @@ class DataGrid extends ListBase {
               column._isActive &&
               (column.percentWidth > .0)
           ) {
-            w += max(column.minWidth, (remainingWidth * column.percentWidth / procCount).toInt());
+            w += max(column.minWidth, (remainingWidth * column.percentWidth ~/ procCount));
           }
         }
       }
@@ -528,13 +528,7 @@ class DataGrid extends ListBase {
       return 1;
     }
     
-    if (isAscSort) {
-      return valA.toString().compareTo(valB.toString());
-    } else {
-      return valB.toString().compareTo(valA.toString());
-    }
-    
-    return 0;
+    return isAscSort ? valA.toString().compareTo(valB.toString()) : valB.toString().compareTo(valA.toString());
   }
 
   void _columns_collectionChangedHandler(List<ChangeRecord> changes) {

@@ -99,7 +99,7 @@ class TileLayout implements ILayout {
       
       if (element.includeInLayout) {
         if (element.percentWidth > 0.0) {
-          w = (element.percentWidth * .01 * (percWidth - _gap * (sx - 1)) / sx).toInt() - element.paddingLeft - element.paddingRight;
+          w = (element.percentWidth * .01 * (percWidth - _gap * (sx - 1)) ~/ sx) - element.paddingLeft - element.paddingRight;
         } else if (element.width > 0) {
           w = element.width - element.paddingLeft - element.paddingRight;
         }

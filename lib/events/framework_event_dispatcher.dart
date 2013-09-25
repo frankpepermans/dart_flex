@@ -58,7 +58,7 @@ class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
       _observers[type] = new List<Function>();
     }
 
-    handlers = _observers[type] as List<Function>;
+    handlers = _observers[type];
 
     if (handlers.length > 0) {
       ignoreEventType(type, eventHandler);

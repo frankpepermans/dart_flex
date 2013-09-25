@@ -5,6 +5,7 @@ class ListRenderer extends ListBase {
   Group _scrollTarget;
   
   bool _hasScrolled = false;
+  int _firstIndex = 0, _previousFirstIndex = -1, _itemRendererLen = 0;
 
   //---------------------------------
   //
@@ -443,42 +444,6 @@ class ListRenderer extends ListBase {
             relatedObject: renderer
         )
     );
-
-    /*Future rendererFuture = _itemRendererFactory.futureInstance();
-
-    rendererFuture.then(
-      (Object result) {
-        IItemRenderer renderer;
-
-        if (result is InstanceMirror) {
-          renderer = instanceMirror.reflectee as IItemRenderer;
-        } else if (result is IItemRenderer) {
-          renderer = result as IItemRenderer;
-        }
-
-        Object dataToSet = (_labelFunction != null) ? _labelFunction(item) : item;
-
-        if (_colWidth > 0) {
-          renderer.width = _colWidth;
-        } else {
-          renderer.percentWidth = _colPercentWidth;
-        }
-
-        if (_rowHeight > 0) {
-          renderer.height = _rowHeight;
-        } else {
-          renderer.percentHeight = _colPercentHeight;
-        }
-
-        renderer.data = dataToSet;
-
-        _itemRenderers.add(renderer);
-
-        renderer['controlChanged'] = _itemRenderer_controlChangedHandler;
-
-        add(renderer);
-      }
-    );*/
   }
 
   int _getPageItemSize() {
@@ -591,69 +556,58 @@ class ListRenderer extends ListBase {
   void _updateVisibleItemRenderers() {
     if (_itemRenderers == null) return;
     
-    final int dpLen = _dataProvider.length;
     final int pageItemSize = _getPageItemSize();
-    final int firstIndex = (pageItemSize > 0) ? (_scrollPosition ~/ pageItemSize) : 0;
-    final int irLen = (_itemRenderers != null) ? _itemRenderers.length : 0;
-    final int len = firstIndex + irLen;
-
-    dynamic data;
-    IItemRenderer rendererA, rendererB;
-    bool isRendererShown;
-    int rendererIndex = 0;
-    int i, sortIndexA, sortIndexB;
-
-    //
-    // START: sort the renderers, this will minimize the amount of updates needed when recycling
-    //
-
-    _itemRenderers.sort(
-      (rendererA, rendererB) {
-        sortIndexA = rendererA.index - firstIndex;
-        sortIndexB = rendererB.index - firstIndex;
-
-        if (sortIndexA >= irLen) {
-          sortIndexA = -sortIndexA;
-        } else if (sortIndexA < 0) {
-          sortIndexA += 1000000;
-        }
-
-        if (sortIndexB >= irLen) {
-          sortIndexB = -sortIndexB;
-        } else if (sortIndexB < 0) {
-          sortIndexB += 1000000;
-        }
-
-        return (sortIndexA < sortIndexB) ? -1 : (sortIndexA > sortIndexB) ? 1 : 0;
-      }
-    );
     
-    _childWrappers = _itemRenderers.sublist(0);
-
-    //
-    // END
-    //
-
-    for (i=firstIndex; i<len; i++) {
-      isRendererShown = (i < dpLen);
+    _firstIndex = (pageItemSize > 0) ? (_scrollPosition ~/ pageItemSize) : 0;
+    
+    if (_firstIndex != _previousFirstIndex) {
+      _itemRendererLen = (_itemRenderers != null) ? _itemRenderers.length : 0;
       
-      data = isRendererShown ? _dataProvider[i] : null;
-      
-      if (
-        (data != null) &&
-        (_labelFunction != null)
-      ) data = _labelFunction(data);
+      final int dpLen = _dataProvider.length;
+      final int len = _firstIndex + _itemRendererLen;
 
-      _updateRenderer(
-        _itemRenderers[rendererIndex++]
-        ..index = i
-        ..includeInLayout = isRendererShown
-        ..visible = isRendererShown
-        ..selected = (i == _selectedIndex)
-        ..data = data
-        ..field = _labelField
-      );
+      dynamic data;
+      bool isRendererShown;
+      int rendererIndex = 0;
+      int i;
+
+      _itemRenderers.sort(_itemRenderer_sortHandler);
+      
+      _previousFirstIndex = _firstIndex;
+      
+      _childWrappers = _itemRenderers.sublist(0);
+
+      for (i=_firstIndex; i<len; i++) {
+        isRendererShown = (i < dpLen);
+        
+        data = isRendererShown ? _dataProvider[i] : null;
+        
+        if (
+            (data != null) &&
+            (_labelFunction != null)
+        ) data = _labelFunction(data);
+
+        _updateRenderer(
+            _itemRenderers[rendererIndex++]
+            ..index = i
+            ..includeInLayout = isRendererShown
+            ..visible = isRendererShown
+            ..selected = (i == _selectedIndex)
+            ..data = data
+            ..field = _labelField
+        );
+      }
     }
+  }
+  
+  int _itemRenderer_sortHandler(IItemRenderer rendererA, IItemRenderer rendererB) {
+    int sortIndexA = rendererA.index - _firstIndex;
+    int sortIndexB = rendererB.index - _firstIndex;
+    
+    sortIndexA = (sortIndexA >= _itemRendererLen) ? -sortIndexA : (sortIndexA < 0) ? sortIndexA + 1000000 : sortIndexA;
+    sortIndexB = (sortIndexB >= _itemRendererLen) ? -sortIndexB : (sortIndexB < 0) ? sortIndexB + 1000000 : sortIndexB;
+
+    return sortIndexA.compareTo(sortIndexB);
   }
 
   void _handleMouseInteraction(Event event) {

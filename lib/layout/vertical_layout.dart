@@ -109,7 +109,7 @@ class VerticalLayout implements ILayout {
         }
 
         if (element.percentHeight > 0.0) {
-          h = (element.percentHeight * .01 * (percHeight - _gap * (sx - 1)) / sx).toInt() - element.paddingTop - element.paddingBottom;
+          h = (element.percentHeight * .01 * (percHeight - _gap * (sx - 1)) ~/ sx) - element.paddingTop - element.paddingBottom;
         } else if (element.height > 0) {
           h = element.height - element.paddingTop - element.paddingBottom;
         }

@@ -77,7 +77,7 @@ class LabelItemRenderer extends ItemRenderer {
         value = _data[_field];
       }
       
-      if (_labelHandler != null) return _labelHandler(value);
+      if (_labelHandler != null) return _labelHandler(value) as String;
       
       return (value != null) ? value.toString() : '';
     }
