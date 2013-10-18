@@ -5,6 +5,8 @@ import 'dart:collection';
 import 'dart:core';
 import 'dart:html';
 import 'dart:math';
+
+import 'package:meta/meta.dart';
 import 'package:observe/observe.dart';
 
 part "components/button.dart";

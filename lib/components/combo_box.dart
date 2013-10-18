@@ -77,7 +77,7 @@ class ComboBox extends ListBase {
     Object element;
     int maxElementToStringLen = 6;
     String elementToString, dividerLabel = '';
-    OptionElement divider = new OptionElement('', '-1');
+    OptionElement divider = new OptionElement(data: '', value: '-1');
     int len = _dataProvider.length;
     int i;
 
@@ -86,7 +86,7 @@ class ComboBox extends ListBase {
     if (_addNullSelectOptions) {
       _control.children.add(
           new OptionElement(
-              '', '-1'
+              data: '', value: '-1'
           )
       );
       
@@ -126,7 +126,7 @@ class ComboBox extends ListBase {
 
     _control.children.add(
         new OptionElement(
-            itemToString, index.toString()
+            data: itemToString, value: index.toString()
         )
     );
     

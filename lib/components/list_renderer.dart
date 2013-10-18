@@ -14,6 +14,17 @@ class ListRenderer extends ListBase {
   //---------------------------------
   
   //---------------------------------
+  // dataProvider
+  //---------------------------------
+  
+  @override
+  set dataProvider(ObservableList value) {
+    if (value != _dataProvider) _previousFirstIndex = -1;
+    
+    super.dataProvider = value;
+  }
+  
+  //---------------------------------
   // itemRenderers
   //---------------------------------
   
@@ -653,11 +664,16 @@ class ListRenderer extends ListBase {
   
   void _updateSelection() => _updateVisibleItemRenderers();
 
-  void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) => _updateAfterScrollPositionChanged();
-
   void _itemRenderer_controlChangedHandler(FrameworkEvent event) {
     final DivElement renderer = event.relatedObject as DivElement;
 
     renderer.onMouseDown.listen(_handleMouseInteraction);
+  }
+  
+  @override
+  void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
+    _previousFirstIndex = -1;
+    
+    _updateAfterScrollPositionChanged();
   }
 }

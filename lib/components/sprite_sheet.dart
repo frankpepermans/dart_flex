@@ -162,6 +162,10 @@ class SpriteSheet extends Group {
 
   SpriteSheet() : super() {
   	_className = 'SpriteSheet';
+  	
+  	onControlChanged.listen(
+  	 (FrameworkEvent event) => _updateIndex()
+  	);
   }
 
   //---------------------------------
@@ -179,15 +183,11 @@ class SpriteSheet extends Group {
   void _createChildren() {
     super._createChildren();
 
-    if (_source != null) {
-      _reflowManager.invalidateCSS(_control, 'background-image', 'url($_source)');
-    }
+    if (_source != null) _reflowManager.invalidateCSS(_control, 'background-image', 'url($_source)');
   }
 
   void _updateSource() {
-    if (_control != null) {
-      _reflowManager.invalidateCSS(_control, 'background-image', 'url($_source)');
-    }
+    if (_control != null) _reflowManager.invalidateCSS(_control, 'background-image', 'url($_source)');
   }
 
   void _updateIndex() {
@@ -203,13 +203,11 @@ class SpriteSheet extends Group {
       final int rows = _sheetHeight ~/ _rowSize;
       final int maxIndex = rows * colsPerRow;
 
-      if (index > maxIndex) {
-        throw new RangeError('index $_index out of range $maxIndex');
-      }
-
+      if (_index > maxIndex) throw new RangeError('index $_index out of range $maxIndex');
+      
       final int column = _index % colsPerRow;
       final int row = _index ~/ colsPerRow;
-      final int posX = column * _columnSize;
+      final int posX = (colsPerRow - column) * _columnSize;
       final int posY = row * _rowSize;
 
       _reflowManager.invalidateCSS(_control, 'background-position', '$posX$px $posY$px');
