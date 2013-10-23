@@ -888,7 +888,7 @@ class UIWrapper implements IUIWrapper {
     );
   }
   
-  void _addDefaultClass() => _control.classes.add('_$_className');
+  bool _addDefaultClass() => _control.classes.add('_$_className');
   
   void _addAllPendingClasses() => _control.classes.addAll(_cssClasses);
 
