@@ -35,7 +35,8 @@ class ListRenderer extends ListBase {
   //---------------------------------
   // width
   //---------------------------------
-
+  
+  @override
   void set width(int value) {
     if (value != _width) {
       super.width = value;
@@ -49,7 +50,8 @@ class ListRenderer extends ListBase {
   //---------------------------------
   // height
   //---------------------------------
-
+  
+  @override
   void set height(int value) {
     if (value != _height) {
       super.height = value;
@@ -63,10 +65,11 @@ class ListRenderer extends ListBase {
   //---------------------------------
   // labelField
   //---------------------------------
-
-  set labelField(String value) {
-    if (value != labelField) {
-      super.labelField = value;
+  
+  @override
+  set field(Symbol value) {
+    if (value != field) {
+      super.field = value;
       
       later > _updateVisibleItemRenderers;
     }
@@ -75,7 +78,8 @@ class ListRenderer extends ListBase {
   //---------------------------------
   // labelFunction
   //---------------------------------
-
+  
+  @override
   set labelFunction(Function value) {
     if (value != labelFunction) {
       super.labelFunction = value;
@@ -333,7 +337,8 @@ class ListRenderer extends ListBase {
   // Protected methods
   //
   //---------------------------------
-
+  
+  @override
   void _commitProperties() {
     ILayout defaultLayout;
 
@@ -383,7 +388,8 @@ class ListRenderer extends ListBase {
 
     super._commitProperties();
   }
-
+  
+  @override
   void _createChildren() {
     final DivElement container = new DivElement()
     ..onScroll.listen(_container_scrollHandler)
@@ -439,6 +445,7 @@ class ListRenderer extends ListBase {
 
     final IItemRenderer renderer = (_itemRendererFactory.immediateInstance() as IItemRenderer)
       ..index = index
+      ..enableHighlight = true
       ..autoDrawBackground = _useSelectionEffects;
 
     _updateRenderer(renderer);
@@ -456,7 +463,8 @@ class ListRenderer extends ListBase {
         )
     );
   }
-
+  
+  @override
   int _getPageItemSize() {
     if (
         (_dataProvider == null) ||
@@ -465,11 +473,14 @@ class ListRenderer extends ListBase {
 
     return (_layout is VerticalLayout) ? _rowHeight : _colWidth;
   }
-
+  
+  @override
   int _getPageOffset() => _scrollPosition;
-
+  
+  @override
   int _getPageSize() => (_dataProvider != null) ? ((_dataProvider.length * _getPageItemSize())) : 0;
-
+  
+  @override
   void removeComponent(IUIWrapper element, {bool flush: true}) {
     super.removeComponent(element, flush:flush);
 
@@ -605,7 +616,7 @@ class ListRenderer extends ListBase {
             ..visible = isRendererShown
             ..selected = (i == _selectedIndex)
             ..data = data
-            ..field = _labelField
+            ..field = _field
         );
       }
     }

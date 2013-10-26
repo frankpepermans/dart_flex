@@ -27,7 +27,5 @@ class UpdateManager {
   //
   //-----------------------------------
 
-  void operator >(Function handler) {
-    _reflowManager.scheduleMethod(_owner, handler, [], forceSingleExecution: true);
-  }
+  void operator >(Function handler) => _reflowManager.scheduleMethod(_owner, handler, [], forceSingleExecution: true);
 }

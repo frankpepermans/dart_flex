@@ -37,6 +37,9 @@ abstract class IUIWrapper implements IFrameworkEventDispatcher {
 
   bool get includeInLayout;
   set includeInLayout(bool value);
+  
+  bool get allowLayoutUpdate;
+  set allowLayoutUpdate(bool value);
 
   bool get autoSize;
   set autoSize(bool value);
@@ -108,6 +111,7 @@ abstract class IUIWrapper implements IFrameworkEventDispatcher {
   
   void wrapTarget(Element target);
   void preInitialize(IUIWrapper forOwner);
+  void invalidateLayout();
   void invalidateProperties();
   void addComponent(IUIWrapper element, {bool prepend: false});
   void removeComponent(IUIWrapper element);
@@ -231,6 +235,30 @@ class UIWrapper implements IUIWrapper {
 
       notify(
         new FrameworkEvent('includeInLayoutChanged')
+      );
+
+      if (_owner != null) _owner.invalidateProperties();
+
+      invalidateProperties();
+    }
+  }
+  
+  //---------------------------------
+  // allowLayoutUpdate
+  //---------------------------------
+
+  static const EventHook<FrameworkEvent> onAllowLayoutUpdateChangedEvent = const EventHook<FrameworkEvent>('allowLayoutUpdateChanged');
+  Stream<FrameworkEvent> get onAllowLayoutUpdateChanged => UIWrapper.onAllowLayoutUpdateChangedEvent.forTarget(this);
+  bool _allowLayoutUpdate = true;
+
+  bool get allowLayoutUpdate => _allowLayoutUpdate;
+
+  set allowLayoutUpdate(bool value) {
+    if (value != _allowLayoutUpdate) {
+      _allowLayoutUpdate = value;
+
+      notify(
+        new FrameworkEvent('allowLayoutUpdateChanged')
       );
 
       if (_owner != null) _owner.invalidateProperties();
@@ -729,10 +757,16 @@ class UIWrapper implements IUIWrapper {
     
     _initialize();
   }
+  
+  void invalidateLayout() {
+    _isLayoutUpdateRequired = _allowLayoutUpdate;
+
+    later > _commitProperties;
+  }
 
   void invalidateProperties() {
     if (!_isLayoutUpdateRequired) {
-      _isLayoutUpdateRequired = true;
+      _isLayoutUpdateRequired = _allowLayoutUpdate;
 
       later > _commitProperties;
     }
@@ -787,7 +821,7 @@ class UIWrapper implements IUIWrapper {
         }
       }
 
-      invalidateProperties();
+      invalidateLayout();
       
       _childWrappers.add(element);
     }
@@ -833,6 +867,8 @@ class UIWrapper implements IUIWrapper {
     _addLaterElements.remove(element);
     
     if (flush) element.removeAll();
+    
+    invalidateLayout();
   }
 
   void removeAll() {
@@ -924,7 +960,7 @@ class UIWrapper implements IUIWrapper {
     if (
         (target == null) &&
         (_elementId != null)
-    ) target = query(_elementId);
+    ) target = querySelector(_elementId);
     
     if (target != null) {
       _control = target;
@@ -984,6 +1020,7 @@ class UIWrapper implements IUIWrapper {
 
   void _updateLayout() {
     if (
+      _allowLayoutUpdate &&
       (_width > 0) &&
       (_height > 0)
     ) {
@@ -1014,6 +1051,8 @@ class UIWrapper implements IUIWrapper {
   int _getPageItemSize() => 0;
   int _getPageOffset() => 0;
   int _getPageSize() => 0;
+  
+  void forceInvalidateSize() => _invalidateSize(null);
 
   void _invalidateSize(Event event) => later > _updateSize;
 

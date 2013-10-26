@@ -68,18 +68,18 @@ class ListBase extends Group {
   // labelField
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onLabelFieldChangedEvent = const EventHook<FrameworkEvent>('labelFieldChanged');
-  Stream<FrameworkEvent> get onLabelFieldChanged => ListBase.onLabelFieldChangedEvent.forTarget(this);
-  String _labelField;
+  static const EventHook<FrameworkEvent> onFieldChangedEvent = const EventHook<FrameworkEvent>('fieldChanged');
+  Stream<FrameworkEvent> get onFieldChanged => ListBase.onFieldChangedEvent.forTarget(this);
+  Symbol _field;
 
-  String get labelField => _labelField;
-  set labelField(String value) {
-    if (value != _labelField) {
-      _labelField = value;
+  Symbol get field => _field;
+  set field(Symbol value) {
+    if (value != _field) {
+      _field = value;
       
       notify(
           new FrameworkEvent(
-            'labelFieldChanged'
+            'fieldChanged'
           )
       );
     }

@@ -118,8 +118,8 @@ class ComboBox extends ListBase {
 
     if (_labelFunction != null) {
       itemToString = _labelFunction(item) as String;
-    } else if (_labelField != null) {
-      itemToString = (item as dynamic)[_labelField];
+    } else if (_field != null) {
+      itemToString = (item as dynamic)[_field];
     } else {
       itemToString = item.toString();
     }

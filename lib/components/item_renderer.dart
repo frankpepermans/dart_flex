@@ -1,6 +1,14 @@
 part of dart_flex;
 
 abstract class IItemRenderer implements IUIWrapper {
+  
+  Stream<FrameworkEvent> get onDataChanged;
+  Stream<FrameworkEvent> get onFieldChanged;
+  Stream<FrameworkEvent> get onFieldsChanged;
+  Stream<FrameworkEvent> get onClick;
+  Stream<FrameworkEvent> get onMouseOver;
+  Stream<FrameworkEvent> get onMouseOut;
+  Stream<FrameworkEvent> get onDataPropertyChanged;
 
   int get index;
   set index(int value);
@@ -10,15 +18,21 @@ abstract class IItemRenderer implements IUIWrapper {
 
   bool get selected;
   set selected(bool value);
+  
+  bool get editable;
+  set editable(bool value);
+  
+  bool get enableHighlight;
+  set enableHighlight(bool value);
 
   Object get data;
   set data(Object value);
   
-  String get field;
-  set field(String value);
+  Symbol get field;
+  set field(Symbol value);
   
-  List<String> get fields;
-  set fields(List<String> value);
+  List<Symbol> get fields;
+  set fields(List<Symbol> value);
 
   Function get labelHandler;
   set labelHandler(Function value);
@@ -38,6 +52,8 @@ abstract class IItemRenderer implements IUIWrapper {
   void updateLayout();
 
   void updateAfterInteraction();
+  
+  void highlight();
 
 }
 
@@ -58,6 +74,12 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   static const EventHook<FrameworkEvent> onDataChangedEvent = const EventHook<FrameworkEvent>('dataChanged');
   Stream<FrameworkEvent> get onDataChanged => ItemRenderer.onDataChangedEvent.forTarget(this);
   
+  static const EventHook<FrameworkEvent> onFieldChangedEvent = const EventHook<FrameworkEvent>('fieldChanged');
+  Stream<FrameworkEvent> get onFieldChanged => ItemRenderer.onFieldChangedEvent.forTarget(this);
+  
+  static const EventHook<FrameworkEvent> onFieldsChangedEvent = const EventHook<FrameworkEvent>('fieldsChanged');
+  Stream<FrameworkEvent> get onFieldsChanged => ItemRenderer.onFieldsChangedEvent.forTarget(this);
+  
   static const EventHook<FrameworkEvent> onClickEvent = const EventHook<FrameworkEvent>('click');
   Stream<FrameworkEvent> get onClick => ItemRenderer.onClickEvent.forTarget(this);
   
@@ -66,6 +88,11 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   
   static const EventHook<FrameworkEvent> onMouseOutEvent = const EventHook<FrameworkEvent>('mouseOut');
   Stream<FrameworkEvent> get onMouseOut => ItemRenderer.onMouseOutEvent.forTarget(this);
+  
+  static const EventHook<FrameworkEvent> onDataPropertyChangedEvent = const EventHook<FrameworkEvent>('dataPropertyChanged');
+  Stream<FrameworkEvent> get onDataPropertyChanged => ItemRenderer.onDataPropertyChangedEvent.forTarget(this);
+  
+  DivElement highlightElement;
 
   //---------------------------------
   // index
@@ -83,15 +110,20 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   //---------------------------------
 
   dynamic _data;
+  StreamSubscription _dataChangesListener;
 
   dynamic get data => _data;
   set data(dynamic value) {
     if (value != _data) {
       _data = value;
       
-      if (value is Observable) value.changes.listen(
-        (List<ChangeRecord> changes) => _invalidateData()   
-      );
+      if (_dataChangesListener != null) {
+        _dataChangesListener.cancel();
+        
+        _dataChangesListener = null;
+      }
+      
+      if (value is Observable) _dataChangesListener = value.changes.listen(_data_changesHandler);
       
       notify(
         new FrameworkEvent('dataChanged')    
@@ -105,12 +137,16 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   // field
   //---------------------------------
 
-  String _field;
+  Symbol _field;
 
-  String get field => _field;
-  set field(String value) {
+  Symbol get field => _field;
+  set field(Symbol value) {
     if (value != _field) {
       _field = value;
+      
+      notify(
+          new FrameworkEvent('fieldChanged')    
+      );
       
       later > _invalidateData;
     }
@@ -120,12 +156,16 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   // fields
   //---------------------------------
 
-  List<String> _fields;
+  List<Symbol> _fields;
 
-  List<String> get fields => _fields;
-  set fields(List<String> value) {
+  List<Symbol> get fields => _fields;
+  set fields(List<Symbol> value) {
     if (value != _fields) {
       _fields = value;
+      
+      notify(
+          new FrameworkEvent('fieldsChanged')    
+      );
       
       later > _invalidateData;
     }
@@ -177,6 +217,34 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       later > _updateAfterInteraction;
     }
   }
+  
+  //---------------------------------
+  // editable
+  //---------------------------------
+
+  bool _editable = false;
+
+  bool get editable => _editable;
+  set editable(bool value) {
+    if (value != _editable) {
+      _editable = value;
+
+      later > updateForEditable;
+    }
+  }
+  
+  //---------------------------------
+  // enableHighlight
+  //---------------------------------
+
+  bool _enableHighlight = false;
+
+  bool get enableHighlight => _enableHighlight;
+  set enableHighlight(bool value) {
+    if (value != _enableHighlight) {
+      _enableHighlight = value;
+    }
+  }
 
   //---------------------------------
   // interactionStyle
@@ -226,9 +294,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     _autoDrawBackground = autoDrawBackground;
   }
 
-  static ItemRenderer construct() {
-    return new ItemRenderer();
-  }
+  static ItemRenderer construct() => new ItemRenderer();
 
   //---------------------------------
   //
@@ -236,16 +302,42 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   //
   //---------------------------------
 
-  void createChildren() {
-  }
+  void createChildren() {}
 
-  void invalidateData() {
-  }
+  void invalidateData() {}
 
-  void updateLayout() {
-  }
+  void updateLayout() {}
 
-  void updateAfterInteraction() {
+  void updateAfterInteraction() {}
+  
+  void updateForEditable() {}
+  
+  void highlight() {
+    if (_control == null) return;
+    
+    if (highlightElement == null) {
+      highlightElement = new DivElement();
+      
+      highlightElement.onTransitionEnd.listen(
+          (_) {
+            _control.children.remove(highlightElement);
+            
+            highlightElement = null;
+          }
+      );
+    }
+    
+    highlightElement.style.opacity = '.5';
+    
+    highlightElement.className = 'item-renderer-highlight';
+    
+    reflowManager.invalidateCSS(highlightElement, 'opacity', '0');
+    
+    if (!_control.contains(highlightElement)) _control.append(highlightElement);
+    
+    notify(
+        new FrameworkEvent('dataPropertyChanged')    
+    );
   }
 
   //---------------------------------
@@ -299,5 +391,21 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   }
 
   void _updateAfterInteraction() => updateAfterInteraction();
+  
+  void _data_changesHandler(List<ChangeRecord> changes) {
+    if (_enableHighlight) {
+      PropertyChangeRecord propertyChangeRecord = changes.firstWhere(
+          (ChangeRecord changeRecord) => (
+              (changeRecord is PropertyChangeRecord) &&
+              ((changeRecord as PropertyChangeRecord).changes(_field))
+          ),
+          orElse: () => null
+      );
+      
+      if (propertyChangeRecord != null) later > highlight;
+    }
+    
+    later > _invalidateData;
+  }
 }
 

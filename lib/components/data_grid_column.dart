@@ -60,11 +60,11 @@ class DataGridColumn {
   // headerData
   //---------------------------------
 
-  Map<String, String> _headerData = new Map<String, String>();
+  HeaderData _headerData;
 
-  Map<String, String> get headerData => _headerData;
+  HeaderData get headerData => _headerData;
 
-  set headerData(Map<String, String> value) {
+  set headerData(HeaderData value) {
     if (value != _headerData) {
       _headerData = value;
     }
@@ -74,10 +74,10 @@ class DataGridColumn {
   // field
   //---------------------------------
 
-  String _field;
+  Symbol _field;
 
-  String get field => _field;
-  set field(String value) {
+  Symbol get field => _field;
+  set field(Symbol value) {
     if (value != _field) {
       _field = value;
     }
@@ -87,10 +87,10 @@ class DataGridColumn {
   // fields
   //---------------------------------
 
-  List<String> _fields;
+  List<Symbol> _fields;
 
-  List<String> get fields => _fields;
-  set fields(List<String> value) {
+  List<Symbol> get fields => _fields;
+  set fields(List<Symbol> value) {
     if (value != _fields) {
       _fields = value;
     }

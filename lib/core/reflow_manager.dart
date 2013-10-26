@@ -89,7 +89,7 @@ class ReflowManager {
           (_) {
             _scheduledHandlers.remove(invokation);
             
-            Function.apply(invokation._method, invokation._arguments);
+            invokation.invoke();
           }
       );
     } else invokation._arguments = arguments;
@@ -111,8 +111,8 @@ class ReflowManager {
 
     if (!hasOccurance) {
       elementCSSMap = new _ElementCSSMap(element)
-      .._detachedElement.style.cssText = element.style.cssText
-      .._detachedElement.style.setProperty(property, value, '');
+      ..detachedCCSText = element.style.cssText
+      ..setProperty(property, value);
 
       _elements.add(elementCSSMap);
       
@@ -120,11 +120,11 @@ class ReflowManager {
           (_) {
             _elements.remove(elementCSSMap);
             
-            if (elementCSSMap._element.style.cssText != elementCSSMap._detachedElement.style.cssText) elementCSSMap._element.style.cssText = elementCSSMap._detachedElement.style.cssText;
+            elementCSSMap.finalize();
           }    
       );
     } else {
-      elementCSSMap._detachedElement.style.setProperty(property, value, '');
+      elementCSSMap.setProperty(property, value);
     }
   }
 }
@@ -137,14 +137,36 @@ class _MethodInvokationMap {
   List _arguments;
   
   _MethodInvokationMap(this._owner, this._method);
+  
+  dynamic invoke() => Function.apply(_method, _arguments);
 
 }
 
 class _ElementCSSMap {
 
+  static const String _PRIORITY = '';
+  
   final Element _element;
   final HtmlHtmlElement _detachedElement = new HtmlHtmlElement();
   
+  bool get isDirty => (_element.style.cssText != _detachedElement.style.cssText);
+  
+  String get detachedCCSText => _detachedElement.style.cssText;
+  void set detachedCCSText(String value) {
+    _detachedElement.style.cssText = value;
+  }
+  
+  String get elementCCSText => _element.style.cssText;
+  void set elementCCSText(String value) {
+    _element.style.cssText = value;
+  }
+  
   _ElementCSSMap(this._element);
+  
+  void finalize() {
+    if (_element.style.cssText != _detachedElement.style.cssText) _element.style.cssText = _detachedElement.style.cssText;
+  }
+  
+  void setProperty(String propertyName, String value) => _detachedElement.style.setProperty(propertyName, value, _PRIORITY);
 
 }

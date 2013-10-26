@@ -143,9 +143,12 @@ class VerticalLayout implements ILayout {
         }
 
         offset += h + _gap + element.paddingTop + element.paddingBottom;
-      } else {
+      } else if (element.visible) {
         element.x = element.paddingLeft;
         element.y = element.paddingTop;
+      } else {
+        element.x = element.paddingLeft;
+        element.y = offset + element.paddingTop;
       }
     }
   }

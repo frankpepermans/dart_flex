@@ -141,8 +141,11 @@ class HorizontalLayout implements ILayout {
         }
 
         offset += w + _gap + element.paddingLeft + element.paddingRight;
-      } else {
+      } else if (element.visible) {
         element.x = element.paddingLeft;
+        element.y = element.paddingTop;
+      } else {
+        element.x = offset + element.paddingLeft;
         element.y = element.paddingTop;
       }
     }

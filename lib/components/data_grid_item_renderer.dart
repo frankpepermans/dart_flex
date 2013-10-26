@@ -28,20 +28,21 @@ class DataGridItemRenderer extends ItemRenderer {
 
   ObservableList<DataGridColumn> _columns;
   bool _isColumnsChanged = false;
+  StreamSubscription _columnsChangesListener;
 
   ObservableList<DataGridColumn> get columns => _columns;
   set columns(ObservableList<DataGridColumn> value) {
     if (value != _columns) {
-      if (_columns != null) {
-        //_columns.changes.
-      }
-
       _columns = value;
       _isColumnsChanged = true;
-
-      if (value != null) {
-        value.changes.listen(_itemRenderers_collectionChangedHandler);
+      
+      if (_columnsChangesListener != null) {
+        _columnsChangesListener.cancel();
+        
+        _columnsChangesListener = null;
       }
+
+      if (value != null) _columnsChangesListener = value.changes.listen(_itemRenderers_collectionChangedHandler);
 
       notify(
         new FrameworkEvent(
@@ -70,6 +71,14 @@ class DataGridItemRenderer extends ItemRenderer {
     
     className = value ? 'DataGridItemRenderer DataGridItemRenderer-selected' : 'DataGridItemRenderer';
   }
+  
+  //---------------------------------
+  // enableHighlight
+  //---------------------------------
+  
+  set enableHighlight(bool value) {
+    super.enableHighlight = false;
+  }
 
   //---------------------------------
   //
@@ -89,9 +98,7 @@ class DataGridItemRenderer extends ItemRenderer {
     percentWidth = 100.0;
   }
 
-  static DataGridItemRenderer construct() {
-    return new DataGridItemRenderer();
-  }
+  static DataGridItemRenderer construct() => new DataGridItemRenderer();
 
   //---------------------------------
   //
@@ -135,10 +142,12 @@ class DataGridItemRenderer extends ItemRenderer {
           if (column._isActive) {
             IItemRenderer renderer = column.columnItemRendererFactory.immediateInstance()
                 ..data = _data
+                ..enableHighlight = true
                 ..field = column._field
                 ..fields = column._fields
                 ..labelHandler = column.labelHandler
-                ..height = _grid.rowHeight;
+                ..height = _grid.rowHeight
+                ..onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
 
             if (column.percentWidth > .0) {
               renderer.percentWidth = column.percentWidth;
@@ -181,5 +190,13 @@ class DataGridItemRenderer extends ItemRenderer {
     _layout.gap = _gap;
 
     super._updateLayout();
+  }
+  
+  void _renderer_dataPropertyChangedHandler(FrameworkEvent event) {
+    IItemRenderer itemRenderer = event.currentTarget as IItemRenderer;
+    
+    notify(
+        new FrameworkEvent('dataPropertyChanged', relatedObject: itemRenderer)
+    );
   }
 }

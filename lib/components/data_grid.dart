@@ -1,6 +1,6 @@
 part of dart_flex;
 
-typedef String SortHandler(dynamic data, String property);
+typedef String SortHandler(dynamic data, Symbol propertySymbol);
 typedef int CompareHandler(dynamic dataA, dynamic dataB);
 typedef void HeaderMouseHandler(IItemRenderer header);
 
@@ -215,7 +215,8 @@ class DataGrid extends ListBase {
   //---------------------------------
   // dataProvider
   //---------------------------------
-
+  
+  @override
   set dataProvider(ObservableList value) {
     if (
         (value != _dataProvider) &&
@@ -240,6 +241,9 @@ class DataGrid extends ListBase {
 
   DataGrid() : super(elementId: null) {
 	   _className = 'DataGrid';
+	   
+	   _horizontalScrollPolicy = ScrollPolicy.AUTO;
+	   _verticalScrollPolicy = ScrollPolicy.AUTO;
   }
 
   //---------------------------------
@@ -285,7 +289,8 @@ class DataGrid extends ListBase {
   // Protected methods
   //
   //---------------------------------
-
+  
+  @override
   void _createChildren() {
     final DivElement container = new DivElement();
 
@@ -319,10 +324,14 @@ class DataGrid extends ListBase {
 
     _list.onRendererAdded.listen(_list_rendererAddedHandler);
     _list.onHeaderScrollPositionChanged.listen(_list_headerScrollChangedHandler);
+    _list.onSelectedItemChanged.listen(_list_selectedItemChangedHandler);
+    
+    _updateScrollPolicy();
 
     super._createChildren();
   }
-
+  
+  @override
   void _commitProperties() {
     super._commitProperties();
     
@@ -413,17 +422,18 @@ class DataGrid extends ListBase {
   }
 
   void _header_clickHandler(FrameworkEvent event) {
-    final String property = event.relatedObject['property'];
+    final HeaderData headerData = event.relatedObject as HeaderData;
 
-    if (event.relatedObject['isAscSort'] == null) event.relatedObject['isAscSort'] = true;
+    /*if (event.relatedObject['isAscSort'] == null) event.relatedObject['isAscSort'] = true;
 
-    final bool isAscSort = event.relatedObject['isAscSort'];
+    final bool isAscSort = event.relatedObject['isAscSort'];*/
     
-    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, property, isAscSort);
+    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, headerData.field, /*isAscSort*/true);
 
-    event.relatedObject['isAscSort'] = !isAscSort;
+    //event.relatedObject['isAscSort'] = !isAscSort;
   }
-
+  
+  @override
   void _updateLayout() {
     if (
         (_list != null) &&
@@ -488,7 +498,8 @@ class DataGrid extends ListBase {
     final DataGridItemRenderer renderer = event.relatedObject as DataGridItemRenderer
       ..gap = _columnSpacing
       ..columns = _columns
-      .._grid = this;
+      .._grid = this
+      ..onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
     
     invalidateProperties();
     
@@ -500,16 +511,21 @@ class DataGrid extends ListBase {
     );
   }
   
+  void _list_selectedItemChangedHandler(FrameworkEvent event) {
+    selectedItem = event.relatedObject;
+    selectedIndex = _list.selectedIndex;
+  }
+  
   void _list_headerScrollChangedHandler(FrameworkEvent event) {
     final String newValue = (_headerContainer.x - _list._headerScrollPosition).toString() + 'px';
     
     if (_headerContainer._control.style.left != newValue) _headerContainer._control.style.left = newValue;
   }
   
-  int _list_dynamicSortHandler(dynamic itemA, dynamic itemB, String property, bool isAscSort) {
+  int _list_dynamicSortHandler(dynamic itemA, dynamic itemB, Symbol propertySymbol, bool isAscSort) {
     if (sortHandler != null) {
-      String strA = sortHandler(itemA, property);
-      String strB = sortHandler(itemB, property);
+      String strA = sortHandler(itemA, propertySymbol);
+      String strB = sortHandler(itemB, propertySymbol);
       
       strA = (strA == null) ? '' : strA;
       strB = (strB == null) ? '' : strB;
@@ -517,8 +533,10 @@ class DataGrid extends ListBase {
       return isAscSort ? strA.compareTo(strB) : strB.compareTo(strA);
     }
     
-    dynamic valA = (itemA[property] is bool) ? itemA[property] ? 1 : 0 : itemA[property];
-    dynamic valB = (itemA[property] is bool) ? itemB[property] ? 1 : 0 : itemB[property];
+    dynamic pvA = itemA[propertySymbol];
+    dynamic pvB = itemB[propertySymbol];
+    dynamic valA = (pvA is bool) ? pvA ? 1 : 0 : pvA;
+    dynamic valB = (pvB is bool) ? pvB ? 1 : 0 : pvB;
     
     if (valA == null && valB == null) {
       return 0;
@@ -536,11 +554,20 @@ class DataGrid extends ListBase {
 
     invalidateProperties();
   }
-
+  
+  @override
   void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
     super._dataProvider_collectionChangedHandler(changes);
 
     if (_list != null) _list._updateVisibleItemRenderers();
+  }
+  
+  @override
+  void _updateScrollPolicy() {
+    if (_list != null) {
+      _list.horizontalScrollPolicy = _horizontalScrollPolicy;
+      _list.verticalScrollPolicy = _verticalScrollPolicy;
+    }
   }
   
   void _invalidateHeaderHoverHandlers() {
@@ -561,5 +588,11 @@ class DataGrid extends ListBase {
         }
       );
     }
+  }
+  
+  void _renderer_dataPropertyChangedHandler(FrameworkEvent event) {
+    IItemRenderer itemRenderer = event.relatedObject as IItemRenderer;
+    
+    itemRenderer.control.scrollIntoView(ScrollAlignment.CENTER);
   }
 }

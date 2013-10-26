@@ -69,7 +69,7 @@ class LabelItemRenderer extends ItemRenderer {
         value = _data;
         
         _fields.forEach(
-          (String subField) {
+          (Symbol subField) {
             if (value != null) value = value[subField];
           }
         );

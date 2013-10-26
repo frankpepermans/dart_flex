@@ -56,6 +56,14 @@ class HeaderItemRenderer extends ItemRenderer {
     if (
        (_button != null) &&
        (data != null)
-    ) _button.label = data['label'];
+    ) _button.label = (data as HeaderData).label;
   }
+}
+
+class HeaderData {
+  
+  final String label, labelLong;
+  final Symbol field;
+  
+  const HeaderData(this.field, this.label, this.labelLong);
 }
