@@ -17,26 +17,21 @@ class ListBase extends Group {
   static const EventHook<FrameworkEvent> onDataProviderChangedEvent = const EventHook<FrameworkEvent>('dataProviderChanged');
   Stream<FrameworkEvent> get onDataProviderChanged => ListBase.onDataProviderChangedEvent.forTarget(this);
   ObservableList _dataProvider;
-  
-  ObservableList get xDataProvider => dataProvider;
-  set xDataProvider(ObservableList value) => dataProvider = value;
+  StreamSubscription _dataProviderChangesListener;
 
   ObservableList get dataProvider => _dataProvider;
   set dataProvider(ObservableList value) {
     if (value != _dataProvider) {
-      /*if (_dataProvider != null) {
-        _dataProvider.ignore(
-            CollectionEvent.COLLECTION_CHANGED,
-            _dataProvider_collectionChangedHandler
-        );
-      }*/
-
       _dataProvider = value;
       _isElementUpdateRequired = true;
-
-      if (value != null) {
-        value.changes.listen(_dataProvider_collectionChangedHandler);
+      
+      if (_dataProviderChangesListener != null) {
+        _dataProviderChangesListener.cancel();
+        
+        _dataProviderChangesListener = null;
       }
+
+      if (value != null) _dataProviderChangesListener = value.changes.listen(_dataProvider_collectionChangedHandler);
       
       notify(
           new FrameworkEvent(

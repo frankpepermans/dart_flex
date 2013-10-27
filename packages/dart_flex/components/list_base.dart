@@ -1,6 +1,6 @@
-part of dartflex;
+part of dart_flex;
 
-class ListWrapper extends Group {
+class ListBase extends Group {
 
   bool _isElementUpdateRequired = false;
 
@@ -15,25 +15,23 @@ class ListWrapper extends Group {
   //---------------------------------
 
   static const EventHook<FrameworkEvent> onDataProviderChangedEvent = const EventHook<FrameworkEvent>('dataProviderChanged');
-  Stream<FrameworkEvent> get onDataProviderChanged => ListWrapper.onDataProviderChangedEvent.forTarget(this);
-  ListCollection _dataProvider;
+  Stream<FrameworkEvent> get onDataProviderChanged => ListBase.onDataProviderChangedEvent.forTarget(this);
+  ObservableList _dataProvider;
+  StreamSubscription _dataProviderChangesListener;
 
-  ListCollection get dataProvider => _dataProvider;
-  set dataProvider(ListCollection value) {
+  ObservableList get dataProvider => _dataProvider;
+  set dataProvider(ObservableList value) {
     if (value != _dataProvider) {
-      if (_dataProvider != null) {
-        _dataProvider.ignore(
-            CollectionEvent.COLLECTION_CHANGED,
-            _dataProvider_collectionChangedHandler
-        );
-      }
-
       _dataProvider = value;
       _isElementUpdateRequired = true;
-
-      if (value != null) {
-        value.onCollectionChanged.listen(_dataProvider_collectionChangedHandler);
+      
+      if (_dataProviderChangesListener != null) {
+        _dataProviderChangesListener.cancel();
+        
+        _dataProviderChangesListener = null;
       }
+
+      if (value != null) _dataProviderChangesListener = value.changes.listen(_dataProvider_collectionChangedHandler);
       
       notify(
           new FrameworkEvent(
@@ -45,13 +43,49 @@ class ListWrapper extends Group {
       invalidateProperties();
     }
   }
+  
+  //---------------------------------
+  // presentationHandler
+  //---------------------------------
+
+  CompareHandler _presentationHandler;
+  
+  CompareHandler get presentationHandler => _presentationHandler;
+  set presentationHandler(CompareHandler value) {
+    if (value != _presentationHandler) {
+      _presentationHandler = value;
+      
+      if (_dataProvider != null) _dataProvider.sort(value);
+    }
+  }
+  
+  //---------------------------------
+  // labelField
+  //---------------------------------
+
+  static const EventHook<FrameworkEvent> onFieldChangedEvent = const EventHook<FrameworkEvent>('fieldChanged');
+  Stream<FrameworkEvent> get onFieldChanged => ListBase.onFieldChangedEvent.forTarget(this);
+  Symbol _field;
+
+  Symbol get field => _field;
+  set field(Symbol value) {
+    if (value != _field) {
+      _field = value;
+      
+      notify(
+          new FrameworkEvent(
+            'fieldChanged'
+          )
+      );
+    }
+  }
 
   //---------------------------------
   // labelFunction
   //---------------------------------
 
   static const EventHook<FrameworkEvent> onLabelFunctionChangedEvent = const EventHook<FrameworkEvent>('labelFunctionChanged');
-  Stream<FrameworkEvent> get onLabelFunctionChanged => ListWrapper.onLabelFunctionChangedEvent.forTarget(this);
+  Stream<FrameworkEvent> get onLabelFunctionChanged => ListBase.onLabelFunctionChangedEvent.forTarget(this);
   Function _labelFunction;
 
   Function get labelFunction => _labelFunction;
@@ -72,7 +106,7 @@ class ListWrapper extends Group {
   //---------------------------------
 
   static const EventHook<FrameworkEvent> onSelectedIndexChangedEvent = const EventHook<FrameworkEvent>('selectedIndexChanged');
-  Stream<FrameworkEvent> get onSelectedIndexChanged => ListWrapper.onSelectedIndexChangedEvent.forTarget(this);
+  Stream<FrameworkEvent> get onSelectedIndexChanged => ListBase.onSelectedIndexChangedEvent.forTarget(this);
   int _selectedIndex = -1;
 
   int get selectedIndex => _selectedIndex;
@@ -96,7 +130,7 @@ class ListWrapper extends Group {
   //---------------------------------
 
   static const EventHook<FrameworkEvent> onSelectedItemChangedEvent = const EventHook<FrameworkEvent>('selectedItemChanged');
-  Stream<FrameworkEvent> get onSelectedItemChanged => ListWrapper.onSelectedItemChangedEvent.forTarget(this);
+  Stream<FrameworkEvent> get onSelectedItemChanged => ListBase.onSelectedItemChangedEvent.forTarget(this);
   Object _selectedItem;
 
   Object get selectedItem => _selectedItem;
@@ -121,7 +155,7 @@ class ListWrapper extends Group {
   //
   //---------------------------------
 
-  ListWrapper({String elementId: null}) : super(elementId: elementId) {
+  ListBase({String elementId: null}) : super(elementId: elementId) {
   	_className = 'ListWrapper';
   }
 
@@ -133,18 +167,22 @@ class ListWrapper extends Group {
 
   int operator +(Object item) {
     if (_dataProvider == null) {
-      dataProvider = new ListCollection();
+      dataProvider = new ObservableList();
     }
+    
+    _dataProvider.add(item);
 
-    return _dataProvider.addItem(item);
+    return item;
   }
 
   int operator -(Object item) {
     if (_dataProvider == null) {
-      dataProvider = new ListCollection();
+      dataProvider = new ObservableList();
     }
+    
+    _dataProvider.remove(item);
 
-    return _dataProvider.removeItem(item);
+    return item;
   }
 
   //---------------------------------
@@ -165,8 +203,9 @@ class ListWrapper extends Group {
     if (_control != null) {
       if (_isElementUpdateRequired) {
         _isElementUpdateRequired = false;
-
+        
         _updateElements();
+        _updateAfterScrollPositionChanged();
       }
     }
   }
@@ -178,10 +217,16 @@ class ListWrapper extends Group {
       }
     }
 
-    _children = new List<IUIWrapper>();
+    _childWrappers = new List<IUIWrapper>();
   }
+  
+  void _updateAfterScrollPositionChanged() {}
 
   void _updateElements() {
+    if (_dataProvider == null) {
+      return;
+    }
+    
     Object element;
     int len = _dataProvider.length;
     int i;
@@ -203,7 +248,7 @@ class ListWrapper extends Group {
   void _createElement(Object item, int index) {
   }
 
-  void _dataProvider_collectionChangedHandler(FrameworkEvent event) {
+  void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
     _isElementUpdateRequired = true;
 
     invalidateProperties();
