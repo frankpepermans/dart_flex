@@ -94,6 +94,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   
   DivElement highlightElement;
   StreamSubscription _highlightElementChangesListener;
+  StreamSubscription _dataPropertyChangesListener;
 
   //---------------------------------
   // index

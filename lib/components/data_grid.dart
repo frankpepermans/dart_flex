@@ -500,8 +500,15 @@ class DataGrid extends ListBase {
     final DataGridItemRenderer renderer = event.relatedObject as DataGridItemRenderer
       ..gap = _columnSpacing
       ..columns = _columns
-      .._grid = this
-      ..onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
+      .._grid = this;
+    
+    if (renderer._dataPropertyChangesListener != null) {
+      renderer._dataPropertyChangesListener.cancel();
+      
+      renderer._dataPropertyChangesListener = null;
+    }
+    
+    renderer._dataPropertyChangesListener = renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
     
     invalidateProperties();
     
@@ -519,6 +526,12 @@ class DataGrid extends ListBase {
     ..data = null
     ..field = null
     ..fields = null;
+    
+    if (renderer._dataPropertyChangesListener != null) {
+      renderer._dataPropertyChangesListener.cancel();
+      
+      renderer._dataPropertyChangesListener = null;
+    }
     
     notify(
         new FrameworkEvent(
