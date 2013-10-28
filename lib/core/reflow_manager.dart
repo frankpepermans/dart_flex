@@ -34,18 +34,10 @@ class ReflowManager {
       (_) => _animationFrameCompleter.complete()
     );
     
-    /*Timer timer = new Timer(
-      const Duration(milliseconds: 30),
-      () => _animationFrameCompleter.complete()
-    );*/
-    
-    final Future currentFuture = _animationFrameCompleter.future;
-    
-    currentFuture.whenComplete(
-        () => _animationFrameCompleter = null 
+    return _animationFrameCompleter.future
+    ..whenComplete(
+        () => _animationFrameCompleter = null
     );
-
-    return currentFuture;
   }
 
   //---------------------------------
@@ -97,19 +89,13 @@ class ReflowManager {
 
   void invalidateCSS(Element element, String property, String value) {
     if (element == null) return;
-
-    bool hasOccurance = true;
     
     _ElementCSSMap elementCSSMap = _elements.firstWhere(
       (_ElementCSSMap tmpElementCSSMap) => (tmpElementCSSMap._element == element),
-      orElse: () {
-        hasOccurance = false;
-        
-        return null;
-      }
+      orElse: () => null
     );
 
-    if (!hasOccurance) {
+    if (elementCSSMap == null) {
       elementCSSMap = new _ElementCSSMap(element)
       ..detachedCCSText = element.style.cssText
       ..setProperty(property, value);

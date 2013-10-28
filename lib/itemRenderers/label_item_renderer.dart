@@ -33,9 +33,7 @@ class LabelItemRenderer extends ItemRenderer {
     layout = new HorizontalLayout();
   }
 
-  static LabelItemRenderer construct() {
-    return new LabelItemRenderer();
-  }
+  static LabelItemRenderer construct() => new LabelItemRenderer();
 
   //---------------------------------
   //
@@ -62,20 +60,18 @@ class LabelItemRenderer extends ItemRenderer {
   }
   
   String obtainValue() {
-    dynamic value;
+    dynamic value = _data;
     
-    if (_data != null) {
+    if (value != null) {
       if (_fields != null) {
-        value = _data;
-        
         _fields.forEach(
           (Symbol subField) {
             if (value != null) value = value[subField];
           }
         );
-      } else if (_field != null) {
-        value = _data[_field];
       }
+      
+      if (value != null) value = value[_field];
       
       if (_labelHandler != null) return _labelHandler(value) as String;
       

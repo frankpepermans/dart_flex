@@ -141,28 +141,6 @@ class UIWrapper implements IUIWrapper {
   // Public properties
   //
   //---------------------------------
-  
-  //---------------------------------
-  // xOn
-  //---------------------------------
-  
-  Iterable get xOn => null;
-  set xOn(Iterable value) {
-    observeEventType(value.first as String, value.last as Function);
-  }
-  
-  //---------------------------------
-  // xTagRegistry
-  //---------------------------------
-  
-  /*String get xId => _xTagRegistry.getXTagId(this);
-  set xId(String value) {
-    _xTagRegistry.registerXTag(this, value);
-  }
-
-  XTagRegistry _xTagRegistry;
-
-  XTagRegistry get xTagRegistry => _xTagRegistry;*/
 
   //---------------------------------
   // reflowManager
@@ -585,7 +563,7 @@ class UIWrapper implements IUIWrapper {
   // addLaterElements
   //---------------------------------
 
-  List<IUIWrapper> _addLaterElements = new List<IUIWrapper>();
+  List<IUIWrapper> _addLaterElements = <IUIWrapper>[];
 
   //---------------------------------
   // later
@@ -617,7 +595,7 @@ class UIWrapper implements IUIWrapper {
   // childWrappers
   //---------------------------------
 
-  List<IUIWrapper> _childWrappers = new List<IUIWrapper>();
+  List<IUIWrapper> _childWrappers = <IUIWrapper>[];
 
   List<IUIWrapper> get childWrappers => _childWrappers;
 
@@ -781,7 +759,7 @@ class UIWrapper implements IUIWrapper {
 
     if (_control == null) {
       if (prepend) {
-        final List<IUIWrapper> newList = new List<IUIWrapper>();
+        List<IUIWrapper> newList = <IUIWrapper>[];
 
         newList.add(element);
         newList.addAll(_addLaterElements);
@@ -874,7 +852,9 @@ class UIWrapper implements IUIWrapper {
   void removeAll() {
     int i = _childWrappers.length;
     
-    while (i > 0) removeComponent(_childWrappers[--i]); 
+    while (i > 0) removeComponent(_childWrappers[--i]);
+    
+    _childWrappers = <IUIWrapper>[];
   }
   
   void propertiesInvalidated() {}
@@ -1083,6 +1063,6 @@ class UIWrapper implements IUIWrapper {
         (IUIWrapper element) => addComponent(element)
     );
 
-    _addLaterElements = new List<IUIWrapper>();
+    _addLaterElements = <IUIWrapper>[];
   }
 }

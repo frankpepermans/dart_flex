@@ -12,7 +12,7 @@ class DataGrid extends ListBase {
   //
   //---------------------------------
 
-  List<IItemRenderer> _headerItemRenderers;
+  List<HeaderItemRenderer> _headerItemRenderers;
 
   VGroup _gridContainer;
   HGroup _headerContainer;
@@ -61,7 +61,7 @@ class DataGrid extends ListBase {
         )
       );
 
-      invalidateProperties();
+      invalidateLayout();
     }
   }
   
@@ -214,21 +214,6 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
-  // dataProvider
-  //---------------------------------
-  
-  @override
-  set dataProvider(ObservableList value) {
-    if (
-        (value != _dataProvider) &&
-        (value != null) &&
-        (_presentationHandler != null)
-    ) value.sort(_presentationHandler);
-    
-    super.dataProvider = value;
-  }
-  
-  //---------------------------------
   // sortHandler
   //---------------------------------
 
@@ -275,14 +260,6 @@ class DataGrid extends ListBase {
     );
 
     invalidateProperties();
-  }
-  
-  void refreshColumnData() {
-    _list._itemRenderers.forEach(
-      (DataGridItemRenderer renderer) => renderer._itemRendererInstances.forEach(
-        (ItemRenderer subRenderer) => subRenderer._invalidateData()
-      )
-    );
   }
 
   //---------------------------------
@@ -336,14 +313,6 @@ class DataGrid extends ListBase {
   @override
   void _commitProperties() {
     super._commitProperties();
-    
-    if (
-      _isElementUpdateRequired &&
-      (_dataProvider != null) &&
-      (_presentationHandler != null)
-    ) {
-      _dataProvider.sort(_presentationHandler);
-    }
 
     if (
         _isColumnsChanged &&
@@ -373,24 +342,24 @@ class DataGrid extends ListBase {
 
   void _updateColumnsAndHeaders() {
     DataGridColumn column;
-    IItemRenderer header;
+    HeaderItemRenderer header;
     int i, len;
 
     _removeAllElements();
 
-    _headerItemRenderers = new List<IItemRenderer>();
+    _headerItemRenderers = new List<HeaderItemRenderer>();
 
     if (_columns != null) {
       len = _columns.length;
-
+      
       for (i=0; i<len; i++) {
         column = _columns[i];
         
         if (column._isActive) {
-          header = column.headerItemRendererFactory.immediateInstance()
+          header = (column.headerItemRendererFactory.immediateInstance() as HeaderItemRenderer)
             ..height = _headerHeight
             ..data =  column.headerData
-            ..['buttonClick'] = _header_clickHandler;
+            ..onButtonClick.listen(_header_clickHandler);
 
           if (column.width > 0) {
             header.width = column.width;
@@ -424,15 +393,12 @@ class DataGrid extends ListBase {
   }
 
   void _header_clickHandler(FrameworkEvent event) {
+    final HeaderItemRenderer renderer = event.currentTarget as HeaderItemRenderer;
     final HeaderData headerData = event.relatedObject as HeaderData;
-
-    /*if (event.relatedObject['isAscSort'] == null) event.relatedObject['isAscSort'] = true;
-
-    final bool isAscSort = event.relatedObject['isAscSort'];*/
     
-    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, headerData.field, /*isAscSort*/true);
+    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, headerData.field, renderer.isSortedAsc);
 
-    //event.relatedObject['isAscSort'] = !isAscSort;
+    renderer.isSortedAsc = !renderer.isSortedAsc;
   }
   
   @override
@@ -482,7 +448,7 @@ class DataGrid extends ListBase {
           }
         }
       }
-
+      
       _list.rowHeight = _rowHeight;
       _list.colWidth = w;
       _list.horizontalScrollPolicy = (tw > _width) ? ScrollPolicy.AUTO : ScrollPolicy.NONE;
@@ -586,10 +552,20 @@ class DataGrid extends ListBase {
   }
   
   @override
+  void _updateSelection() {
+    super._updateSelection();
+    
+    if (_list != null) {
+      _list.selectedIndex = _selectedIndex;
+      _list.selectedItem = _selectedItem;
+    }
+  }
+  
+  @override
   void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
     super._dataProvider_collectionChangedHandler(changes);
-
-    if (_list != null) _list._updateVisibleItemRenderers();
+    
+    selectedIndex = _dataProvider.indexOf(_selectedItem);
   }
   
   @override

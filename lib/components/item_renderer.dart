@@ -113,6 +113,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
 
   dynamic _data;
   StreamSubscription _dataChangesListener;
+  StreamSubscription _dataFieldsChangesListener;
 
   dynamic get data => _data;
   set data(dynamic value) {
@@ -125,7 +126,16 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
         _dataChangesListener = null;
       }
       
+      if (_dataFieldsChangesListener != null) {
+        _dataFieldsChangesListener.cancel();
+        
+        _dataFieldsChangesListener = null;
+      }
+      
+      dynamic dataToObserve = _getDataToObserve();
+      
       if (value is Observable) _dataChangesListener = value.changes.listen(_data_changesHandler);
+      if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
       
       notify(
         new FrameworkEvent('dataChanged')    
@@ -164,6 +174,16 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   set fields(List<Symbol> value) {
     if (value != _fields) {
       _fields = value;
+      
+      if (_dataFieldsChangesListener != null) {
+        _dataFieldsChangesListener.cancel();
+        
+        _dataFieldsChangesListener = null;
+      }
+      
+      dynamic dataToObserve = _getDataToObserve();
+      
+      if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
       
       notify(
           new FrameworkEvent('fieldsChanged')    
@@ -332,17 +352,13 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       );
     }
     
-    highlightElement.style.opacity = '.5';
+    highlightElement.style.opacity = '.75';
     
     highlightElement.className = 'item-renderer-highlight';
     
     reflowManager.invalidateCSS(highlightElement, 'opacity', '0');
     
     if (!_control.contains(highlightElement)) _control.append(highlightElement);
-    
-    notify(
-        new FrameworkEvent('dataPropertyChanged')    
-    );
   }
 
   //---------------------------------
@@ -398,19 +414,62 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   void _updateAfterInteraction() => updateAfterInteraction();
   
   void _data_changesHandler(List<ChangeRecord> changes) {
+    if (_fields != null) {
+      if (_dataFieldsChangesListener != null) {
+        _dataFieldsChangesListener.cancel();
+        
+        _dataFieldsChangesListener = null;
+      }
+      
+      dynamic dataToObserve = _getDataToObserve();
+      
+      if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
+    }
+    
     if (_enableHighlight) {
       PropertyChangeRecord propertyChangeRecord = changes.firstWhere(
           (ChangeRecord changeRecord) => (
               (changeRecord is PropertyChangeRecord) &&
-              ((changeRecord as PropertyChangeRecord).changes(_field))
+              (
+                  ((changeRecord as PropertyChangeRecord).changes(_field)) ||
+                  (
+                    (_fields != null) &&
+                    _fields.contains((changeRecord as PropertyChangeRecord).field)
+                  )
+              )
+              
           ),
           orElse: () => null
       );
       
-      if (propertyChangeRecord != null) later > highlight;
+      if (propertyChangeRecord != null) {
+        notify(
+            new FrameworkEvent('dataPropertyChanged')    
+        );
+        
+        later > highlight;
+      }
     }
     
     later > _invalidateData;
+  }
+  
+  dynamic _getDataToObserve() {
+    if (_data == null) return;
+    
+    if (_fields == null) return data;
+    
+    dynamic value;
+    
+    value = _data;
+    
+    _fields.forEach(
+        (Symbol subField) {
+          if (value != null) value = value[subField];
+        }
+    );
+    
+    return value;
   }
 }
 

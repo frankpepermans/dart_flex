@@ -41,9 +41,7 @@ class ListRenderer extends ListBase {
     if (value != _width) {
       super.width = value;
 
-      if (_dataProvider != null) {
-        _updateAfterScrollPositionChanged();
-      }
+      if (_dataProvider != null) _updateAfterScrollPositionChanged();
     }
   }
 
@@ -56,9 +54,7 @@ class ListRenderer extends ListBase {
     if (value != _height) {
       super.height = value;
 
-      if (_dataProvider != null) {
-        _updateAfterScrollPositionChanged();
-      }
+      if (_dataProvider != null) _updateAfterScrollPositionChanged();
     }
   }
   
@@ -181,6 +177,8 @@ class ListRenderer extends ListBase {
           'colWidthChanged'
         )
       );
+      
+      _previousFirstIndex = -1;
 
       _updateAfterScrollPositionChanged();
     }
@@ -204,6 +202,8 @@ class ListRenderer extends ListBase {
           'colPercentWidthChanged'
         )
       );
+      
+      _previousFirstIndex = -1;
 
       _updateAfterScrollPositionChanged();
     }
@@ -227,6 +227,8 @@ class ListRenderer extends ListBase {
           'rowHeightChanged'
         )
       );
+      
+      _previousFirstIndex = -1;
 
       _updateAfterScrollPositionChanged();
     }
@@ -250,6 +252,8 @@ class ListRenderer extends ListBase {
           'rowPercentHeightChanged'
         )
       );
+      
+      _previousFirstIndex = -1;
 
       _updateAfterScrollPositionChanged();
     }
@@ -413,7 +417,7 @@ class ListRenderer extends ListBase {
   }
 
   void _removeAllElements() {
-    if (_itemRenderers != null) _itemRenderers.removeRange(0, _itemRenderers.length);
+    if (_itemRenderers != null) _itemRenderers = <IItemRenderer>[];
 
     removeAll();
 
@@ -487,7 +491,10 @@ class ListRenderer extends ListBase {
     if (_itemRenderers != null) _itemRenderers.remove(element);
     
     notify(
-      new FrameworkEvent('rendererRemoved')    
+      new FrameworkEvent(
+          'rendererRemoved',
+          relatedObject: element
+      )    
     );
   }
 
@@ -539,7 +546,7 @@ class ListRenderer extends ListBase {
       for (i=len; i<0; i++) removeComponent(_itemRenderers.removeLast());
       
       for (i=0; i<len; i++) _createElement(null, i);
-
+      
       if (_scrollTarget != null) {
         if (isVerticalLayout) {
           _scrollTarget.width = 1;
@@ -557,7 +564,8 @@ class ListRenderer extends ListBase {
       }
 
       if (len > 0) {
-        _updateAfterScrollPositionChanged();
+        _updateVisibleItemRenderers(ignorePreviousIndex: true);
+        _updateLayout();
 
         return true;
       }
@@ -567,22 +575,26 @@ class ListRenderer extends ListBase {
   }
 
   void _updateAfterScrollPositionChanged() {
-    if (
-        (_dataProvider != null) &&
-        !_updateElements()
-    ) _updateVisibleItemRenderers();
+    if (_dataProvider != null) {
+      if (_updateElements()) return;
+      
+      _updateVisibleItemRenderers();
+    }
     
-    _updateLayout();
+    later > _updateLayout;
   }
 
-  void _updateVisibleItemRenderers() {
+  void _updateVisibleItemRenderers({bool ignorePreviousIndex: false}) {
     if (_itemRenderers == null) return;
     
     final int pageItemSize = _getPageItemSize();
     
     _firstIndex = (pageItemSize > 0) ? (_scrollPosition ~/ pageItemSize) : 0;
     
-    if (_firstIndex != _previousFirstIndex) {
+    if (
+        ignorePreviousIndex ||
+        (_firstIndex != _previousFirstIndex)
+    ) {
       _itemRendererLen = (_itemRenderers != null) ? _itemRenderers.length : 0;
       
       final int dpLen = _dataProvider.length;
@@ -633,30 +645,19 @@ class ListRenderer extends ListBase {
   }
 
   void _handleMouseInteraction(Event event) {
-    final Element target = event.currentTarget as Element;
-    final int firstIndex = _scrollPosition ~/ _getPageItemSize();
+    if (event.type == 'mousedown') {
+      final Element target = event.currentTarget as Element;
+      final IItemRenderer itemRenderer = _itemRenderers.firstWhere(
+          (IItemRenderer renderer) => (renderer.control == target),
+          orElse: () => null
+      );
+      
+      if (itemRenderer != null) {
+        selectedIndex = (_scrollPosition ~/ _getPageItemSize()) + _itemRenderers.indexOf(itemRenderer);
 
-    IItemRenderer renderer;
-    Object newSelectedItem;
-    int i = _itemRenderers.length;
-
-    while (i > 0) {
-      renderer = _itemRenderers[--i];
-
-      if (event.type == 'mousedown') {
-        if (renderer.control == target) {
-          selectedIndex = firstIndex + i;
-
-          newSelectedItem = _dataProvider[selectedIndex];
-
-          renderer.selected = true;
-        } else {
-          renderer.selected = false;
-        }
+        selectedItem = _dataProvider[selectedIndex];
       }
     }
-
-    selectedItem = newSelectedItem;
   }
 
   void _container_scrollHandler(Event event) => _updateScrollPosition();

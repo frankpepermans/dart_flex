@@ -39,6 +39,8 @@ class ListBase extends Group {
             relatedObject: value
           )
       );
+      
+      invalidatePresentation();
 
       invalidateProperties();
     }
@@ -55,7 +57,7 @@ class ListBase extends Group {
     if (value != _presentationHandler) {
       _presentationHandler = value;
       
-      if (_dataProvider != null) _dataProvider.sort(value);
+      invalidatePresentation();
     }
   }
   
@@ -131,10 +133,10 @@ class ListBase extends Group {
 
   static const EventHook<FrameworkEvent> onSelectedItemChangedEvent = const EventHook<FrameworkEvent>('selectedItemChanged');
   Stream<FrameworkEvent> get onSelectedItemChanged => ListBase.onSelectedItemChangedEvent.forTarget(this);
-  Object _selectedItem;
+  dynamic _selectedItem;
 
-  Object get selectedItem => _selectedItem;
-  set selectedItem(Object value) {
+  dynamic get selectedItem => _selectedItem;
+  set selectedItem(dynamic value) {
     if (value != _selectedItem) {
       _selectedItem = value;
 
@@ -184,12 +186,31 @@ class ListBase extends Group {
 
     return item;
   }
+  
+  //---------------------------------
+  //
+  // Public methods
+  //
+  //---------------------------------
+  
+  void invalidatePresentation() {
+    _isElementUpdateRequired = true;
+    
+    invalidateProperties();
+  }
 
   //---------------------------------
   //
   // Protected methods
   //
   //---------------------------------
+  
+  void _updatePresentation() {
+    if (
+        (_dataProvider != null) &&
+        (_presentationHandler != null)
+    ) _dataProvider.sort(_presentationHandler);
+  }
 
   void _setControl(Element element) {
     super._setControl(element);
@@ -204,6 +225,7 @@ class ListBase extends Group {
       if (_isElementUpdateRequired) {
         _isElementUpdateRequired = false;
         
+        _updatePresentation();
         _updateElements();
         _updateAfterScrollPositionChanged();
       }
@@ -242,11 +264,9 @@ class ListBase extends Group {
     _updateSelection();
   }
 
-  void _updateSelection() {
-  }
+  void _updateSelection() {}
 
-  void _createElement(Object item, int index) {
-  }
+  void _createElement(Object item, int index) {}
 
   void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
     _isElementUpdateRequired = true;
