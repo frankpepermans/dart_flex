@@ -392,11 +392,10 @@ class DataGrid extends ListBase {
     }
   }
 
-  void _header_clickHandler(FrameworkEvent event) {
+  void _header_clickHandler(FrameworkEvent<HeaderData> event) {
     final HeaderItemRenderer renderer = event.currentTarget as HeaderItemRenderer;
-    final HeaderData headerData = event.relatedObject as HeaderData;
     
-    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, headerData.field, renderer.isSortedAsc);
+    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, event.relatedObject.field, renderer.isSortedAsc);
 
     renderer.isSortedAsc = !renderer.isSortedAsc;
   }
@@ -462,8 +461,8 @@ class DataGrid extends ListBase {
     super._updateLayout();
   }
 
-  void _list_rendererAddedHandler(FrameworkEvent event) {
-    final DataGridItemRenderer renderer = event.relatedObject as DataGridItemRenderer
+  void _list_rendererAddedHandler(FrameworkEvent<DataGridItemRenderer> event) {
+    final DataGridItemRenderer renderer = event.relatedObject
       ..gap = _columnSpacing
       ..columns = _columns
       .._grid = this;
@@ -479,15 +478,15 @@ class DataGrid extends ListBase {
     invalidateProperties();
     
     notify(
-      new FrameworkEvent(
+      new FrameworkEvent<DataGridItemRenderer>(
         'rendererAdded',
         relatedObject: renderer
       )
     );
   }
   
-  void _list_rendererRemovedHandler(FrameworkEvent event) {
-    final DataGridItemRenderer renderer = event.relatedObject as DataGridItemRenderer
+  void _list_rendererRemovedHandler(FrameworkEvent<DataGridItemRenderer> event) {
+    final DataGridItemRenderer renderer = event.relatedObject
     ..columns = null
     ..data = null
     ..field = null
@@ -500,14 +499,14 @@ class DataGrid extends ListBase {
     }
     
     notify(
-        new FrameworkEvent(
+        new FrameworkEvent<DataGridItemRenderer>(
             'rendererRemoved',
             relatedObject: renderer
         )
     );
   }
   
-  void _list_selectedItemChangedHandler(FrameworkEvent event) {
+  void _list_selectedItemChangedHandler(FrameworkEvent<dynamic> event) {
     selectedItem = event.relatedObject;
     selectedIndex = _list.selectedIndex;
   }
@@ -596,9 +595,5 @@ class DataGrid extends ListBase {
     }
   }
   
-  void _renderer_dataPropertyChangedHandler(FrameworkEvent event) {
-    IItemRenderer itemRenderer = event.relatedObject as IItemRenderer;
-    
-    itemRenderer.control.scrollIntoView(ScrollAlignment.CENTER);
-  }
+  void _renderer_dataPropertyChangedHandler(FrameworkEvent<IItemRenderer> event) => event.relatedObject.control.scrollIntoView(ScrollAlignment.CENTER);
 }

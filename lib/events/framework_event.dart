@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class FrameworkEvent {
+class FrameworkEvent<T> {
 
   //-----------------------------------
   //
@@ -28,9 +28,9 @@ class FrameworkEvent {
   // relatedObject
   //-----------------------------------
 
-  dynamic _relatedObject;
+  T _relatedObject;
 
-  dynamic get relatedObject => _relatedObject;
+  T get relatedObject => _relatedObject;
 
   //-----------------------------------
   // currentTarget
@@ -47,9 +47,7 @@ class FrameworkEvent {
   //
   //-----------------------------------
 
-  factory FrameworkEvent(String type, {Object relatedObject: null}) {
-    return new FrameworkEvent.construct('FrameworkEvent', type, relatedObject: relatedObject);
-  }
+  factory FrameworkEvent(String type, {T relatedObject: null}) => new FrameworkEvent.construct('FrameworkEvent', type, relatedObject: relatedObject);
 
   //-----------------------------------
   //
@@ -57,7 +55,7 @@ class FrameworkEvent {
   //
   //-----------------------------------
 
-  FrameworkEvent.construct(String ident, String type, {Object relatedObject: null}) {
+  FrameworkEvent.construct(String ident, String type, {T relatedObject: null}) {
     _ident = ident;
     _type = type;
     _relatedObject = relatedObject;

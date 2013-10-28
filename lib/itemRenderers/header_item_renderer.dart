@@ -45,7 +45,7 @@ class HeaderItemRenderer extends ItemRenderer {
     ..percentHeight = 100.0
     ..onButtonClick.listen(
         (FrameworkEvent event) => notify(
-            new FrameworkEvent(
+            new FrameworkEvent<dynamic>(
                 'buttonClick',
                 relatedObject: data
             )

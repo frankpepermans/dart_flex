@@ -727,7 +727,7 @@ class UIWrapper implements IUIWrapper {
     _owner = forOwner;
     
     notify(
-        new FrameworkEvent(
+        new FrameworkEvent<IUIWrapper>(
             'ownerChanged',
             relatedObject: forOwner
         )
@@ -772,7 +772,7 @@ class UIWrapper implements IUIWrapper {
       elementCast._owner = this;
       
       elementCast.notify(
-          new FrameworkEvent(
+          new FrameworkEvent<IUIWrapper>(
               'ownerChanged',
               relatedObject: this
           )
@@ -878,7 +878,7 @@ class UIWrapper implements IUIWrapper {
     _updateControl(5);
 
     notify(
-      new FrameworkEvent(
+      new FrameworkEvent<Element>(
           'controlChanged',
           relatedObject: element
       )

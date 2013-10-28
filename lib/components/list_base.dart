@@ -141,7 +141,7 @@ class ListBase extends Group {
       _selectedItem = value;
 
       notify(
-          new FrameworkEvent(
+          new FrameworkEvent<dynamic>(
             'selectedItemChanged',
             relatedObject: value
           )

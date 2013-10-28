@@ -170,7 +170,7 @@ class DataGridItemRenderer extends ItemRenderer {
             addComponent(renderer);
             
             notify(
-                new FrameworkEvent(
+                new FrameworkEvent<IItemRenderer>(
                     'rendererAdded',
                     relatedObject: renderer
                 )
@@ -206,7 +206,7 @@ class DataGridItemRenderer extends ItemRenderer {
     IItemRenderer itemRenderer = event.currentTarget as IItemRenderer;
     
     notify(
-        new FrameworkEvent('dataPropertyChanged', relatedObject: itemRenderer)
+        new FrameworkEvent<IItemRenderer>('dataPropertyChanged', relatedObject: itemRenderer)
     );
   }
 }

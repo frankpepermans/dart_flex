@@ -461,7 +461,7 @@ class ListRenderer extends ListBase {
     addComponent(renderer);
 
     notify(
-        new FrameworkEvent(
+        new FrameworkEvent<IItemRenderer>(
             'rendererAdded',
             relatedObject: renderer
         )
@@ -491,7 +491,7 @@ class ListRenderer extends ListBase {
     if (_itemRenderers != null) _itemRenderers.remove(element);
     
     notify(
-      new FrameworkEvent(
+      new FrameworkEvent<IUIWrapper>(
           'rendererRemoved',
           relatedObject: element
       )    
@@ -676,10 +676,8 @@ class ListRenderer extends ListBase {
   
   void _updateSelection() => _updateVisibleItemRenderers();
 
-  void _itemRenderer_controlChangedHandler(FrameworkEvent event) {
-    final DivElement renderer = event.relatedObject as DivElement;
-
-    renderer.onMouseDown.listen(_handleMouseInteraction);
+  void _itemRenderer_controlChangedHandler(FrameworkEvent<DivElement> event) {
+    event.relatedObject.onMouseDown.listen(_handleMouseInteraction);
   }
   
   @override
