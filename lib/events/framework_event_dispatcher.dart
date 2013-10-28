@@ -25,7 +25,7 @@ class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
 
   IFrameworkEventDispatcher _dispatcher;
 
-  Map<String, List<Function>> _observers = new Map();
+  Map<String, List<Function>> _observers = <String, List<Function>>{};
 
   //-----------------------------------
   //
@@ -47,22 +47,16 @@ class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
   //
   //-----------------------------------
 
-  bool hasObserver(String type) {
-    return (_observers[type] != null);
-  }
+  bool hasObserver(String type) => (_observers[type] != null);
 
   void observeEventType(String type, Function eventHandler) {
     List<Function> handlers;
 
-    if (!hasObserver(type)) {
-      _observers[type] = new List<Function>();
-    }
+    if (!hasObserver(type)) _observers[type] = <Function>[];
 
     handlers = _observers[type];
 
-    if (handlers.length > 0) {
-      ignoreEventType(type, eventHandler);
-    }
+    if (handlers.length > 0) ignoreEventType(type, eventHandler);
 
     handlers.add(eventHandler);
   }
@@ -82,30 +76,22 @@ class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
           break;
         }
       }
-
-      if (handlers.length == 0) {
-        //_observers.remove(type);
-      }
     }
   }
   
   void ignoreAllEventTypes() {
-    _observers = new Map<String, List<Function>>();
+    _observers = <String, List<Function>>{};
   }
 
   void notify(FrameworkEvent event) {
-    if (_observers.containsKey(event.type)) {
-      final List<Function> list = _observers[event.type];
-      Function handler;
+    final List<Function> list = _observers[event.type];
+    
+    if (list != null) {
       int i = list.length;
       
       event.currentTarget = _dispatcher;
       
-      while (i > 0) {
-        handler = list[--i];
-        
-        handler(event);
-      }
+      while (i > 0) list[--i](event);
     }
   }
 }

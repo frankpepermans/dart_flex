@@ -7,7 +7,7 @@ class ScrollPolicy {
   static const String AUTO = 'auto';
   static const String ON = 'on';
 
-  ScrollPolicy() {}
+  const ScrollPolicy();
 
 }
 

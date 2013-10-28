@@ -132,7 +132,15 @@ class DataGridItemRenderer extends ItemRenderer {
   }
 
   void _updateItemRenderers() {
-    removeAll();
+    if (_itemRendererInstances != null) {
+      _itemRendererInstances.forEach(
+        (ItemRenderer renderer) {
+          renderer._dataPropertyChangesListener.cancel();
+          
+          removeComponent(renderer);
+        }
+      );
+    }
     
     _itemRendererInstances = new List<IItemRenderer>();
 
@@ -140,7 +148,7 @@ class DataGridItemRenderer extends ItemRenderer {
       _columns.forEach(
         (DataGridColumn column) {
           if (column._isActive) {
-            IItemRenderer renderer = column.columnItemRendererFactory.immediateInstance()
+            ItemRenderer renderer = column.columnItemRendererFactory.immediateInstance()
                 ..data = _data
                 ..enableHighlight = true
                 ..field = column._field
@@ -148,6 +156,8 @@ class DataGridItemRenderer extends ItemRenderer {
                 ..labelHandler = column.labelHandler
                 ..height = _grid.rowHeight
                 ..onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
+            
+            renderer._dataPropertyChangesListener = renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
 
             if (column.percentWidth > .0) {
               renderer.percentWidth = column.percentWidth;
@@ -160,7 +170,7 @@ class DataGridItemRenderer extends ItemRenderer {
             addComponent(renderer);
             
             notify(
-                new FrameworkEvent(
+                new FrameworkEvent<IItemRenderer>(
                     'rendererAdded',
                     relatedObject: renderer
                 )
@@ -196,7 +206,7 @@ class DataGridItemRenderer extends ItemRenderer {
     IItemRenderer itemRenderer = event.currentTarget as IItemRenderer;
     
     notify(
-        new FrameworkEvent('dataPropertyChanged', relatedObject: itemRenderer)
+        new FrameworkEvent<IItemRenderer>('dataPropertyChanged', relatedObject: itemRenderer)
     );
   }
 }

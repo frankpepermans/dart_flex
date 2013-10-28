@@ -8,8 +8,8 @@ class UpdateManager {
   //
   //---------------------------------
 
-  UIWrapper _owner;
-  ReflowManager _reflowManager = new ReflowManager();
+  final UIWrapper _owner;
+  final ReflowManager _reflowManager = new ReflowManager();
 
   //---------------------------------
   //
@@ -17,9 +17,7 @@ class UpdateManager {
   //
   //---------------------------------
 
-  UpdateManager(UIWrapper owner) {
-    _owner = owner;
-  }
+  UpdateManager(this._owner);
 
   //-----------------------------------
   //

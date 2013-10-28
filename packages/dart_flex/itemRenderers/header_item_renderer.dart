@@ -1,6 +1,9 @@
 part of dart_flex;
 
 class HeaderItemRenderer extends ItemRenderer {
+  
+  static const EventHook<FrameworkEvent> onButtonClickEvent = const EventHook<FrameworkEvent>('buttonClick');
+  Stream<FrameworkEvent> get onButtonClick => HeaderItemRenderer.onButtonClickEvent.forTarget(this);
 
   //---------------------------------
   //
@@ -17,6 +20,8 @@ class HeaderItemRenderer extends ItemRenderer {
   // Public properties
   //
   //---------------------------------
+  
+  bool isSortedAsc = true;
 
   //---------------------------------
   //
@@ -40,7 +45,7 @@ class HeaderItemRenderer extends ItemRenderer {
     ..percentHeight = 100.0
     ..onButtonClick.listen(
         (FrameworkEvent event) => notify(
-            new FrameworkEvent(
+            new FrameworkEvent<dynamic>(
                 'buttonClick',
                 relatedObject: data
             )

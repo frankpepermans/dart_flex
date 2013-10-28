@@ -10,8 +10,8 @@ class ReflowManager {
 
   static final ReflowManager _instance = new ReflowManager._construct();
   
-  final List<_MethodInvokationMap> _scheduledHandlers = new List<_MethodInvokationMap>();
-  final List<_ElementCSSMap> _elements = new List<_ElementCSSMap>();
+  final List<_MethodInvokationMap> _scheduledHandlers = <_MethodInvokationMap>[];
+  final List<_ElementCSSMap> _elements = <_ElementCSSMap>[];
   
   //---------------------------------
   //

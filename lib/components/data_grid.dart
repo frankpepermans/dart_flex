@@ -356,7 +356,7 @@ class DataGrid extends ListBase {
         column = _columns[i];
         
         if (column._isActive) {
-          header = (column.headerItemRendererFactory.immediateInstance() as HeaderItemRenderer)
+          header = column.headerItemRendererFactory.immediateInstance()
             ..height = _headerHeight
             ..data =  column.headerData
             ..onButtonClick.listen(_header_clickHandler);

@@ -12,7 +12,7 @@ class DataGrid extends ListBase {
   //
   //---------------------------------
 
-  List<IItemRenderer> _headerItemRenderers;
+  List<HeaderItemRenderer> _headerItemRenderers;
 
   VGroup _gridContainer;
   HGroup _headerContainer;
@@ -61,7 +61,7 @@ class DataGrid extends ListBase {
         )
       );
 
-      invalidateProperties();
+      invalidateLayout();
     }
   }
   
@@ -214,21 +214,6 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
-  // dataProvider
-  //---------------------------------
-  
-  @override
-  set dataProvider(ObservableList value) {
-    if (
-        (value != _dataProvider) &&
-        (value != null) &&
-        (_presentationHandler != null)
-    ) value.sort(_presentationHandler);
-    
-    super.dataProvider = value;
-  }
-  
-  //---------------------------------
   // sortHandler
   //---------------------------------
 
@@ -275,14 +260,6 @@ class DataGrid extends ListBase {
     );
 
     invalidateProperties();
-  }
-  
-  void refreshColumnData() {
-    _list._itemRenderers.forEach(
-      (DataGridItemRenderer renderer) => renderer._itemRendererInstances.forEach(
-        (ItemRenderer subRenderer) => subRenderer._invalidateData()
-      )
-    );
   }
 
   //---------------------------------
@@ -336,14 +313,6 @@ class DataGrid extends ListBase {
   @override
   void _commitProperties() {
     super._commitProperties();
-    
-    if (
-      _isElementUpdateRequired &&
-      (_dataProvider != null) &&
-      (_presentationHandler != null)
-    ) {
-      _dataProvider.sort(_presentationHandler);
-    }
 
     if (
         _isColumnsChanged &&
@@ -373,16 +342,16 @@ class DataGrid extends ListBase {
 
   void _updateColumnsAndHeaders() {
     DataGridColumn column;
-    IItemRenderer header;
+    HeaderItemRenderer header;
     int i, len;
 
     _removeAllElements();
 
-    _headerItemRenderers = new List<IItemRenderer>();
+    _headerItemRenderers = new List<HeaderItemRenderer>();
 
     if (_columns != null) {
       len = _columns.length;
-
+      
       for (i=0; i<len; i++) {
         column = _columns[i];
         
@@ -390,7 +359,7 @@ class DataGrid extends ListBase {
           header = column.headerItemRendererFactory.immediateInstance()
             ..height = _headerHeight
             ..data =  column.headerData
-            ..['buttonClick'] = _header_clickHandler;
+            ..onButtonClick.listen(_header_clickHandler);
 
           if (column.width > 0) {
             header.width = column.width;
@@ -423,16 +392,12 @@ class DataGrid extends ListBase {
     }
   }
 
-  void _header_clickHandler(FrameworkEvent event) {
-    final HeaderData headerData = event.relatedObject as HeaderData;
-
-    /*if (event.relatedObject['isAscSort'] == null) event.relatedObject['isAscSort'] = true;
-
-    final bool isAscSort = event.relatedObject['isAscSort'];*/
+  void _header_clickHandler(FrameworkEvent<HeaderData> event) {
+    final HeaderItemRenderer renderer = event.currentTarget as HeaderItemRenderer;
     
-    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, headerData.field, /*isAscSort*/true);
+    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, event.relatedObject.field, renderer.isSortedAsc);
 
-    //event.relatedObject['isAscSort'] = !isAscSort;
+    renderer.isSortedAsc = !renderer.isSortedAsc;
   }
   
   @override
@@ -482,7 +447,7 @@ class DataGrid extends ListBase {
           }
         }
       }
-
+      
       _list.rowHeight = _rowHeight;
       _list.colWidth = w;
       _list.horizontalScrollPolicy = (tw > _width) ? ScrollPolicy.AUTO : ScrollPolicy.NONE;
@@ -496,8 +461,8 @@ class DataGrid extends ListBase {
     super._updateLayout();
   }
 
-  void _list_rendererAddedHandler(FrameworkEvent event) {
-    final DataGridItemRenderer renderer = event.relatedObject as DataGridItemRenderer
+  void _list_rendererAddedHandler(FrameworkEvent<DataGridItemRenderer> event) {
+    final DataGridItemRenderer renderer = event.relatedObject
       ..gap = _columnSpacing
       ..columns = _columns
       .._grid = this;
@@ -513,15 +478,15 @@ class DataGrid extends ListBase {
     invalidateProperties();
     
     notify(
-      new FrameworkEvent(
+      new FrameworkEvent<DataGridItemRenderer>(
         'rendererAdded',
         relatedObject: renderer
       )
     );
   }
   
-  void _list_rendererRemovedHandler(FrameworkEvent event) {
-    final DataGridItemRenderer renderer = event.relatedObject as DataGridItemRenderer
+  void _list_rendererRemovedHandler(FrameworkEvent<DataGridItemRenderer> event) {
+    final DataGridItemRenderer renderer = event.relatedObject
     ..columns = null
     ..data = null
     ..field = null
@@ -534,14 +499,14 @@ class DataGrid extends ListBase {
     }
     
     notify(
-        new FrameworkEvent(
+        new FrameworkEvent<DataGridItemRenderer>(
             'rendererRemoved',
             relatedObject: renderer
         )
     );
   }
   
-  void _list_selectedItemChangedHandler(FrameworkEvent event) {
+  void _list_selectedItemChangedHandler(FrameworkEvent<dynamic> event) {
     selectedItem = event.relatedObject;
     selectedIndex = _list.selectedIndex;
   }
@@ -586,10 +551,20 @@ class DataGrid extends ListBase {
   }
   
   @override
+  void _updateSelection() {
+    super._updateSelection();
+    
+    if (_list != null) {
+      _list.selectedIndex = _selectedIndex;
+      _list.selectedItem = _selectedItem;
+    }
+  }
+  
+  @override
   void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
     super._dataProvider_collectionChangedHandler(changes);
-
-    if (_list != null) _list._updateVisibleItemRenderers();
+    
+    selectedIndex = _dataProvider.indexOf(_selectedItem);
   }
   
   @override
@@ -620,9 +595,5 @@ class DataGrid extends ListBase {
     }
   }
   
-  void _renderer_dataPropertyChangedHandler(FrameworkEvent event) {
-    IItemRenderer itemRenderer = event.relatedObject as IItemRenderer;
-    
-    itemRenderer.control.scrollIntoView(ScrollAlignment.CENTER);
-  }
+  void _renderer_dataPropertyChangedHandler(FrameworkEvent<IItemRenderer> event) => event.relatedObject.control.scrollIntoView(ScrollAlignment.CENTER);
 }

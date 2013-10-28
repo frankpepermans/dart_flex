@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class ViewStackEvent extends FrameworkEvent {
+class ViewStackEvent<T> extends FrameworkEvent {
   
   //-----------------------------------
   //

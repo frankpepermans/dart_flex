@@ -113,10 +113,10 @@ class DataGridColumn {
   // headerItemRendererFactory
   //---------------------------------
 
-  ClassFactory<ItemRenderer> _headerItemRendererFactory;
+  ClassFactory<HeaderItemRenderer> _headerItemRendererFactory;
 
-  ClassFactory<ItemRenderer> get headerItemRendererFactory => _headerItemRendererFactory;
-  set headerItemRendererFactory(ClassFactory value) {
+  ClassFactory<HeaderItemRenderer> get headerItemRendererFactory => _headerItemRendererFactory;
+  set headerItemRendererFactory(ClassFactory<HeaderItemRenderer> value) {
     if (value != _headerItemRendererFactory) {
       _headerItemRendererFactory = value;
     }
