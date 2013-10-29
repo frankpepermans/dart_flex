@@ -214,6 +214,21 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
+  // autoScrollSelectionIntoView
+  //---------------------------------
+
+  bool _autoScrollSelectionIntoView = false;
+
+  bool get autoScrollSelectionIntoView => _autoScrollSelectionIntoView;
+  set autoScrollSelectionIntoView(bool value) {
+    if (value != _autoScrollSelectionIntoView) {
+      _autoScrollSelectionIntoView = value;
+
+      if (_list != null) _list.autoScrollSelectionIntoView = value;
+    }
+  }
+  
+  //---------------------------------
   // sortHandler
   //---------------------------------
 
@@ -287,6 +302,7 @@ class DataGrid extends ListBase {
     ..percentWidth = 100.0
     ..percentHeight = 100.0
     ..colPercentWidth = 100.0
+    ..autoScrollSelectionIntoView = _autoScrollSelectionIntoView
     ..rowSpacing = _rowSpacing
     ..rowHeight = _rowHeight
     ..dataProvider = _dataProvider

@@ -317,6 +317,21 @@ class ListRenderer extends ListBase {
       invalidateProperties();
     }
   }
+  
+  //---------------------------------
+  // autoScrollSelectionIntoView
+  //---------------------------------
+
+  bool _autoScrollSelectionIntoView = false;
+
+  bool get autoScrollSelectionIntoView => _autoScrollSelectionIntoView;
+  set autoScrollSelectionIntoView(bool value) {
+    if (value != _autoScrollSelectionIntoView) {
+      _autoScrollSelectionIntoView = value;
+
+      if (value) scrollSelectionIntoView();
+    }
+  }
 
   //---------------------------------
   //
@@ -332,9 +347,32 @@ class ListRenderer extends ListBase {
 
   //---------------------------------
   //
-  // Public properties
+  // Public methods
   //
   //---------------------------------
+  
+  void scrollSelectionIntoView() {
+    if (
+        (_selectedIndex >= 0) &&
+        (_itemRenderers != null)
+    ) {
+      final int pageItemSize = _getPageItemSize();
+      final int startIndex = (pageItemSize > 0) ? (_scrollPosition ~/ pageItemSize) : 0;
+      final int endIndex = startIndex + ((_itemRenderers != null) ? _itemRenderers.length : 0);
+      int offset, target;
+      
+      if (
+          (_selectedIndex < startIndex) || 
+          (_selectedIndex >= endIndex)
+      ) {
+        if (_layout is VerticalLayout) {
+          _control.scrollTop = _selectedIndex * _rowHeight;
+        } else {
+          _control.scrollLeft = _selectedIndex * _colWidth;
+        }
+      }
+    }
+  }
 
   //---------------------------------
   //
@@ -620,7 +658,7 @@ class ListRenderer extends ListBase {
             (data != null) &&
             (_labelFunction != null)
         ) data = _labelFunction(data);
-
+        
         _updateRenderer(
             _itemRenderers[rendererIndex++]
             ..index = i
@@ -653,6 +691,8 @@ class ListRenderer extends ListBase {
       );
       
       if (itemRenderer != null) {
+        _previousFirstIndex = -1;
+        
         selectedIndex = (_scrollPosition ~/ _getPageItemSize()) + _itemRenderers.indexOf(itemRenderer);
 
         selectedItem = _dataProvider[selectedIndex];
@@ -674,9 +714,13 @@ class ListRenderer extends ListBase {
     }
   }
   
-  void _updateSelection() => _updateVisibleItemRenderers();
+  void _updateSelection() {
+    _updateVisibleItemRenderers();
+    
+    if (_autoScrollSelectionIntoView) scrollSelectionIntoView();
+  }
 
-  void _itemRenderer_controlChangedHandler(FrameworkEvent<DivElement> event) {
+  void _itemRenderer_controlChangedHandler(FrameworkEvent<Element> event) {
     event.relatedObject.onMouseDown.listen(_handleMouseInteraction);
   }
   

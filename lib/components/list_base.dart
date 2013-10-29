@@ -17,6 +17,7 @@ class ListBase extends Group {
   static const EventHook<FrameworkEvent> onDataProviderChangedEvent = const EventHook<FrameworkEvent>('dataProviderChanged');
   Stream<FrameworkEvent> get onDataProviderChanged => ListBase.onDataProviderChangedEvent.forTarget(this);
   ObservableList _dataProvider;
+  List _oldDataProvider;
   StreamSubscription _dataProviderChangesListener;
 
   ObservableList get dataProvider => _dataProvider;
@@ -168,9 +169,7 @@ class ListBase extends Group {
   //---------------------------------
 
   int operator +(Object item) {
-    if (_dataProvider == null) {
-      dataProvider = new ObservableList();
-    }
+    if (_dataProvider == null) dataProvider = new ObservableList();
     
     _dataProvider.add(item);
 
@@ -178,9 +177,7 @@ class ListBase extends Group {
   }
 
   int operator -(Object item) {
-    if (_dataProvider == null) {
-      dataProvider = new ObservableList();
-    }
+    if (_dataProvider == null) dataProvider = new ObservableList();
     
     _dataProvider.remove(item);
 
@@ -233,11 +230,7 @@ class ListBase extends Group {
   }
 
   void _removeAllElements() {
-    if (_control != null) {
-      while (_control.children.length > 0) {
-        _control.children.removeLast();
-      }
-    }
+    if (_control != null) while (_control.children.length > 0) _control.children.removeLast();
 
     _childWrappers = new List<IUIWrapper>();
   }
@@ -245,9 +238,7 @@ class ListBase extends Group {
   void _updateAfterScrollPositionChanged() {}
 
   void _updateElements() {
-    if (_dataProvider == null) {
-      return;
-    }
+    if (_dataProvider == null) return;
     
     Object element;
     int len = _dataProvider.length;
@@ -269,10 +260,32 @@ class ListBase extends Group {
   void _createElement(Object item, int index) {}
 
   void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
-    _isElementUpdateRequired = true;
+    // TODO leave this check in place, we only need this to trigger if the dataProvider is actually changed,
+    // a sort call will dispatch a change, even if nothing has been moved internally
+    if (_isDataProviderChanged()) {
+      _oldDataProvider = new List.from(_dataProvider, growable: false);
+      
+      _isElementUpdateRequired = true;
 
-    invalidateProperties();
+      invalidateProperties();
+    }
   }
-
+  
+  bool _isDataProviderChanged() {
+    if (
+      (_oldDataProvider == null) &&
+      (_dataProvider == null)
+    ) return false;
+    
+    if (_oldDataProvider == null)                             return true;
+    if (_dataProvider == null)                                return true;
+    if (_dataProvider.length != _oldDataProvider.length)      return true;
+    
+    int i = _dataProvider.length;
+    
+    while (i > 0) if (_dataProvider[--i] != _oldDataProvider[i]) return true;
+    
+    return false;
+  }
 }
 
