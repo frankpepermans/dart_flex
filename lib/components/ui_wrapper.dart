@@ -626,9 +626,7 @@ class UIWrapper implements IUIWrapper {
       
       _className = value;
       
-      if (_isInitialized) {
-        later > _updateDefaultClass;
-      }
+      if (_isInitialized) later > _updateDefaultClass;
 
       notify(
         new FrameworkEvent('classNameChanged')
@@ -646,35 +644,6 @@ class UIWrapper implements IUIWrapper {
   Element _control;
 
   Element get control => _control;
-  //bool _hasHost = false;
-  
-  /*Element get host {
-    return _hasHost ? super.host : null;
-  }
-  
-  set host(Element value) {
-    super.host = value;
-    
-    _hasHost = (value != null);
-    
-    if (value != null) {
-      _reflowManager = new ReflowManager();
-      
-      if (this is DartFlexRootContainer) {
-        preInitialize(_owner);
-        
-        _control = value;
-        
-        _updateDefaultClass();
-        
-        window.$dom_addEventListener('resize', _invalidateSize, true);
-  
-        later > _updateSize;
-      }
-      
-      scanForDOMChildren();
-    }
-  }*/
 
   //---------------------------------
   //
@@ -683,7 +652,6 @@ class UIWrapper implements IUIWrapper {
   //---------------------------------
 
   UIWrapper({String elementId: null}) {
-    //_xTagRegistry = new XTagRegistry();
     _later = new UpdateManager(this);
     _eventDispatcher = new FrameworkEventDispatcher(dispatcher: this);
 
@@ -805,30 +773,6 @@ class UIWrapper implements IUIWrapper {
     }
   }
   
-  /*void scanForDOMChildren() {
-    final int len = $dom_childNodes.length;
-    Node child;
-    int i;
-    
-    for (i=0; i<len; i++) {
-      child = $dom_childNodes[i];
-      
-      if (child is Element) {
-        final Element childCast = child as Element;
-        
-        if (childCast.xtag is UIWrapper) {
-          final UIWrapper childComponent = child.xtag as UIWrapper;
-          
-          childComponent._setControl(
-              (child is DivElement) ? child : new DivElement()
-          );
-          
-          addComponent(childComponent);
-        }
-      }
-    }
-  }*/
-  
   void _prependControl(Element controlToPrepend) => _control.children.insert(0, controlToPrepend);
   
   Node _appendControl(Element controlToAppend) => _control.append(controlToAppend);
@@ -866,7 +810,7 @@ class UIWrapper implements IUIWrapper {
   //---------------------------------
 
   void _setControl(Element element) {
-    _control = element;
+    _control = element..hidden = !_visible;
     
     if (_inheritsDefaultCSS)
       _reflowManager.scheduleMethod(this, _addDefaultClass, [], forceSingleExecution: true);
@@ -890,8 +834,7 @@ class UIWrapper implements IUIWrapper {
   }
   
   void _updateDefaultClass() {
-    String cssValue = '_${_className}';
-    List<String> cssList = cssValue.split(' ');
+    final List<String> cssList = '_${_className}'.split(' ');
     
     cssList.forEach(
       (String css) {
@@ -943,11 +886,18 @@ class UIWrapper implements IUIWrapper {
     ) target = querySelector(_elementId);
     
     if (target != null) {
-      _control = target;
+      _control = target..hidden = !_visible;
       
       _reflowManager = new ReflowManager();
 
       window.onResize.listen(_invalidateSize);
+      
+      notify(
+          new FrameworkEvent<Element>(
+              'controlChanged',
+              relatedObject: target
+          )
+      );
       
       _initialize();
       
@@ -1049,13 +999,7 @@ class UIWrapper implements IUIWrapper {
   }
 
   void _updateVisibility() {
-    if (_control != null) {
-      _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
-    } else {
-      onControlChanged.listen(
-          (_) => _updateVisibility()
-      );
-    }
+    if (_control != null) _control.hidden = !_visible;
   }
 
   void _addAllPendingElements() {

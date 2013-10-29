@@ -22,6 +22,8 @@ class HeaderItemRenderer extends ItemRenderer {
   //---------------------------------
   
   bool isSortedAsc = true;
+  
+  HeaderData get headerData => _data as HeaderData;
 
   //---------------------------------
   //
@@ -35,7 +37,7 @@ class HeaderItemRenderer extends ItemRenderer {
 
   //---------------------------------
   //
-  // Public properties
+  // Public methods
   //
   //---------------------------------
 
@@ -43,14 +45,7 @@ class HeaderItemRenderer extends ItemRenderer {
     _button = new Button()
     ..percentWidth = 100.0
     ..percentHeight = 100.0
-    ..onButtonClick.listen(
-        (FrameworkEvent event) => notify(
-            new FrameworkEvent<dynamic>(
-                'buttonClick',
-                relatedObject: data
-            )
-        )
-    );
+    ..onButtonClick.listen(_button_buttonClickHandler);
 
     invalidateData();
 
@@ -60,8 +55,23 @@ class HeaderItemRenderer extends ItemRenderer {
   void invalidateData() {
     if (
        (_button != null) &&
-       (data != null)
-    ) _button.label = (data as HeaderData).label;
+       (_data != null)
+    ) _button.label = headerData.label;
+  }
+  
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
+  
+  void _button_buttonClickHandler(FrameworkEvent<dynamic> event) {
+    notify(
+        new FrameworkEvent<HeaderData>(
+            'buttonClick',
+            relatedObject: headerData
+        )
+    );
   }
 }
 

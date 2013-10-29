@@ -16,12 +16,12 @@ class ListBase extends Group {
 
   static const EventHook<FrameworkEvent> onDataProviderChangedEvent = const EventHook<FrameworkEvent>('dataProviderChanged');
   Stream<FrameworkEvent> get onDataProviderChanged => ListBase.onDataProviderChangedEvent.forTarget(this);
-  ObservableList _dataProvider;
-  List _oldDataProvider;
+  ObservableList<dynamic> _dataProvider;
+  List<dynamic> _oldDataProvider;
   StreamSubscription _dataProviderChangesListener;
 
-  ObservableList get dataProvider => _dataProvider;
-  set dataProvider(ObservableList value) {
+  ObservableList<dynamic> get dataProvider => _dataProvider;
+  set dataProvider(ObservableList<dynamic> value) {
     if (value != _dataProvider) {
       _dataProvider = value;
       _isElementUpdateRequired = true;
@@ -169,7 +169,7 @@ class ListBase extends Group {
   //---------------------------------
 
   int operator +(Object item) {
-    if (_dataProvider == null) dataProvider = new ObservableList();
+    if (_dataProvider == null) dataProvider = new ObservableList<dynamic>();
     
     _dataProvider.add(item);
 
@@ -177,9 +177,11 @@ class ListBase extends Group {
   }
 
   int operator -(Object item) {
-    if (_dataProvider == null) dataProvider = new ObservableList();
-    
-    _dataProvider.remove(item);
+    if (_dataProvider == null) {
+      dataProvider = new ObservableList<dynamic>();
+    } else {
+      _dataProvider.remove(item);
+    }
 
     return item;
   }
@@ -232,7 +234,7 @@ class ListBase extends Group {
   void _removeAllElements() {
     if (_control != null) while (_control.children.length > 0) _control.children.removeLast();
 
-    _childWrappers = new List<IUIWrapper>();
+    _childWrappers = <IUIWrapper>[];
   }
   
   void _updateAfterScrollPositionChanged() {}
@@ -240,30 +242,25 @@ class ListBase extends Group {
   void _updateElements() {
     if (_dataProvider == null) return;
     
-    Object element;
     int len = _dataProvider.length;
     int i;
 
     _removeAllElements();
 
-    for (i=0; i<len; i++) {
-      element = _dataProvider[i];
-
-      _createElement(element, i);
-    }
+    for (i=0; i<len; i++) _createElement(_dataProvider[i], i);
 
     _updateSelection();
   }
 
   void _updateSelection() {}
 
-  void _createElement(Object item, int index) {}
+  void _createElement(dynamic item, int index) {}
 
   void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
     // TODO leave this check in place, we only need this to trigger if the dataProvider is actually changed,
     // a sort call will dispatch a change, even if nothing has been moved internally
     if (_isDataProviderChanged()) {
-      _oldDataProvider = new List.from(_dataProvider, growable: false);
+      _oldDataProvider = new List<dynamic>.from(_dataProvider, growable: false);
       
       _isElementUpdateRequired = true;
 
