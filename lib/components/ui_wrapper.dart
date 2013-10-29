@@ -810,7 +810,9 @@ class UIWrapper implements IUIWrapper {
   //---------------------------------
 
   void _setControl(Element element) {
-    _control = element..style.display = _visible ? 'inline' : 'block';
+    _control = element;
+    
+    _updateVisibility();
     
     if (_inheritsDefaultCSS)
       _reflowManager.scheduleMethod(this, _addDefaultClass, [], forceSingleExecution: true);
@@ -886,7 +888,9 @@ class UIWrapper implements IUIWrapper {
     ) target = querySelector(_elementId);
     
     if (target != null) {
-      _control = target..style.display = _visible ? 'inline' : 'block';
+      _control = target;
+      
+      _updateVisibility();
       
       _reflowManager = new ReflowManager();
 
@@ -999,7 +1003,7 @@ class UIWrapper implements IUIWrapper {
   }
 
   void _updateVisibility() {
-    if (_control != null) _control.style.display = _visible ? 'inline' : 'block';
+    if (_control != null) _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
   }
 
   void _addAllPendingElements() {
