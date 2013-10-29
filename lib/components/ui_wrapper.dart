@@ -1003,7 +1003,10 @@ class UIWrapper implements IUIWrapper {
   }
 
   void _updateVisibility() {
-    if (_control != null) _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
+    if (
+        (_control != null) &&
+        (_reflowManager != null)
+    ) _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
   }
 
   void _addAllPendingElements() {
