@@ -947,7 +947,7 @@ class UIWrapper implements IUIWrapper {
       
       _reflowManager = new ReflowManager();
 
-      window.$dom_addEventListener('resize', _invalidateSize, true);
+      window.onResize.listen(_invalidateSize);
       
       _initialize();
       

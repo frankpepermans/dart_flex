@@ -431,10 +431,10 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
           (ChangeRecord changeRecord) => (
               (changeRecord is PropertyChangeRecord) &&
               (
-                  ((changeRecord as PropertyChangeRecord).changes(_field)) ||
+                  (changeRecord.changes(_field)) ||
                   (
                     (_fields != null) &&
-                    _fields.contains((changeRecord as PropertyChangeRecord).field)
+                    _fields.contains(changeRecord.field)
                   )
               )
               
@@ -455,7 +455,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   }
   
   dynamic _getDataToObserve() {
-    if (_data == null) return;
+    if (_data == null) return null;
     
     if (_fields == null) return data;
     

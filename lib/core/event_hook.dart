@@ -53,13 +53,15 @@ class _EventStreamSubscription<T extends FrameworkEvent> extends StreamSubscript
     _tryResume();
   }
 
-  void cancel() {
+  Future cancel() {
     if (_canceled) throw new StateError("Subscription has been canceled.");
 
     _unlisten();
     // Clear out the target to indicate this is complete.
     _target = null;
     _onData = null;
+    
+    return null;
   }
 
   bool get _canceled => (_target == null);
