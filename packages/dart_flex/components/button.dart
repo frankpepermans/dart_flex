@@ -91,11 +91,7 @@ class Button extends UIWrapper {
     }
   }
   
-  void _updateElementText(String label) {
-    ButtonElement element = _control as ButtonElement;
-    
-    element.setInnerHtml(label);
-  }
+  void _updateElementText(String label) => _control.setInnerHtml(label);
 }
 
 

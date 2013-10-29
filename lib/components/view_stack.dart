@@ -110,22 +110,18 @@ class ViewStack extends UIWrapper {
   }
   
   void addView(String uniqueId, IViewStackElement element) {
-    ViewStackElementData viewStackElement;
-    int i = _registeredViews.length;
+    ViewStackElementData viewStackElement = _registeredViews.firstWhere(
+      (ViewStackElementData data) => (data.uniqueId == uniqueId),
+      orElse: () => null
+    );
     
-    while (i > 0) {
-      viewStackElement = _registeredViews[--i];
+    if (viewStackElement == null) {
+      viewStackElement = new ViewStackElementData(element, uniqueId);
       
-      if (viewStackElement.uniqueId == uniqueId) return;
+      element.onRequestViewChange.listen(_viewStackElement_requestViewChangeHandler);
+      
+      _registeredViews.add(viewStackElement);  
     }
-    
-    viewStackElement = new ViewStackElementData()
-    ..element = element
-    ..uniqueId = uniqueId;
-    
-    element.onRequestViewChange.listen(_viewStackElement_requestViewChangeHandler);
-    
-    _registeredViews.add(viewStackElement);
   }
   
   bool show(String uniqueId) {
@@ -156,9 +152,7 @@ class ViewStack extends UIWrapper {
       if (
           (currentIndex == newIndex) ||
           (newIndex == -1)
-      ) {
-        return false;
-      }
+      ) return false;
       
       viewStackElement.element.visible = false;
       
@@ -294,7 +288,9 @@ class ViewStack extends UIWrapper {
 
 class ViewStackElementData {
   
-  IUIWrapper element;
-  String uniqueId;
+  final IUIWrapper element;
+  final String uniqueId;
+  
+  ViewStackElementData(this.element, this.uniqueId);
   
 }

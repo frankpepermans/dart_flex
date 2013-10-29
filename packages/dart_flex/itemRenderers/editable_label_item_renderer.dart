@@ -26,9 +26,7 @@ class EditableLabelItemRenderer extends ItemRenderer {
     layout = new HorizontalLayout();
   }
 
-  static EditableLabelItemRenderer construct() {
-    return new EditableLabelItemRenderer();
-  }
+  static EditableLabelItemRenderer construct() => new EditableLabelItemRenderer();
 
   //---------------------------------
   //
@@ -49,18 +47,14 @@ class EditableLabelItemRenderer extends ItemRenderer {
   }
 
   void invalidateData() {
-    if (_textArea != null) {
-      _textArea.text = itemToLabel();
-    }
+    if (_textArea != null) _textArea.text = itemToLabel();
   }
   
   String itemToLabel() {
     if (
         (_data != null) &&
         (_field != null)
-    ) {
-      return _data[_field].toString();
-    }
+    ) return _data[_field].toString();
     
     return '';
   }
@@ -69,8 +63,6 @@ class EditableLabelItemRenderer extends ItemRenderer {
     if (
         (_data != null) &&
         (_field != null)
-    ) {
-      _data[_field] = _textArea.text;
-    }
+    ) _data[_field] = _textArea.text;
   }
 }
