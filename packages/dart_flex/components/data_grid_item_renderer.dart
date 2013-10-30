@@ -180,7 +180,8 @@ class DataGridItemRenderer extends ItemRenderer {
       );
     }
   }
-
+  
+  @override
   void _invalidateData() {
     super._invalidateData();
 
@@ -193,8 +194,6 @@ class DataGridItemRenderer extends ItemRenderer {
   }
 
   void _itemRenderers_collectionChangedHandler(List<ChangeRecord> changes) => _updateItemRenderers();
-
-  void _itemRendererSizes_collectionChangedHandler() => _invalidateData();
 
   void _updateLayout() {
     _layout.gap = _gap;

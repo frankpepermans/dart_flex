@@ -100,12 +100,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   // index
   //---------------------------------
 
-  int _index = 0;
-
-  int get index => _index;
-  set index(int value) {
-    if (value != _index) _index = value;
-  }
+  int index = 0;
 
   //---------------------------------
   // data
@@ -341,14 +336,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       highlightElement = new DivElement();
       
       _highlightElementChangesListener = highlightElement.onTransitionEnd.listen(
-          (_) {
-            _control.children.remove(highlightElement);
-            
-            _highlightElementChangesListener.cancel();
-            
-            _highlightElementChangesListener = null;
-            highlightElement = null;
-          }
+          _highlightElement_transitionEndHandler
       );
     }
     
@@ -470,6 +458,16 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     );
     
     return value;
+  }
+  
+  void _highlightElement_transitionEndHandler(TransitionEvent event) {
+    _control.children.remove(highlightElement);
+    
+    _highlightElementChangesListener.cancel();
+    
+    _highlightElementChangesListener = null;
+    
+    highlightElement = null;
   }
 }
 

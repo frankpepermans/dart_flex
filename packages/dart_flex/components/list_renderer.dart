@@ -329,7 +329,7 @@ class ListRenderer extends ListBase {
     if (value != _autoScrollSelectionIntoView) {
       _autoScrollSelectionIntoView = value;
 
-      if (value) scrollSelectionIntoView();
+      if (value) later > scrollSelectionIntoView;
     }
   }
 
@@ -717,7 +717,7 @@ class ListRenderer extends ListBase {
   void _updateSelection() {
     _updateVisibleItemRenderers();
     
-    if (_autoScrollSelectionIntoView) scrollSelectionIntoView();
+    if (_autoScrollSelectionIntoView) later > scrollSelectionIntoView;
   }
 
   void _itemRenderer_controlChangedHandler(FrameworkEvent<Element> event) {

@@ -3,6 +3,7 @@ part of dart_flex;
 class ListBase extends Group {
 
   bool _isElementUpdateRequired = false;
+  bool _skipPresentationUpdate = false;
 
   //---------------------------------
   //
@@ -17,7 +18,6 @@ class ListBase extends Group {
   static const EventHook<FrameworkEvent> onDataProviderChangedEvent = const EventHook<FrameworkEvent>('dataProviderChanged');
   Stream<FrameworkEvent> get onDataProviderChanged => ListBase.onDataProviderChangedEvent.forTarget(this);
   ObservableList<dynamic> _dataProvider;
-  List<dynamic> _oldDataProvider;
   StreamSubscription _dataProviderChangesListener;
 
   ObservableList<dynamic> get dataProvider => _dataProvider;
@@ -224,7 +224,10 @@ class ListBase extends Group {
       if (_isElementUpdateRequired) {
         _isElementUpdateRequired = false;
         
-        _updatePresentation();
+        if (!_skipPresentationUpdate) _updatePresentation();
+        
+        _skipPresentationUpdate = false;
+        
         _updateElements();
         _updateAfterScrollPositionChanged();
       }
@@ -257,32 +260,10 @@ class ListBase extends Group {
   void _createElement(dynamic item, int index) {}
 
   void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
-    // TODO leave this check in place, we only need this to trigger if the dataProvider is actually changed,
-    // a sort call will dispatch a change, even if nothing has been moved internally
-    if (_isDataProviderChanged()) {
-      _oldDataProvider = new List<dynamic>.from(_dataProvider, growable: false);
-      
-      _isElementUpdateRequired = true;
+    _isElementUpdateRequired = true;
+    _skipPresentationUpdate = true;
 
-      invalidateProperties();
-    }
-  }
-  
-  bool _isDataProviderChanged() {
-    if (
-      (_oldDataProvider == null) &&
-      (_dataProvider == null)
-    ) return false;
-    
-    if (_oldDataProvider == null)                             return true;
-    if (_dataProvider == null)                                return true;
-    if (_dataProvider.length != _oldDataProvider.length)      return true;
-    
-    int i = _dataProvider.length;
-    
-    while (i > 0) if (_dataProvider[--i] != _oldDataProvider[i]) return true;
-    
-    return false;
+    invalidateProperties();
   }
 }
 

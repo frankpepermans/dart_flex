@@ -78,33 +78,6 @@ class ViewStack extends UIWrapper {
   //
   //---------------------------------
   
-  /*void scanForDOMChildren() {
-    final int len = $dom_childNodes.length;
-    Node child;
-    bool hasEncounteredFirstElement = false;
-    int i;
-    
-    for (i=0; i<len; i++) {
-      child = $dom_childNodes[i];
-      
-      if (child is Element) {
-        final Element childCast = child as Element;
-        
-        if (childCast.xtag is IViewStackElement) {
-          final IViewStackElement childComponent = child.xtag as IViewStackElement;
-          
-          addView(childCast.id, childComponent);
-          
-          if (!hasEncounteredFirstElement) {
-            hasEncounteredFirstElement = true;
-            
-            show(childCast.id);
-          }
-        }
-      } 
-    }
-  }*/
-  
   void addComponent(IUIWrapper element, {bool prepend: false}) {
     throw new ArgumentError('Please use addView() instead');
   }
@@ -185,17 +158,15 @@ class ViewStack extends UIWrapper {
   }
   
   bool removeView(String uniqueId) {
-    ViewStackElementData viewStackElement;
-    int i = _registeredViews.length;
+    ViewStackElementData viewStackElementData = _registeredViews.firstWhere(
+      (ViewStackElementData data) => (data.uniqueId == uniqueId),
+      orElse: () => null
+    );
     
-    while (i > 0) {
-      viewStackElement = _registeredViews[--i];
+    if (viewStackElementData != null) {
+      _container.removeComponent(viewStackElementData.element);
       
-      if (viewStackElement.uniqueId == uniqueId) {
-        _container.removeComponent(viewStackElement.element);
-        
-        return _registeredViews.remove(viewStackElement);
-      }
+      return _registeredViews.remove(viewStackElementData);
     }
     
     return false;
@@ -224,13 +195,14 @@ class ViewStack extends UIWrapper {
     
     _container = new Group()
     ..inheritsDefaultCSS = false
-    ..cssClasses = ['_ViewStackSlider']
-    .._layout = new AbsoluteLayout();
-    
-    _reflowManager.invalidateCSS(
-        _container._control,
-        'position',
-        'absolute'
+    ..cssClasses = const <String>['_ViewStackSlider']
+    .._layout = new AbsoluteLayout()
+    ..onControlChanged.listen(
+      (FrameworkEvent<Element> event) => _reflowManager.invalidateCSS(
+          event.relatedObject,
+          'position',
+          'absolute'
+      )    
     );
     
     super.addComponent(_container);

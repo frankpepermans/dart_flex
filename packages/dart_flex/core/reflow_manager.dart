@@ -34,10 +34,11 @@ class ReflowManager {
       (_) => _animationFrameCompleter.complete()
     );
     
-    return _animationFrameCompleter.future
-    ..whenComplete(
-        () => _animationFrameCompleter = null
-    );
+    Future result = _animationFrameCompleter.future;
+    
+    result.whenComplete(() => _animationFrameCompleter = null);
+    
+    return result;
   }
 
   //---------------------------------
