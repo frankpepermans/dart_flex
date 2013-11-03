@@ -984,7 +984,7 @@ class UIWrapper implements IUIWrapper {
     if (
         (_width == 0) && 
         (_height == 0)
-    ) later > _updateSize;
+    ) forceInvalidateSize();
   }
 
   void _updateVisibility() {
