@@ -5,4 +5,4 @@ description: Flex-like components in Dart
 homepage: https://github.com/frankpepermans/dart_flex
 dependencies:
   browser: any
-  observe: any
+  observe: '>=0.8.10+3'

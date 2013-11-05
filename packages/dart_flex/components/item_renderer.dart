@@ -419,10 +419,10 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
           (ChangeRecord changeRecord) => (
               (changeRecord is PropertyChangeRecord) &&
               (
-                  (changeRecord.changes(_field)) ||
+                  (changeRecord.name == _field) ||
                   (
                     (_fields != null) &&
-                    _fields.contains(changeRecord.field)
+                    _fields.contains(changeRecord.name)
                   )
               )
               

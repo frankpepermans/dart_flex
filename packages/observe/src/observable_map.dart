@@ -2,7 +2,11 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-part of observe;
+library observe.src.observable_map;
+
+import 'dart:collection';
+import 'package:observe/observe.dart';
+
 
 // TODO(jmesserly): this needs to be faster. We currently require multiple
 // lookups per key to get the old value.
@@ -11,30 +15,37 @@ part of observe;
 // backing store.
 
 // TODO(jmesserly): should we summarize map changes like we do for list changes?
-class MapChangeRecord extends ChangeRecord {
-  /** The map key that changed. */
-  final key;
+class MapChangeRecord<K, V> extends ChangeRecord {
+  // TODO(jmesserly): we could store this more compactly if it matters, with
+  // subtypes for inserted and removed.
 
-  // TODO(jmesserly): we could store this more compactly if it matters.
+  /** The map key that changed. */
+  final K key;
+
+  /** The previous value associated with this key. */
+  final V oldValue;
+
+  /** The new value associated with this key. */
+  final V newValue;
+
   /** True if this key was inserted. */
   final bool isInsert;
 
   /** True if this key was removed. */
   final bool isRemove;
 
-  MapChangeRecord(this.key, {this.isInsert: false, this.isRemove: false}) {
-    if (isInsert && isRemove) {
-      throw new ArgumentError(
-          '$key cannot be inserted and removed in the same change');
-    }
-  }
+  MapChangeRecord(this.key, this.oldValue, this.newValue)
+      : isInsert = false, isRemove = false;
 
-  // Use == on the key, to match equality semantics of most Maps.
-  bool changes(otherKey) => key == otherKey;
+  MapChangeRecord.insert(this.key, this.newValue)
+      : isInsert = true, isRemove = false, oldValue = null;
+
+  MapChangeRecord.remove(this.key, this.oldValue)
+      : isInsert = false, isRemove = true, newValue = null;
 
   String toString() {
     var kind = isInsert ? 'insert' : isRemove ? 'remove' : 'set';
-    return '#<MapChangeRecord $kind $key>';
+    return '#<MapChangeRecord $kind $key from: $oldValue to: $newValue>';
   }
 }
 
@@ -43,9 +54,7 @@ class MapChangeRecord extends ChangeRecord {
  * removed, or replaced, then observers that are listening to [changes]
  * will be notified.
  */
-class ObservableMap<K, V> extends ObservableBase implements Map<K, V> {
-  static const _LENGTH = const Symbol('length');
-
+class ObservableMap<K, V> extends ChangeNotifier implements Map<K, V> {
   final Map<K, V> _map;
 
   /** Creates an observable map. */
@@ -67,12 +76,11 @@ class ObservableMap<K, V> extends ObservableBase implements Map<K, V> {
    * you should use [toObservable].
    */
   factory ObservableMap.from(Map<K, V> other) {
-    var result = new ObservableMap<K, V>._createFromType(other);
-    other.forEach((key, value) { result[key] = value; });
-    return result;
+    return new ObservableMap<K, V>.createFromType(other)..addAll(other);
   }
 
-  factory ObservableMap._createFromType(Map<K, V> other) {
+  /** Like [ObservableMap.from], but creates an empty map. */
+  factory ObservableMap.createFromType(Map<K, V> other) {
     ObservableMap result;
     if (other is SplayTreeMap) {
       result = new ObservableMap<K, V>.sorted();
@@ -84,42 +92,46 @@ class ObservableMap<K, V> extends ObservableBase implements Map<K, V> {
     return result;
   }
 
-  Iterable<K> get keys => _map.keys;
+  @reflectable Iterable<K> get keys => _map.keys;
 
-  Iterable<V> get values => _map.values;
+  @reflectable Iterable<V> get values => _map.values;
 
-  int get length =>_map.length;
+  @reflectable int get length =>_map.length;
 
-  bool get isEmpty => length == 0;
+  @reflectable bool get isEmpty => length == 0;
 
-  bool get isNotEmpty => !isEmpty;
+  @reflectable bool get isNotEmpty => !isEmpty;
 
-  bool containsValue(Object value) => _map.containsValue(value);
+  @reflectable bool containsValue(Object value) => _map.containsValue(value);
 
-  bool containsKey(Object key) => _map.containsKey(key);
+  @reflectable bool containsKey(Object key) => _map.containsKey(key);
 
-  V operator [](Object key) => _map[key];
+  @reflectable V operator [](Object key) => _map[key];
 
-  void operator []=(K key, V value) {
+  @reflectable void operator []=(K key, V value) {
     int len = _map.length;
     V oldValue = _map[key];
     _map[key] = value;
     if (hasObservers) {
       if (len != _map.length) {
-        notifyPropertyChange(_LENGTH, len, _map.length);
-        notifyChange(new MapChangeRecord(key, isInsert: true));
-      } else if (!identical(oldValue, value)) {
-        notifyChange(new MapChangeRecord(key));
+        notifyPropertyChange(#length, len, _map.length);
+        notifyChange(new MapChangeRecord.insert(key, value));
+      } else if (oldValue != value) {
+        notifyChange(new MapChangeRecord(key, oldValue, value));
       }
     }
+  }
+
+  void addAll(Map<K, V> other) {
+    other.forEach((K key, V value) { this[key] = value; });
   }
 
   V putIfAbsent(K key, V ifAbsent()) {
     int len = _map.length;
     V result = _map.putIfAbsent(key, ifAbsent);
     if (hasObservers && len != _map.length) {
-      notifyPropertyChange(_LENGTH, len, _map.length);
-      notifyChange(new MapChangeRecord(key, isInsert: true));
+      notifyPropertyChange(#length, len, _map.length);
+      notifyChange(new MapChangeRecord.insert(key, result));
     }
     return result;
   }
@@ -128,8 +140,8 @@ class ObservableMap<K, V> extends ObservableBase implements Map<K, V> {
     int len = _map.length;
     V result =  _map.remove(key);
     if (hasObservers && len != _map.length) {
-      notifyChange(new MapChangeRecord(key, isRemove: true));
-      notifyPropertyChange(_LENGTH, len, _map.length);
+      notifyChange(new MapChangeRecord.remove(key, result));
+      notifyPropertyChange(#length, len, _map.length);
     }
     return result;
   }
@@ -138,9 +150,9 @@ class ObservableMap<K, V> extends ObservableBase implements Map<K, V> {
     int len = _map.length;
     if (hasObservers && len > 0) {
       _map.forEach((key, value) {
-        notifyChange(new MapChangeRecord(key, isRemove: true));
+        notifyChange(new MapChangeRecord.remove(key, value));
       });
-      notifyPropertyChange(_LENGTH, len, 0);
+      notifyPropertyChange(#length, len, 0);
     }
     _map.clear();
   }

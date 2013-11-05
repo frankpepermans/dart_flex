@@ -711,11 +711,7 @@ class UIWrapper implements IUIWrapper {
   }
 
   void invalidateProperties() {
-    if (!_isLayoutUpdateRequired) {
-      _isLayoutUpdateRequired = _allowLayoutUpdate;
-
-      later > _commitProperties;
-    }
+    if (!_isLayoutUpdateRequired) invalidateLayout();
   }
 
   void addComponent(IUIWrapper element, {bool prepend: false}) {
@@ -726,16 +722,7 @@ class UIWrapper implements IUIWrapper {
     elementCast._reflowManager = _reflowManager;
 
     if (_control == null) {
-      if (prepend) {
-        List<IUIWrapper> newList = <IUIWrapper>[];
-
-        newList.add(element);
-        newList.addAll(_addLaterElements);
-
-        _addLaterElements = newList;
-      } else {
-        _addLaterElements.add(element);
-      }
+      prepend ? _addLaterElements.insert(0, element) : _addLaterElements.add(element);
     } else {
       elementCast._owner = this;
       
@@ -754,17 +741,11 @@ class UIWrapper implements IUIWrapper {
       elementCast._initialize();
       
       if (_elementId != null) {
-        if (prepend) {
-          _control.children.insert(0, element.control);
-        } else {
-          _control.append(element.control);
-        }
+        prepend ? _control.children.insert(0, element.control) : _control.append(element.control);
       } else {
-        if (prepend) {
-          _reflowManager.scheduleMethod(this, _prependControl, [element.control]);
-        } else {
+        prepend ? 
+          _reflowManager.scheduleMethod(this, _prependControl, [element.control]) :
           _reflowManager.scheduleMethod(this, _appendControl, [element.control]);
-        }
       }
 
       invalidateLayout();
@@ -991,15 +972,19 @@ class UIWrapper implements IUIWrapper {
   void _invalidateSize(Event event) => later > _updateSize;
 
   void _updateSize() {
-    /*if (host != null) {
-      width = _control.parent.client.width;
-      height = _control.parent.client.height;
-    } else if (_control != null && _control.client != null) {*/
-      width = _control.client.width;
-      height = _control.client.height;
+    if (_control != null) {
+      final Rectangle rect = _control.client;
       
-      if (width == 0 && height == 0) later > _updateSize;
-    /*}*/
+      width = rect.width;
+      height = rect.height;
+    } else {
+      width = height = 0;
+    }
+    
+    if (
+        (_width == 0) && 
+        (_height == 0)
+    ) forceInvalidateSize();
   }
 
   void _updateVisibility() {
@@ -1010,10 +995,12 @@ class UIWrapper implements IUIWrapper {
   }
 
   void _addAllPendingElements() {
-    _addLaterElements.forEach(
+    final List<IUIWrapper> listClone = new List<IUIWrapper>.from(_addLaterElements, growable:false);
+    
+    _addLaterElements = <IUIWrapper>[];
+    
+    listClone.forEach(
         (IUIWrapper element) => addComponent(element)
     );
-
-    _addLaterElements = <IUIWrapper>[];
   }
 }
