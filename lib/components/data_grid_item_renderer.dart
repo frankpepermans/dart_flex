@@ -102,12 +102,18 @@ class DataGridItemRenderer extends ItemRenderer {
 
   //---------------------------------
   //
-  // Public properties
+  // Public methods
   //
   //---------------------------------
 
   void invalidateData() {
   }
+  
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
   
   void _refreshColumns() {
     _isColumnsChanged = true;

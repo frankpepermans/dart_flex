@@ -564,6 +564,8 @@ class DataGrid extends ListBase {
     _isColumnsChanged = true;
 
     invalidateProperties();
+    
+    later > _updateSelection;
   }
   
   @override
