@@ -79,7 +79,7 @@ class ReflowManager {
       _scheduledHandlers.add(invokation);
       
       animationFrame.then(
-          (_) => _scheduledHandlers.remove(invokation)
+          (_) => _scheduledHandlers.remove(invokation.invoke())
       );
     } else invokation._arguments = arguments;
   }
@@ -114,10 +114,10 @@ class _MethodInvokationMap {
   
   _MethodInvokationMap(this._owner, this._method);
   
-  dynamic invoke() {
+  _MethodInvokationMap invoke() {
     Function.apply(_method, _arguments);
     
-    return _owner;
+    return this;
   }
 
 }
