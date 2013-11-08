@@ -11,7 +11,7 @@ class ReflowManager {
   static final ReflowManager _instance = new ReflowManager._construct();
   
   final List<_MethodInvokationMap> _scheduledHandlers = <_MethodInvokationMap>[];
-  final Map<Element, _ElementCSSMap> _elements = <Element, _ElementCSSMap>{};
+  final List<_ElementCSSMap> _elements = <_ElementCSSMap>[];
   
   //---------------------------------
   //
@@ -79,7 +79,11 @@ class ReflowManager {
       _scheduledHandlers.add(invokation);
       
       animationFrame.then(
-          (_) => _scheduledHandlers.remove(invokation.invoke())
+          (_) {
+            _scheduledHandlers.remove(invokation);
+            
+            invokation.invoke();
+          }
       );
     } else invokation._arguments = arguments;
   }
@@ -87,17 +91,24 @@ class ReflowManager {
   void invalidateCSS(Element element, String property, String value) {
     if (element == null) return;
     
-    _ElementCSSMap elementCSSMap = _elements[element];
+    _ElementCSSMap elementCSSMap = _elements.firstWhere(
+      (_ElementCSSMap tmpElementCSSMap) => (tmpElementCSSMap._element == element),
+      orElse: () => null
+    );
 
     if (elementCSSMap == null) {
       elementCSSMap = new _ElementCSSMap(element)
       ..detachedCCSText = element.style.cssText
       ..setProperty(property, value);
 
-      _elements[element] = elementCSSMap;
+      _elements.add(elementCSSMap);
       
       animationFrame.then(
-          (_) => _elements.remove(elementCSSMap.finalize())    
+          (_) {
+            _elements.remove(elementCSSMap);
+            
+            elementCSSMap.finalize();
+          }    
       );
     } else {
       elementCSSMap.setProperty(property, value);
@@ -114,11 +125,7 @@ class _MethodInvokationMap {
   
   _MethodInvokationMap(this._owner, this._method);
   
-  _MethodInvokationMap invoke() {
-    Function.apply(_method, _arguments);
-    
-    return this;
-  }
+  dynamic invoke() => Function.apply(_method, _arguments);
 
 }
 
@@ -143,10 +150,8 @@ class _ElementCSSMap {
   
   _ElementCSSMap(this._element);
   
-  Element finalize() {
+  void finalize() {
     if (_element.style.cssText != _detachedElement.style.cssText) _element.style.cssText = _detachedElement.style.cssText;
-    
-    return _element;
   }
   
   void setProperty(String propertyName, String value) => _detachedElement.style.setProperty(propertyName, value, _PRIORITY);
