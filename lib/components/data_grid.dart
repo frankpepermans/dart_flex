@@ -327,6 +327,17 @@ class DataGrid extends ListBase {
   }
   
   @override
+  void _updatePresentation() {
+    super._updatePresentation();
+    
+    if (_list != null) {
+      _list._updateVisibleItemRenderers(ignorePreviousIndex: true);
+      
+      later > _list.invalidateLayout;
+    }
+  }
+  
+  @override
   void _commitProperties() {
     super._commitProperties();
 
@@ -414,10 +425,6 @@ class DataGrid extends ListBase {
     presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, event.relatedObject.field, renderer.isSortedAsc);
 
     renderer.isSortedAsc = !renderer.isSortedAsc;
-    
-    _skipPresentationUpdate = false;
-    
-    invalidatePresentation();
   }
   
   @override
