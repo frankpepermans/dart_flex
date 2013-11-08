@@ -48,6 +48,8 @@ abstract class IItemRenderer implements IUIWrapper {
   void createChildren();
 
   void invalidateData();
+  
+  void invalidateDataChangesListener();
 
   void updateLayout();
 
@@ -127,7 +129,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
         _dataFieldsChangesListener = null;
       }
       
-      dynamic dataToObserve = _getDataToObserve();
+      dynamic dataToObserve = getDataToObserve();
       
       if (value is Observable) _dataChangesListener = value.changes.listen(_data_changesHandler);
       if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
@@ -176,7 +178,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
         _dataFieldsChangesListener = null;
       }
       
-      dynamic dataToObserve = _getDataToObserve();
+      dynamic dataToObserve = getDataToObserve();
       
       if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
       
@@ -329,6 +331,8 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   
   void updateForEditable() {}
   
+  void invalidateDataChangesListener() => _data_changesHandler(null);
+  
   void highlight() {
     if (_control == null) return;
     
@@ -347,6 +351,24 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     reflowManager.invalidateCSS(highlightElement, 'opacity', '0');
     
     if (!_control.contains(highlightElement)) _control.append(highlightElement);
+  }
+  
+  dynamic getDataToObserve() {
+    if (_data == null) return null;
+    
+    if (_fields == null) return data;
+    
+    dynamic value;
+    
+    value = _data;
+    
+    _fields.forEach(
+        (Symbol subField) {
+          if (value != null) value = value[subField];
+        }
+    );
+    
+    return value;
   }
 
   //---------------------------------
@@ -409,12 +431,12 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
         _dataFieldsChangesListener = null;
       }
       
-      dynamic dataToObserve = _getDataToObserve();
+      dynamic dataToObserve = getDataToObserve();
       
       if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
     }
     
-    if (_enableHighlight) {
+    if (_enableHighlight && (changes != null)) {
       PropertyChangeRecord propertyChangeRecord = changes.firstWhere(
           (ChangeRecord changeRecord) => (
               (changeRecord is PropertyChangeRecord) &&
@@ -440,24 +462,6 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     }
     
     later > _invalidateData;
-  }
-  
-  dynamic _getDataToObserve() {
-    if (_data == null) return null;
-    
-    if (_fields == null) return data;
-    
-    dynamic value;
-    
-    value = _data;
-    
-    _fields.forEach(
-        (Symbol subField) {
-          if (value != null) value = value[subField];
-        }
-    );
-    
-    return value;
   }
   
   void _highlightElement_transitionEndHandler(TransitionEvent event) {

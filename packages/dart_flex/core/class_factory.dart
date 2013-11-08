@@ -5,6 +5,10 @@ class ClassFactory<T extends UIWrapper> {
   Function _constructorMethod;
 
   Function get constructorMethod => _constructorMethod;
+  
+  List<dynamic> _constructorArguments;
+
+  List<dynamic> get constructorArguments => _constructorArguments;
 
   String _library;
 
@@ -14,14 +18,14 @@ class ClassFactory<T extends UIWrapper> {
 
   String get className => _className;
 
-  ClassFactory({String library: null, String className: null, Function constructorMethod: null}) {
+  ClassFactory({String library: null, String className: null, Function constructorMethod: null, List<dynamic> constructorArguments: const <dynamic>[]}) {
     _library = library;
     _className = className;
     _constructorMethod = constructorMethod;
-
+    _constructorArguments = constructorArguments;
   }
 
-  T immediateInstance() => _constructorMethod();
+  T immediateInstance() => Function.apply(_constructorMethod, _constructorArguments);
 
   /*Future futureInstance() {
     if (_constructorMethod != null) {
@@ -38,7 +42,7 @@ class ClassFactory<T extends UIWrapper> {
   Future<T> _createFutureInstance() {
     Completer<T> completer = new Completer<T>();
 
-    completer.complete(_constructorMethod());
+    completer.complete(Function.apply(_constructorMethod, _constructorArguments));
 
     return completer.future;
   }

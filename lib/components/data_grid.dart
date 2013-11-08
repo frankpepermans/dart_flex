@@ -414,6 +414,10 @@ class DataGrid extends ListBase {
     presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, event.relatedObject.field, renderer.isSortedAsc);
 
     renderer.isSortedAsc = !renderer.isSortedAsc;
+    
+    _skipPresentationUpdate = false;
+    
+    invalidatePresentation();
   }
   
   @override
