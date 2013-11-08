@@ -10,8 +10,8 @@ class ReflowManager {
 
   static final ReflowManager _instance = new ReflowManager._construct();
   
-  final List<_MethodInvokationMap> _scheduledHandlers = <_MethodInvokationMap>[];
-  final List<_ElementCSSMap> _elements = <_ElementCSSMap>[];
+  final Map<dynamic, _MethodInvokationMap> _scheduledHandlers = <dynamic, _MethodInvokationMap>{};
+  final Map<Element, _ElementCSSMap> _elements = <Element, _ElementCSSMap>{};
   
   //---------------------------------
   //
@@ -64,26 +64,16 @@ class ReflowManager {
   void scheduleMethod(dynamic owner, Function method, List arguments, {bool forceSingleExecution: false}) {
     _MethodInvokationMap invokation;
     
-    if (forceSingleExecution) invokation = _scheduledHandlers.firstWhere(
-        (_MethodInvokationMap tmpInvokation) => (
-            (tmpInvokation._owner == owner) &&
-            FunctionEqualityUtil.equals(tmpInvokation._method, method)
-        ),
-        orElse: () => null
-    );
+    if (forceSingleExecution) invokation = _scheduledHandlers[owner];
     
     if (invokation == null) {
       invokation = new _MethodInvokationMap(owner, method)
         .._arguments = arguments;
 
-      _scheduledHandlers.add(invokation);
+      _scheduledHandlers[owner] = invokation;
       
       animationFrame.then(
-          (_) {
-            _scheduledHandlers.remove(invokation);
-            
-            invokation.invoke();
-          }
+          (_) => _scheduledHandlers.remove(invokation.invoke())
       );
     } else invokation._arguments = arguments;
   }
@@ -91,24 +81,17 @@ class ReflowManager {
   void invalidateCSS(Element element, String property, String value) {
     if (element == null) return;
     
-    _ElementCSSMap elementCSSMap = _elements.firstWhere(
-      (_ElementCSSMap tmpElementCSSMap) => (tmpElementCSSMap._element == element),
-      orElse: () => null
-    );
+    _ElementCSSMap elementCSSMap = _elements[element];
 
     if (elementCSSMap == null) {
       elementCSSMap = new _ElementCSSMap(element)
       ..detachedCCSText = element.style.cssText
       ..setProperty(property, value);
 
-      _elements.add(elementCSSMap);
+      _elements[element] = elementCSSMap;
       
       animationFrame.then(
-          (_) {
-            _elements.remove(elementCSSMap);
-            
-            elementCSSMap.finalize();
-          }    
+          (_) => _elements.remove(elementCSSMap.finalize())    
       );
     } else {
       elementCSSMap.setProperty(property, value);
@@ -125,7 +108,11 @@ class _MethodInvokationMap {
   
   _MethodInvokationMap(this._owner, this._method);
   
-  dynamic invoke() => Function.apply(_method, _arguments);
+  dynamic invoke() {
+    Function.apply(_method, _arguments);
+    
+    return _owner;
+  }
 
 }
 
@@ -150,8 +137,10 @@ class _ElementCSSMap {
   
   _ElementCSSMap(this._element);
   
-  void finalize() {
+  Element finalize() {
     if (_element.style.cssText != _detachedElement.style.cssText) _element.style.cssText = _detachedElement.style.cssText;
+    
+    return _element;
   }
   
   void setProperty(String propertyName, String value) => _detachedElement.style.setProperty(propertyName, value, _PRIORITY);
