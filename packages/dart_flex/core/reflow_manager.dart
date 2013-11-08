@@ -76,7 +76,7 @@ class ReflowManager {
       invokation = new _MethodInvokationMap(owner, method)
         .._arguments = arguments;
 
-      _scheduledHandlers[owner] = invokation;
+      _scheduledHandlers.add(invokation);
       
       animationFrame.then(
           (_) => _scheduledHandlers.remove(invokation)
