@@ -10,7 +10,7 @@ class ReflowManager {
 
   static final ReflowManager _instance = new ReflowManager._construct();
   
-  final Map<dynamic, _MethodInvokationMap> _scheduledHandlers = <dynamic, _MethodInvokationMap>{};
+  final List<_MethodInvokationMap> _scheduledHandlers = <_MethodInvokationMap>[];
   final Map<Element, _ElementCSSMap> _elements = <Element, _ElementCSSMap>{};
   
   //---------------------------------
@@ -64,7 +64,13 @@ class ReflowManager {
   void scheduleMethod(dynamic owner, Function method, List arguments, {bool forceSingleExecution: false}) {
     _MethodInvokationMap invokation;
     
-    if (forceSingleExecution) invokation = _scheduledHandlers[owner];
+    if (forceSingleExecution) invokation = _scheduledHandlers.firstWhere(
+        (_MethodInvokationMap tmpInvokation) => (
+            (tmpInvokation._owner == owner) &&
+            FunctionEqualityUtil.equals(tmpInvokation._method, method)
+        ),
+        orElse: () => null
+    );
     
     if (invokation == null) {
       invokation = new _MethodInvokationMap(owner, method)
@@ -73,7 +79,7 @@ class ReflowManager {
       _scheduledHandlers[owner] = invokation;
       
       animationFrame.then(
-          (_) => _scheduledHandlers.remove(invokation.invoke())
+          (_) => _scheduledHandlers.remove(invokation)
       );
     } else invokation._arguments = arguments;
   }
