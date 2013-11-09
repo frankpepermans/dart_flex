@@ -433,7 +433,7 @@ class ListRenderer extends ListBase {
   
   @override
   void _createChildren() {
-    final DivElement container = new DivElement()
+    final SpanElement container = new SpanElement()
     ..onScroll.listen(_container_scrollHandler)
     ..onTouchCancel.listen(_container_scrollHandler)
     ..onTouchEnd.listen(_container_scrollHandler)

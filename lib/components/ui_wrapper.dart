@@ -934,7 +934,7 @@ class UIWrapper implements IUIWrapper {
   }
 
   void _updateLayout() {
-    if (
+    if ( 
       _allowLayoutUpdate &&
       (_width > 0) &&
       (_height > 0)
@@ -977,14 +977,14 @@ class UIWrapper implements IUIWrapper {
       
       width = rect.width;
       height = rect.height;
+      
+      if (
+          (_width == 0) && 
+          (_height == 0)
+      ) reflowManager.animationFrame.then((_) => forceInvalidateSize());
     } else {
       width = height = 0;
     }
-    
-    if (
-        (_width == 0) && 
-        (_height == 0)
-    ) forceInvalidateSize();
   }
 
   void _updateVisibility() {
