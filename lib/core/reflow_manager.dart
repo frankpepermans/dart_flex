@@ -181,6 +181,8 @@ class _ElementCSSMap {
   
   final Element _element;
   final HtmlHtmlElement _detachedElement = new HtmlHtmlElement();
+  final List<String> _dirtyProperties = <String>[];
+  final List<String> _dirtyValues = <String>[];
   
   bool get isDirty => (_element.style.cssText != _detachedElement.style.cssText);
   
@@ -197,9 +199,32 @@ class _ElementCSSMap {
   _ElementCSSMap(this._element);
   
   void finalize() {
-    if (_element.style.cssText != _detachedElement.style.cssText) _element.style.cssText = _detachedElement.style.cssText;
+    if (_element.style.cssText != _detachedElement.style.cssText) {
+      int i = _dirtyProperties.length;
+      String propertyName, leftValue, rightValue;
+      
+      while (i > 0) {
+        propertyName = _dirtyProperties[--i];
+        
+        leftValue = _element.style.getPropertyValue(propertyName);
+        rightValue = _dirtyValues[i];
+        
+        if (leftValue != rightValue) _element.style.setProperty(propertyName, rightValue, _PRIORITY);
+      }
+    }
   }
   
-  void setProperty(String propertyName, String value) => _detachedElement.style.setProperty(propertyName, value, _PRIORITY);
+  void setProperty(String propertyName, String value) {
+    int index = _dirtyProperties.indexOf(propertyName);
+    
+    if (index == -1) {
+      _dirtyProperties.add(propertyName);
+      _dirtyValues.add(value);
+    } else {
+      _dirtyValues[index] = value;
+    }
+    
+    _detachedElement.style.setProperty(propertyName, value, _PRIORITY);
+  }
 
 }

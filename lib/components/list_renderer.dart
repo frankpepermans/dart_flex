@@ -640,14 +640,13 @@ class ListRenderer extends ListBase {
 
       dynamic data;
       bool isRendererShown;
-      int rendererIndex = 0;
-      int i;
+      int i, rendererIndex = 0;
 
       _itemRenderers.sort(_itemRenderer_sortHandler);
       
       _previousFirstIndex = _firstIndex;
       
-      _childWrappers = _itemRenderers.sublist(0);
+      _childWrappers = new List<IItemRenderer>.from(_itemRenderers);
 
       for (i=_firstIndex; i<len; i++) {
         isRendererShown = (i < dpLen);
