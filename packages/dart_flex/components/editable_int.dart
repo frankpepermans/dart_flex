@@ -13,6 +13,8 @@ class EditableInt extends UIWrapper {
   // Public properties
   //
   //---------------------------------
+  
+  NumberInputElement label;
 
   //---------------------------------
   // value
@@ -98,6 +100,13 @@ class EditableInt extends UIWrapper {
   // Public properties
   //
   //---------------------------------
+  
+  @override
+  void _updateEnabledStatus() {
+    super._updateEnabledStatus();
+    
+    if (label != null) label.readOnly = !_enabled;
+  }
 
   //---------------------------------
   //
@@ -108,7 +117,7 @@ class EditableInt extends UIWrapper {
   void _createChildren() {
     super._createChildren();
     
-    NumberInputElement label = new NumberInputElement();
+    label = new NumberInputElement()..readOnly = !_enabled;
     
     label.onInput.listen(_label_inputHandler);
     

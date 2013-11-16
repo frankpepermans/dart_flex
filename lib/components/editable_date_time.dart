@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class EditableTime<T> extends EditableTextMask {
+class EditableDateTime<T> extends EditableTextMask {
   
   //---------------------------------
   //
@@ -8,9 +8,12 @@ class EditableTime<T> extends EditableTextMask {
   //
   //---------------------------------
   
-  static const String TIME_MASK = 'HH/MM';
-  static const String TIME_MASK_HOUR = 'H';
-  static const String TIME_MASK_MINUTE = 'M';
+  static const String DATE_TIME_MASK = 'dd/mm/yy HH:MM';
+  static const String DATE_TIME_MASK_DAY = 'd';
+  static const String DATE_TIME_MASK_MONTH = 'm';
+  static const String DATE_TIME_MASK_YEAR = 'y';
+  static const String DATE_TIME_MASK_HOUR = 'H';
+  static const String DATE_TIME_MASK_MINUTE = 'M';
 
   //---------------------------------
   //
@@ -24,10 +27,10 @@ class EditableTime<T> extends EditableTextMask {
   //
   //---------------------------------
 
-  EditableTime({String elementId: null}) : super(elementId: elementId) {
-    _className = 'EditableTime';
+  EditableDateTime({String elementId: null}) : super(elementId: elementId) {
+    _className = 'EditableDateTime';
     
-    text = TIME_MASK;
+    text = DATE_TIME_MASK;
     
     _mask = _oldInputValue = _text;
   }
@@ -52,7 +55,7 @@ class EditableTime<T> extends EditableTextMask {
     
     String char = _getChange(_oldInputValue, _text);
     
-    bool isDel = (char == TIME_MASK_HOUR || char == TIME_MASK_MINUTE);
+    bool isDel = (char == DATE_TIME_MASK_DAY || char == DATE_TIME_MASK_MONTH || char == DATE_TIME_MASK_YEAR || char == DATE_TIME_MASK_HOUR || char == DATE_TIME_MASK_MINUTE);
     
     _oldInputValue = _text;
     
@@ -74,6 +77,26 @@ class EditableTime<T> extends EditableTextMask {
     if (date == null) return input.value;
     
     List<String> list = <String>[];
+    
+    if (date.day < 10) {
+      list.add('0${date.day}');
+    } else {
+      list.add(date.day.toString());
+    }
+    
+    list.add('/');
+    
+    if (date.month < 10) {
+      list.add('0${date.month}');
+    } else {
+      list.add(date.month.toString());
+    }
+    
+    list.add('/');
+    
+    list.add(date.year.toString().substring(2));
+    
+    list.add(' ');
     
     if (date.hour < 10) {
       list.add('0${date.hour}');
@@ -102,9 +125,9 @@ class EditableTime<T> extends EditableTextMask {
         _selectedIndex++;
       }
       
-      if (_selectedIndex > 1) {
+      if (_selectedIndex > 4) {
         _selectedSubIndex = 1;
-        _selectedIndex = 1;
+        _selectedIndex = 4;
       }
     } else {
       if (_selectedSubIndex == 1) {
@@ -146,11 +169,11 @@ class EditableTime<T> extends EditableTextMask {
       if (hasNumericValue) {
         buffer.writeCharCode((codeUnit < 48 || codeUnit >= 58) ? 32 : codeUnits[i]);
       } else {
-        buffer.write((_selectedIndex == 0) ? TIME_MASK_HOUR : TIME_MASK_MINUTE);
+        buffer.write((_selectedIndex == 0) ? DATE_TIME_MASK_DAY : (_selectedIndex == 1) ? DATE_TIME_MASK_MONTH : (_selectedIndex == 2) ? DATE_TIME_MASK_YEAR : (_selectedIndex == 3) ? DATE_TIME_MASK_HOUR : DATE_TIME_MASK_MINUTE);
       }
     }
     
-    if (_selectedIndex < 1) buffer.write(incoming.substring(incomingLen + buffer.length - _mask.length));
+    if (_selectedIndex < 4) buffer.write(incoming.substring(incomingLen + buffer.length - _mask.length));
     
     return buffer.toString();
   }
@@ -158,7 +181,7 @@ class EditableTime<T> extends EditableTextMask {
   String _getPlaceholder() => (_selectedSubIndex == 1) ? ' ' : '  ';
   
   String _getChange(String start, String end) {
-    if (end == TIME_MASK) return TIME_MASK_HOUR;
+    if (end == DATE_TIME_MASK) return DATE_TIME_MASK_DAY;
     
     final int len = (start.length <= end.length) ? start.length : end.length;
     int i;
@@ -170,13 +193,23 @@ class EditableTime<T> extends EditableTextMask {
   
   DateTime _toDateTime(String value) {
     if (
-        (value == TIME_MASK) ||
-        value.contains(TIME_MASK_HOUR) ||
-        value.contains(TIME_MASK_MINUTE)
+        (value == DATE_TIME_MASK) ||
+        value.contains(DATE_TIME_MASK_DAY) ||
+        value.contains(DATE_TIME_MASK_MONTH) ||
+        value.contains(DATE_TIME_MASK_YEAR) ||
+        value.contains(DATE_TIME_MASK_HOUR) ||
+        value.contains(DATE_TIME_MASK_MINUTE)
     ) return null;
     
-    final List<String> dateParts = value.split(':');
+    final List<String> dateParts = value.split('/');
+    final List<String> timeParts = value.split(':');
     
-    return new DateTime.utc(2000, 1, 1, int.parse(dateParts.first), int.parse(dateParts.last));
+    return new DateTime.utc(
+        (2000 + int.parse(dateParts.removeLast().substring(0, 2))), 
+        int.parse(dateParts.removeLast()), 
+        int.parse(dateParts.removeLast()), 
+        int.parse(timeParts.first.substring(timeParts.first.length - 2)), 
+        int.parse(timeParts.last)
+    );
   }
 }

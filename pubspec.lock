@@ -4,44 +4,40 @@ packages:
   analyzer:
     description: analyzer
     source: hosted
-    version: "0.10.0"
+    version: "0.10.2"
   args:
     description: args
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   barback:
     description: barback
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   browser:
     description: browser
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   logging:
     description: logging
     source: hosted
-    version: "0.8.10+3"
-  meta:
-    description: meta
-    source: hosted
-    version: "0.8.8"
+    version: "0.9.0"
   observe:
     description: observe
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0+1"
   path:
     description: path
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   source_maps:
     description: source_maps
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   stack_trace:
     description: stack_trace
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   unmodifiable_collection:
     description: unmodifiable_collection
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"

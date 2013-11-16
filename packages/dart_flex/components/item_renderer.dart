@@ -94,7 +94,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   static const EventHook<FrameworkEvent> onDataPropertyChangedEvent = const EventHook<FrameworkEvent>('dataPropertyChanged');
   Stream<FrameworkEvent> get onDataPropertyChanged => ItemRenderer.onDataPropertyChangedEvent.forTarget(this);
   
-  DivElement highlightElement;
+  SpanElement highlightElement;
   StreamSubscription _highlightElementChangesListener;
   StreamSubscription _dataPropertyChangesListener;
 
@@ -337,7 +337,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     if (_control == null) return;
     
     if (highlightElement == null) {
-      highlightElement = new DivElement();
+      highlightElement = new SpanElement();
       
       _highlightElementChangesListener = highlightElement.onTransitionEnd.listen(
           _highlightElement_transitionEndHandler
@@ -380,7 +380,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   void _createChildren() {
     super._createChildren();
 
-    DivElement container = new DivElement()..className = 'item-renderer-control';
+    SpanElement container = new SpanElement();
     
     _setControl(container);
     

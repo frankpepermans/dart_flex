@@ -10,14 +10,37 @@ class ReflowManager {
 
   static final ReflowManager _instance = new ReflowManager._construct();
   
-  final List<_MethodInvokationMap> _scheduledHandlers = <_MethodInvokationMap>[];
-  final List<_ElementCSSMap> _elements = <_ElementCSSMap>[];
+  final Map<dynamic, List<_MethodInvokationMap>> _scheduledHandlers = new Map<dynamic, List<_MethodInvokationMap>>();
+  final Map<Element, _ElementCSSMap> _elements = <Element, _ElementCSSMap>{};
   
   //---------------------------------
   //
   // Public properties
   //
   //---------------------------------
+  
+  //---------------------------------
+  // invocationFrame
+  //---------------------------------
+  
+  Completer _invocationFrameCompleter;
+  
+  Future get invocationFrame {
+    if (_invocationFrameCompleter != null) return _invocationFrameCompleter.future;
+    
+    _invocationFrameCompleter = new Completer();
+    
+    new Timer(
+      new Duration(milliseconds: 1),
+      _invocationFrameCompleter.complete
+    );
+    
+    Future result = _invocationFrameCompleter.future;
+    
+    result.whenComplete(() => _invocationFrameCompleter = null);
+    
+    return result;
+  }
   
   //---------------------------------
   // animationFrame
@@ -31,12 +54,37 @@ class ReflowManager {
     _animationFrameCompleter = new Completer();
     
     window.requestAnimationFrame(
-      (_) => _animationFrameCompleter.complete()
+        (_) => _animationFrameCompleter.complete()
     );
     
     Future result = _animationFrameCompleter.future;
     
     result.whenComplete(() => _animationFrameCompleter = null);
+    
+    return result;
+  }
+  
+  //---------------------------------
+  // layoutFrame
+  //---------------------------------
+  
+  Completer _layoutFrameCompleter;
+  
+  Future get layoutFrame {
+    if (_layoutFrameCompleter != null) return _layoutFrameCompleter.future;
+    
+    _layoutFrameCompleter = new Completer();
+    
+    Future.wait(
+        <Future>[
+            invocationFrame,
+            animationFrame
+        ]
+    ).whenComplete(_layoutFrameCompleter.complete);
+    
+    Future result = _layoutFrameCompleter.future;
+    
+    result.whenComplete(() => _layoutFrameCompleter = null);
     
     return result;
   }
@@ -62,13 +110,14 @@ class ReflowManager {
   //-----------------------------------
   
   void scheduleMethod(dynamic owner, Function method, List arguments, {bool forceSingleExecution: false}) {
+    List<_MethodInvokationMap> ownerMap = _scheduledHandlers[owner];
+    
+    if (ownerMap == null) ownerMap = _scheduledHandlers[owner] = <_MethodInvokationMap>[];
+    
     _MethodInvokationMap invokation;
     
-    if (forceSingleExecution) invokation = _scheduledHandlers.firstWhere(
-        (_MethodInvokationMap tmpInvokation) => (
-            (tmpInvokation._owner == owner) &&
-            FunctionEqualityUtil.equals(tmpInvokation._method, method)
-        ),
+    if (forceSingleExecution) invokation = ownerMap.firstWhere(
+        (_MethodInvokationMap tmpInvokation) => FunctionEqualityUtil.equals(tmpInvokation._method, method),
         orElse: () => null
     );
     
@@ -76,11 +125,13 @@ class ReflowManager {
       invokation = new _MethodInvokationMap(owner, method)
         .._arguments = arguments;
 
-      _scheduledHandlers.add(invokation);
+      ownerMap.add(invokation);
       
-      animationFrame.then(
+      invocationFrame.then(
           (_) {
-            _scheduledHandlers.remove(invokation);
+            ownerMap.remove(invokation);
+            
+            if (ownerMap.length == 0) _scheduledHandlers.remove(owner);
             
             invokation.invoke();
           }
@@ -91,28 +142,23 @@ class ReflowManager {
   void invalidateCSS(Element element, String property, String value) {
     if (element == null) return;
     
-    _ElementCSSMap elementCSSMap = _elements.firstWhere(
-      (_ElementCSSMap tmpElementCSSMap) => (tmpElementCSSMap._element == element),
-      orElse: () => null
-    );
+    _ElementCSSMap elementCSSMap = _elements[element];
 
     if (elementCSSMap == null) {
       elementCSSMap = new _ElementCSSMap(element)
       ..detachedCCSText = element.style.cssText
       ..setProperty(property, value);
 
-      _elements.add(elementCSSMap);
+      _elements[element] = elementCSSMap;
       
-      animationFrame.then(
+      layoutFrame.then(
           (_) {
-            _elements.remove(elementCSSMap);
+            _elements.remove(element);
             
             elementCSSMap.finalize();
           }    
       );
-    } else {
-      elementCSSMap.setProperty(property, value);
-    }
+    } else elementCSSMap.setProperty(property, value);
   }
 }
 
@@ -135,6 +181,8 @@ class _ElementCSSMap {
   
   final Element _element;
   final HtmlHtmlElement _detachedElement = new HtmlHtmlElement();
+  final List<String> _dirtyProperties = <String>[];
+  final List<String> _dirtyValues = <String>[];
   
   bool get isDirty => (_element.style.cssText != _detachedElement.style.cssText);
   
@@ -151,9 +199,32 @@ class _ElementCSSMap {
   _ElementCSSMap(this._element);
   
   void finalize() {
-    if (_element.style.cssText != _detachedElement.style.cssText) _element.style.cssText = _detachedElement.style.cssText;
+    if (_element.style.cssText != _detachedElement.style.cssText) {
+      int i = _dirtyProperties.length;
+      String propertyName, leftValue, rightValue;
+      
+      while (i > 0) {
+        propertyName = _dirtyProperties[--i];
+        
+        leftValue = _element.style.getPropertyValue(propertyName);
+        rightValue = _dirtyValues[i];
+        
+        if (leftValue != rightValue) _element.style.setProperty(propertyName, rightValue, _PRIORITY);
+      }
+    }
   }
   
-  void setProperty(String propertyName, String value) => _detachedElement.style.setProperty(propertyName, value, _PRIORITY);
+  void setProperty(String propertyName, String value) {
+    int index = _dirtyProperties.indexOf(propertyName);
+    
+    if (index == -1) {
+      _dirtyProperties.add(propertyName);
+      _dirtyValues.add(value);
+    } else {
+      _dirtyValues[index] = value;
+    }
+    
+    _detachedElement.style.setProperty(propertyName, value, _PRIORITY);
+  }
 
 }

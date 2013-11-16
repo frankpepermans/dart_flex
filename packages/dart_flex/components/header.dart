@@ -159,7 +159,7 @@ class Header extends Group {
     ..height = 20
     ..align = 'center'
     ..text = _label
-    ..cssClasses = ['header-title'];
+    ..cssClasses = const <String>['header-title'];
     
     _leftSideContainer = new HGroup();
     

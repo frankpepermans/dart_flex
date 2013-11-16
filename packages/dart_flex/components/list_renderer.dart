@@ -332,6 +332,26 @@ class ListRenderer extends ListBase {
       if (value) later > scrollSelectionIntoView;
     }
   }
+  
+  //---------------------------------
+  // selectedIndex
+  //---------------------------------
+  
+  set selectedIndex(int value) {
+    super.selectedIndex = value;
+    
+    _previousFirstIndex = -1;
+  }
+
+  //---------------------------------
+  // selectedItem
+  //---------------------------------
+  
+  set selectedItem(dynamic value) {
+    super.selectedItem = value;
+    
+    _previousFirstIndex = -1;
+  }
 
   //---------------------------------
   //
@@ -433,7 +453,7 @@ class ListRenderer extends ListBase {
   
   @override
   void _createChildren() {
-    final DivElement container = new DivElement()
+    final SpanElement container = new SpanElement()
     ..onScroll.listen(_container_scrollHandler)
     ..onTouchCancel.listen(_container_scrollHandler)
     ..onTouchEnd.listen(_container_scrollHandler)
@@ -640,14 +660,13 @@ class ListRenderer extends ListBase {
 
       dynamic data;
       bool isRendererShown;
-      int rendererIndex = 0;
-      int i;
+      int i, rendererIndex = 0;
 
       _itemRenderers.sort(_itemRenderer_sortHandler);
       
       _previousFirstIndex = _firstIndex;
       
-      _childWrappers = _itemRenderers.sublist(0);
+      _childWrappers = new List<IItemRenderer>.from(_itemRenderers);
 
       for (i=_firstIndex; i<len; i++) {
         isRendererShown = (i < dpLen);

@@ -46,6 +46,9 @@ abstract class IUIWrapper implements IFrameworkEventDispatcher {
 
   bool get visible;
   set visible(bool value);
+  
+  bool get enabled;
+  set enabled(bool value);
 
   int get x;
   set x(int value);
@@ -169,6 +172,23 @@ class UIWrapper implements IUIWrapper {
         new FrameworkEvent('stylePrefixChanged')
       );
 
+      invalidateProperties();
+    }
+  }
+  
+  //---------------------------------
+  // enabled
+  //---------------------------------
+  
+  bool _enabled = true;
+  bool _isEnabledChanged = false;
+  
+  bool get enabled => _enabled;
+  set enabled(bool value) {
+    if (value != _enabled) {
+      _enabled = value;
+      _isEnabledChanged = true;
+      
       invalidateProperties();
     }
   }
@@ -794,6 +814,7 @@ class UIWrapper implements IUIWrapper {
     _control = element;
     
     _updateVisibility();
+    _updateEnabledStatus();
     
     if (_inheritsDefaultCSS)
       _reflowManager.scheduleMethod(this, _addDefaultClass, [], forceSingleExecution: true);
@@ -871,9 +892,10 @@ class UIWrapper implements IUIWrapper {
     if (target != null) {
       _control = target;
       
-      _updateVisibility();
-      
       _reflowManager = new ReflowManager();
+      
+      _updateVisibility();
+      _updateEnabledStatus();
 
       window.onResize.listen(_invalidateSize);
       
@@ -920,8 +942,18 @@ class UIWrapper implements IUIWrapper {
         
         _updateDefaultClass();
         
-        _control.classes.addAll(_cssClasses);
+        _cssClasses.forEach(
+          (String cssClass) {
+            if (!_control.classes.contains(cssClass)) _control.classes.add(cssClass);
+          }
+        );
       }
+    }
+    
+    if (_isEnabledChanged) {
+      _isEnabledChanged = false;
+      
+      _updateEnabledStatus();
     }
     
     if (_isLayoutUpdateRequired) {
@@ -932,9 +964,13 @@ class UIWrapper implements IUIWrapper {
     
     propertiesInvalidated();
   }
+  
+  void _updateEnabledStatus() {
+    if (_control != null) reflowManager.invalidateCSS(_control, 'pointer-events', (_enabled ? 'auto' : 'none'));
+  }
 
   void _updateLayout() {
-    if (
+    if ( 
       _allowLayoutUpdate &&
       (_width > 0) &&
       (_height > 0)
@@ -977,14 +1013,14 @@ class UIWrapper implements IUIWrapper {
       
       width = rect.width;
       height = rect.height;
+      
+      if (
+          (_width == 0) && 
+          (_height == 0)
+      ) reflowManager.animationFrame.then((_) => forceInvalidateSize());
     } else {
       width = height = 0;
     }
-    
-    if (
-        (_width == 0) && 
-        (_height == 0)
-    ) forceInvalidateSize();
   }
 
   void _updateVisibility() {

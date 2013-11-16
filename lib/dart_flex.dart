@@ -15,6 +15,7 @@ part "components/data_grid.dart";
 part "components/data_grid_column.dart";
 part "components/data_grid_item_renderer.dart";
 part "components/editable_date.dart";
+part "components/editable_date_time.dart";
 part "components/editable_double.dart";
 part "components/editable_int.dart";
 part "components/editable_text.dart";

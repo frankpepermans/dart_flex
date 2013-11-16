@@ -13,6 +13,8 @@ class EditableText extends UIWrapper {
   // Public properties
   //
   //---------------------------------
+  
+  TextInputElement input;
 
   //---------------------------------
   // text
@@ -20,6 +22,9 @@ class EditableText extends UIWrapper {
 
   static const EventHook<FrameworkEvent> onTextChangedEvent = const EventHook<FrameworkEvent>('textChanged');
   Stream<FrameworkEvent> get onTextChanged => EditableText.onTextChangedEvent.forTarget(this);
+  static const EventHook<FrameworkEvent> onInputEvent = const EventHook<FrameworkEvent>('input');
+  Stream<FrameworkEvent> get onInput => EditableText.onInputEvent.forTarget(this);
+  
   String _text;
 
   String get text => _text;
@@ -98,6 +103,13 @@ class EditableText extends UIWrapper {
   // Public properties
   //
   //---------------------------------
+  
+  @override
+  void _updateEnabledStatus() {
+    super._updateEnabledStatus();
+    
+    if (input != null) input.readOnly = !_enabled;
+  }
 
   //---------------------------------
   //
@@ -108,13 +120,13 @@ class EditableText extends UIWrapper {
   void _createChildren() {
     super._createChildren();
     
-    TextInputElement label = new TextInputElement();
+    input = new TextInputElement()..readOnly = !_enabled;
     
-    label.onInput.listen(_label_inputHandler);
+    input.onInput.listen(_inputHandler);
     
     _autoSize = true;
 
-    _setControl(label);
+    _setControl(input);
 
     _commitTextAlign();
     _commitTextVerticalAlign();
@@ -122,37 +134,266 @@ class EditableText extends UIWrapper {
   }
 
   void _commitTextAlign() {
-    if (_control != null) {
-      _reflowManager.invalidateCSS(_control, 'text-align', _align);
-    }
+    if (_control != null) _reflowManager.invalidateCSS(_control, 'text-align', _align);
   }
   
   void _commitTextVerticalAlign() {
-    if (_control != null) {
-      _reflowManager.invalidateCSS(_control, 'vertical-align', _verticalAlign);
-    }
+    if (_control != null) _reflowManager.invalidateCSS(_control, 'vertical-align', _verticalAlign);
   }
 
   void _commitText() {
-    if (_control != null) {
-      _reflowManager.scheduleMethod(this, _commitTextOnReflow, []);
-    }
+    if (_control != null) _reflowManager.scheduleMethod(this, _commitTextOnReflow, []);
   }
   
   void _commitTextOnReflow() {
     final String newText = (_text != null) ? _text : '';
-    final TextInputElement controlCast = _control as TextInputElement;
     
-    if (newText == controlCast.value) {
-      return;
-    }
+    if (newText == input.value) return;
     
-    controlCast.value = newText;
+    input.value = newText;
   }
   
-  void _label_inputHandler(Event event) {
-    final TextInputElement label = _control as TextInputElement;
+  void _inputHandler(Event event) {
+    text = input.value;
     
-    text = label.value;
+    notify(
+      new FrameworkEvent(
+        'input'
+      )
+    );
   }
+}
+
+class EditableTextMask<T> extends EditableText {
+  
+  //---------------------------------
+  //
+  // Private properties
+  //
+  //---------------------------------
+  
+  static const String DATA_MASKED = 'm';
+  
+  String _oldInputValue;
+  int _selectedIndex = -1;
+  int _selectedSubIndex = 0;
+  int _doubleCharSize = 20;
+
+  //---------------------------------
+  //
+  // Public properties
+  //
+  //---------------------------------
+  
+  //---------------------------------
+  // mask
+  //---------------------------------
+  
+  String _mask = '';
+  
+  String get mask => _mask;
+
+  //---------------------------------
+  // data
+  //---------------------------------
+
+  static const EventHook<FrameworkEvent> onDataChangedEvent = const EventHook<FrameworkEvent>('dataChanged');
+  Stream<FrameworkEvent> get onDataChanged => EditableTextMask.onDataChangedEvent.forTarget(this);
+  
+  static const EventHook<FrameworkEvent> onDataFinalizedEvent = const EventHook<FrameworkEvent>('dataFinalized');
+  Stream<FrameworkEvent> get onDataFinalized => EditableTextMask.onDataFinalizedEvent.forTarget(this);
+  
+  T _data;
+
+  T get data => _data;
+  set data(T value) {
+    if (value != _data) {
+      _data = value;
+
+      notify(
+        new FrameworkEvent(
+          'dataChanged'
+        )
+      );
+
+      text = _formatToString(value);
+      
+      _oldInputValue = _text;
+    }
+  }
+
+  //---------------------------------
+  //
+  // Constructor
+  //
+  //---------------------------------
+
+  EditableTextMask({String elementId: null}) : super(elementId: elementId) {
+    _className = 'EditableTextMask';
+  }
+
+  //---------------------------------
+  //
+  // Public properties
+  //
+  //---------------------------------
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
+  
+  @override
+  void _createChildren() {
+    super._createChildren();
+    
+    input.pattern = '[^]{${_mask.length}}';
+    
+    input.onBlur.listen(_input_blurHandler);
+    
+    input.onKeyDown.listen(_input_focusHandler);
+    input.onFocus.listen(_input_focusHandler);
+    input.onSelect.listen(_input_focusHandler);
+    input.onSelectStart.listen(_input_focusHandler);
+    input.onMouseDown.listen(_input_focusHandler);
+    input.onMouseUp.listen(_input_focusHandler);
+    input.onTouchStart.listen(_input_focusHandler);
+    input.onTouchEnd.listen(_input_focusHandler);
+    
+    input.onDrag.listen(_input_preventEvent);
+    input.onDragEnd.listen(_input_preventEvent);
+    input.onDragEnter.listen(_input_preventEvent);
+    input.onDragLeave.listen(_input_preventEvent);
+    input.onDragOver.listen(_input_preventEvent);
+    input.onDragStart.listen(_input_preventEvent);
+  }
+  
+  @override
+  void _inputHandler(Event event) {
+    text = _applyInputMask(input.value);
+    
+    notify(
+        new FrameworkEvent(
+            'input'
+        )
+    );
+  }
+  
+  String _applyInputMask(String incoming) => null;
+  
+  void _input_blurHandler(Event event) {
+    text = _formatToString(_data);
+    
+    notify(
+      new FrameworkEvent(
+        'dataFinalized'
+      )
+    );
+  }
+  
+  void _input_preventEvent(Event event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+  }
+  
+  void _input_focusHandler(Event event) {
+    if (event is KeyboardEvent) {
+      if (input.selectionEnd - input.selectionStart > 2) {
+        event.preventDefault();
+        
+        return;
+      }
+      
+      if (event.keyCode == 9) {
+        if (_selectedIndex == (_mask.length / 3).floor()) return;
+        
+        _updateSelection(true);
+        
+        event.preventDefault();
+      } else {
+        if (
+            (event.keyCode == 8) ||
+            (event.keyCode == 46) ||
+            (
+                (event.keyCode >= 48) &&
+                (event.keyCode < 58) 
+            ) ||
+            (
+                (event.keyCode >= 96) &&
+                (event.keyCode < 106)
+            )
+        ) {
+          if (
+              (event.keyCode >= 37) &&
+              (event.keyCode <= 40)
+          ) _updateSelection(
+              (event.keyCode == 38) ||
+              (event.keyCode == 39)
+          );
+          else return;
+        } else {
+          event.preventDefault();
+          
+          return;
+        }
+      }
+    }
+    
+    if (
+        (event is MouseEvent) &&
+        (_text != _mask)
+    ) {
+      final Point pos = event.offset;
+      
+      _selectedSubIndex = 0;
+      _selectedIndex = (pos.x / _doubleCharSize).floor();
+      
+      if (_selectedIndex > _mask.length / 3) _selectedIndex = (_mask.length / 3).floor();
+    } else if (_selectedIndex == -1) {
+      _selectedIndex = 0;
+    }
+    
+    later > _setSelectionRange;
+  }
+  
+  void _updateSelection(bool isIncrease) {
+    if (isIncrease) {
+      if (_selectedSubIndex == 0) {
+        _selectedSubIndex++;
+      } else {
+        _selectedSubIndex = 0;
+        _selectedIndex++;
+      }
+    } else {
+      if (_selectedSubIndex == 1) {
+        _selectedSubIndex--;
+      } else {
+        _selectedSubIndex = 0;
+        _selectedIndex--;
+      }
+    }
+  }
+  
+  void _setSelectionRange() {
+    final int selectionStart = _selectedIndex * 2 + _selectedIndex + _selectedSubIndex;
+    
+    input.setSelectionRange(selectionStart, (selectionStart + 2 - _selectedSubIndex));
+  }
+  
+  String _getPlaceholder() => (_selectedSubIndex == 1) ? ' ' : '  ';
+  
+  String _getChange(String start, String end) {
+    if (end == _mask) return DATA_MASKED;
+    
+    final int len = (start.length <= end.length) ? start.length : end.length;
+    int i;
+    
+    for (i=0; i<len; i++) if (start[i] != end[i]) return end[i];
+    
+    return null;
+  }
+  
+  String _formatToString(DateTime date) => null;
 }

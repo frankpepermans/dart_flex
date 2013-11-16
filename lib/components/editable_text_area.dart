@@ -13,6 +13,8 @@ class EditableTextArea extends UIWrapper {
   // Public properties
   //
   //---------------------------------
+  
+  TextAreaElement label;
 
   //---------------------------------
   // text
@@ -108,8 +110,9 @@ class EditableTextArea extends UIWrapper {
   void _createChildren() {
     super._createChildren();
     
-    TextAreaElement label = new TextAreaElement()
-    ..style.resize = 'none';
+    label = new TextAreaElement()
+    ..style.resize = 'none'
+    ..readOnly = !_enabled;
     
     label.onInput.listen(_label_inputHandler);
     
@@ -149,6 +152,13 @@ class EditableTextArea extends UIWrapper {
     }
     
     controlCast.value = newText;
+  }
+  
+  @override
+  void _updateEnabledStatus() {
+    super._updateEnabledStatus();
+    
+    if (label != null) label.readOnly = !_enabled;
   }
   
   void _label_inputHandler(Event event) {

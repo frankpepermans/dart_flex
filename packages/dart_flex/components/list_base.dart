@@ -230,6 +230,8 @@ class ListBase extends Group {
         
         _updateElements();
         _updateAfterScrollPositionChanged();
+        
+        if (_dataProvider != null) selectedIndex = _dataProvider.indexOf(_selectedItem);
       }
     }
   }

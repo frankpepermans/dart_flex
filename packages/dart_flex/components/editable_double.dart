@@ -13,6 +13,8 @@ class EditableDouble extends UIWrapper {
   // Public properties
   //
   //---------------------------------
+  
+  NumberInputElement label;
 
   //---------------------------------
   // value
@@ -98,6 +100,13 @@ class EditableDouble extends UIWrapper {
   // Public properties
   //
   //---------------------------------
+  
+  @override
+  void _updateEnabledStatus() {
+    super._updateEnabledStatus();
+    
+    if (label != null) label.readOnly = !_enabled;
+  }
 
   //---------------------------------
   //
@@ -108,8 +117,9 @@ class EditableDouble extends UIWrapper {
   void _createChildren() {
     super._createChildren();
     
-    NumberInputElement label = new NumberInputElement()
-    ..step = '0.01';
+    label = new NumberInputElement()
+    ..step = '0.01'
+    ..readOnly = !_enabled;
     
     label.onInput.listen(_label_inputHandler);
     

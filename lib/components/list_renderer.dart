@@ -332,6 +332,26 @@ class ListRenderer extends ListBase {
       if (value) later > scrollSelectionIntoView;
     }
   }
+  
+  //---------------------------------
+  // selectedIndex
+  //---------------------------------
+  
+  set selectedIndex(int value) {
+    super.selectedIndex = value;
+    
+    _previousFirstIndex = -1;
+  }
+
+  //---------------------------------
+  // selectedItem
+  //---------------------------------
+  
+  set selectedItem(dynamic value) {
+    super.selectedItem = value;
+    
+    _previousFirstIndex = -1;
+  }
 
   //---------------------------------
   //
