@@ -22,27 +22,13 @@ class ComboBox extends ListBase {
     _selectedIndex = value;
 
     notify(
-      new FrameworkEvent(
+      new FrameworkEvent<int>(
           'selectedIndexChanged',
           relatedObject: value
         )
     );
 
     later > _updateSelection;
-  }
-  
-  //---------------------------------
-  // selectedIndex
-  //---------------------------------
-
-  bool _addNullSelectOptions = true;
-  bool get addNullSelectOptions => _addNullSelectOptions;
-  set addNullSelectOptions(bool value) {
-    if (value != _addNullSelectOptions) {
-      _addNullSelectOptions = value;
-      
-      later > _updateElements;
-    }
   }
   
   //---------------------------------
@@ -75,23 +61,11 @@ class ComboBox extends ListBase {
     if (_dataProvider == null || _control == null) return;
     
     Object element;
-    int maxElementToStringLen = 6;
+    int maxElementToStringLen = 6, i, len = _dataProvider.length;
     String elementToString, dividerLabel = '';
     OptionElement divider = new OptionElement(data: '', value: '-1');
-    int len = _dataProvider.length;
-    int i;
 
     _removeAllElements();
-    
-    if (_addNullSelectOptions) {
-      _control.children.add(
-          new OptionElement(
-              data: '', value: '-1'
-          )
-      );
-      
-      _control.children.add(divider);
-    }
 
     for (i=0; i<len; i++) {
       element = _dataProvider[i];
@@ -103,9 +77,7 @@ class ComboBox extends ListBase {
     
     maxElementToStringLen += maxElementToStringLen ~/ 3;
     
-    for (i=0; i<maxElementToStringLen; i++) {
-      dividerLabel = '${dividerLabel}-';
-    }
+    for (i=0; i<maxElementToStringLen; i++) dividerLabel = '${dividerLabel}-';
     
     divider.label = dividerLabel;
 
@@ -116,13 +88,9 @@ class ComboBox extends ListBase {
     final SelectElement controlCast = _control as SelectElement;
     String itemToString;
 
-    if (_labelFunction != null) {
-      itemToString = _labelFunction(item) as String;
-    } else if (_field != null) {
-      itemToString = (item as dynamic)[_field];
-    } else {
-      itemToString = item.toString();
-    }
+    if (_labelFunction != null) itemToString = _labelFunction(item) as String;
+    else if (_field != null) itemToString = (item as dynamic)[_field];
+    else itemToString = item.toString();
 
     _control.children.add(
         new OptionElement(
@@ -138,21 +106,18 @@ class ComboBox extends ListBase {
   void _updateSelection() {
     final SelectElement controlCast = _control as SelectElement;
     
-    if (_selectedItem != null) {
-      controlCast.selectedIndex = _dataProvider.indexOf(_selectedItem);
-    } else {
-      controlCast.selectedIndex = _selectedIndex;
-    }
+    if (_selectedItem != null) controlCast.selectedIndex = _dataProvider.indexOf(_selectedItem);
+    else controlCast.selectedIndex = _selectedIndex;
   }
 
   void _control_changeHandler(Event event) {
     SelectElement controlCast = _control as SelectElement;
-
+    
     if (
         (controlCast.selectedOptions.length > 0) &&
-        (controlCast.selectedIndex > 1)
+        (controlCast.selectedIndex >= 0)
     ) {
-      selectedIndex = controlCast.selectedIndex - (_addNullSelectOptions ? 2 : 0);
+      selectedIndex = controlCast.selectedIndex;
       selectedItem = _dataProvider[selectedIndex];
       
       controlCast.selectedOptions.forEach(
