@@ -77,8 +77,8 @@ class HeaderItemRenderer extends ItemRenderer {
 
 class HeaderData {
   
-  final String label, labelLong;
+  final String label, labelLong, identifier;
   final Symbol field;
   
-  const HeaderData(this.field, this.label, this.labelLong);
+  const HeaderData(this.identifier, this.field, this.label, this.labelLong);
 }

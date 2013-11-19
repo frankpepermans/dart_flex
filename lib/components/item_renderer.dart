@@ -19,6 +19,11 @@ abstract class IItemRenderer implements IUIWrapper {
   bool get selected;
   set selected(bool value);
   
+  InactiveHandler get inactiveHandler;
+  set inactiveHandler(InactiveHandler value);
+  
+  bool get inactive;
+  
   bool get editable;
   set editable(bool value);
   
@@ -134,6 +139,10 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       if (value is Observable) _dataChangesListener = value.changes.listen(_data_changesHandler);
       if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
       
+      _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
+      
+      className = 'ItemRenderer${_selected ? ' ItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
+      
       notify(
         new FrameworkEvent('dataChanged')    
       );
@@ -231,11 +240,35 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     if (value != _selected) {
       _selected = value;
       
-      className = value ? 'ItemRenderer ItemRenderer-selected' : 'ItemRenderer';
+      className = 'ItemRenderer${_selected ? ' ItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
 
       later > _updateAfterInteraction;
     }
   }
+  
+  //---------------------------------
+  // inactiveHandler
+  //---------------------------------
+
+  InactiveHandler _inactiveHandler;
+
+  InactiveHandler get inactiveHandler => _inactiveHandler;
+  set inactiveHandler(InactiveHandler value) {
+    if (value != _inactiveHandler) {
+      _inactiveHandler = value;
+      _inactive = (value != null) ? value(data) : false;
+      
+      className = 'ItemRenderer${_selected ? ' ItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
+    }
+  }
+  
+  //---------------------------------
+  // inactive
+  //---------------------------------
+
+  bool _inactive = false;
+
+  bool get inactive => _inactive;
   
   //---------------------------------
   // editable
@@ -460,6 +493,10 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
         later > highlight;
       }
     }
+    
+    _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
+    
+    className = 'ItemRenderer${_selected ? ' ItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
     
     later > _invalidateData;
   }

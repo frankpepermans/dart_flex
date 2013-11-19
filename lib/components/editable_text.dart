@@ -7,6 +7,8 @@ class EditableText extends UIWrapper {
   // Private properties
   //
   //---------------------------------
+  
+  bool _allowKeyStroke = true;
 
   //---------------------------------
   //
@@ -299,7 +301,15 @@ class EditableTextMask<T> extends EditableText {
   }
   
   void _input_focusHandler(Event event) {
+    if (!_allowKeyStroke && (event is KeyboardEvent)) {
+      event.preventDefault();
+      
+      return;
+    }
+    
     if (event is KeyboardEvent) {
+      _allowKeyStroke = false;
+      
       if (input.selectionEnd - input.selectionStart > 2) {
         event.preventDefault();
         
@@ -380,6 +390,8 @@ class EditableTextMask<T> extends EditableText {
     final int selectionStart = _selectedIndex * 2 + _selectedIndex + _selectedSubIndex;
     
     input.setSelectionRange(selectionStart, (selectionStart + 2 - _selectedSubIndex));
+    
+    _allowKeyStroke = true;
   }
   
   String _getPlaceholder() => (_selectedSubIndex == 1) ? ' ' : '  ';
