@@ -22,6 +22,9 @@ class EditableInt extends UIWrapper {
 
   static const EventHook<FrameworkEvent> onValueChangedEvent = const EventHook<FrameworkEvent>('valueChanged');
   Stream<FrameworkEvent> get onValueChanged => EditableInt.onValueChangedEvent.forTarget(this);
+  static const EventHook<FrameworkEvent> onInputEvent = const EventHook<FrameworkEvent>('input');
+  Stream<FrameworkEvent> get onInput => EditableInt.onInputEvent.forTarget(this);
+  
   int _value;
 
   int get value => _value;
@@ -157,5 +160,11 @@ class EditableInt extends UIWrapper {
     }
   
     _commitValue();
+    
+    notify(
+        new FrameworkEvent(
+            'input'
+        )
+    );
   }
 }

@@ -1,5 +1,7 @@
 part of dart_flex;
 
+typedef bool InactiveHandler(dynamic data);
+
 class ListBase extends Group {
 
   bool _isElementUpdateRequired = false;
@@ -10,6 +12,19 @@ class ListBase extends Group {
   // Public properties
   //
   //---------------------------------
+  
+  //---------------------------------
+  // inactiveHandler
+  //---------------------------------
+
+  InactiveHandler _inactiveHandler;
+
+  InactiveHandler get inactiveHandler => _inactiveHandler;
+  set inactiveHandler(InactiveHandler value) {
+    if (value != _inactiveHandler) {
+      _inactiveHandler = value;
+    }
+  }
 
   //---------------------------------
   // dataProvider

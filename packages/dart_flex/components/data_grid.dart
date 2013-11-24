@@ -81,6 +81,16 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
+  // inactiveHandler
+  //---------------------------------
+  
+  set inactiveHandler(InactiveHandler value) {
+    super.inactiveHandler = value;
+    
+    if (_list != null) _list.inactiveHandler = value;
+  }
+  
+  //---------------------------------
   // headerMouseOutHandler
   //---------------------------------
 
@@ -303,6 +313,7 @@ class DataGrid extends ListBase {
     ..percentHeight = 100.0
     ..colPercentWidth = 100.0
     ..autoScrollSelectionIntoView = _autoScrollSelectionIntoView
+    ..inactiveHandler = _inactiveHandler
     ..rowSpacing = _rowSpacing
     ..rowHeight = _rowHeight
     ..dataProvider = _dataProvider
@@ -388,11 +399,8 @@ class DataGrid extends ListBase {
             ..data =  column.headerData
             ..onButtonClick.listen(_header_clickHandler);
 
-          if (column.width > 0) {
-            header.width = column.width;
-          } else {
-            header.percentWidth = column.percentWidth;
-          }
+          if (column.width > 0) header.width = column.width;
+          else header.percentWidth = column.percentWidth;
           
           _headerItemRenderers.add(header);
 
@@ -560,13 +568,9 @@ class DataGrid extends ListBase {
     dynamic valA = (pvA is bool) ? pvA ? 1 : 0 : pvA;
     dynamic valB = (pvB is bool) ? pvB ? 1 : 0 : pvB;
     
-    if (valA == null && valB == null) {
-      return 0;
-    } else if (valB == null) {
-      return -1;
-    } else if (valA == null) {
-      return 1;
-    }
+    if (valA == null && valB == null) return 0;
+    else if (valB == null) return -1;
+    else if (valA == null) return 1;
     
     return isAscSort ? valA.toString().compareTo(valB.toString()) : valB.toString().compareTo(valA.toString());
   }

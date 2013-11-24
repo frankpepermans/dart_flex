@@ -69,16 +69,24 @@ class DataGridItemRenderer extends ItemRenderer {
   set selected(bool value) {
     super.selected = value;
     
-    className = value ? 'DataGridItemRenderer DataGridItemRenderer-selected' : 'DataGridItemRenderer';
+    className = 'DataGridItemRenderer${_selected ? ' DataGridItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
+  }
+  
+  //---------------------------------
+  // inactive
+  //---------------------------------
+  
+  set inactiveHandler(InactiveHandler value) {
+    if (value != _inactiveHandler) className = 'DataGridItemRenderer${_selected ? ' DataGridItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
+    
+    super.inactiveHandler = value;
   }
   
   //---------------------------------
   // enableHighlight
   //---------------------------------
   
-  set enableHighlight(bool value) {
-    super.enableHighlight = false;
-  }
+  set enableHighlight(bool value) => super.enableHighlight = false;
 
   //---------------------------------
   //
@@ -106,8 +114,7 @@ class DataGridItemRenderer extends ItemRenderer {
   //
   //---------------------------------
 
-  void invalidateData() {
-  }
+  void invalidateData() {}
   
   //---------------------------------
   //
@@ -138,15 +145,13 @@ class DataGridItemRenderer extends ItemRenderer {
   }
 
   void _updateItemRenderers() {
-    if (_itemRendererInstances != null) {
-      _itemRendererInstances.forEach(
-        (ItemRenderer renderer) {
-          renderer._dataPropertyChangesListener.cancel();
-          
-          removeComponent(renderer);
-        }
-      );
-    }
+    if (_itemRendererInstances != null) _itemRendererInstances.forEach(
+      (ItemRenderer renderer) {
+        renderer._dataPropertyChangesListener.cancel();
+        
+        removeComponent(renderer);
+      }
+    );
     
     _itemRendererInstances = new List<IItemRenderer>();
 
@@ -165,11 +170,8 @@ class DataGridItemRenderer extends ItemRenderer {
             
             renderer._dataPropertyChangesListener = renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
 
-            if (column.percentWidth > .0) {
-              renderer.percentWidth = column.percentWidth;
-            } else {
-              renderer.width = column.width;
-            }
+            if (column.percentWidth > .0) renderer.percentWidth = column.percentWidth;
+            else renderer.width = column.width;
 
             _itemRendererInstances.add(renderer);
 

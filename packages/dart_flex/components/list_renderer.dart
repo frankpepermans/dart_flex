@@ -14,6 +14,21 @@ class ListRenderer extends ListBase {
   //---------------------------------
   
   //---------------------------------
+  // inactiveHandler
+  //---------------------------------
+  
+  set inactiveHandler(InactiveHandler value) {
+    if (
+        (value != _inactiveHandler) &&
+        (_itemRenderers != null)
+    ) _itemRenderers.forEach(
+      (IItemRenderer renderer) => renderer.inactiveHandler = value    
+    );
+    
+    super.inactiveHandler = value;
+  }
+  
+  //---------------------------------
   // dataProvider
   //---------------------------------
   
@@ -178,9 +193,7 @@ class ListRenderer extends ListBase {
         )
       );
       
-      _previousFirstIndex = -1;
-
-      _updateAfterScrollPositionChanged();
+      _forceRefresh();
     }
   }
 
@@ -203,9 +216,7 @@ class ListRenderer extends ListBase {
         )
       );
       
-      _previousFirstIndex = -1;
-
-      _updateAfterScrollPositionChanged();
+      _forceRefresh();
     }
   }
 
@@ -228,9 +239,7 @@ class ListRenderer extends ListBase {
         )
       );
       
-      _previousFirstIndex = -1;
-
-      _updateAfterScrollPositionChanged();
+      _forceRefresh();
     }
   }
 
@@ -253,9 +262,7 @@ class ListRenderer extends ListBase {
         )
       );
       
-      _previousFirstIndex = -1;
-
-      _updateAfterScrollPositionChanged();
+      _forceRefresh();
     }
   }
 
@@ -340,7 +347,7 @@ class ListRenderer extends ListBase {
   set selectedIndex(int value) {
     super.selectedIndex = value;
     
-    _previousFirstIndex = -1;
+    _forceRefresh();
   }
 
   //---------------------------------
@@ -350,7 +357,7 @@ class ListRenderer extends ListBase {
   set selectedItem(dynamic value) {
     super.selectedItem = value;
     
-    _previousFirstIndex = -1;
+    _forceRefresh();
   }
 
   //---------------------------------
@@ -526,6 +533,12 @@ class ListRenderer extends ListBase {
     );
   }
   
+  void _forceRefresh() {
+    _previousFirstIndex = -1;
+
+    _updateAfterScrollPositionChanged();
+  }
+  
   @override
   int _getPageItemSize() {
     if (
@@ -685,6 +698,7 @@ class ListRenderer extends ListBase {
             ..visible = isRendererShown
             ..selected = (i == _selectedIndex)
             ..data = data
+            ..inactiveHandler = _inactiveHandler
             ..field = _field
         );
       }
@@ -710,8 +724,6 @@ class ListRenderer extends ListBase {
       );
       
       if (itemRenderer != null) {
-        _previousFirstIndex = -1;
-        
         selectedIndex = (_scrollPosition ~/ _getPageItemSize()) + _itemRenderers.indexOf(itemRenderer);
 
         selectedItem = _dataProvider[selectedIndex];
@@ -744,9 +756,5 @@ class ListRenderer extends ListBase {
   }
   
   @override
-  void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
-    _previousFirstIndex = -1;
-    
-    _updateAfterScrollPositionChanged();
-  }
+  void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) => _forceRefresh();
 }

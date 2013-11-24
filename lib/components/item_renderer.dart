@@ -144,7 +144,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       className = 'ItemRenderer${_selected ? ' ItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
       
       notify(
-        new FrameworkEvent('dataChanged')    
+        new FrameworkEvent<dynamic>('dataChanged', relatedObject: value)
       );
 
       later > _invalidateData;
