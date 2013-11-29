@@ -63,3 +63,7 @@ part "layout/vertical_layout.dart";
 part "itemRenderers/header_item_renderer.dart";
 part "itemRenderers/editable_label_item_renderer.dart";
 part "itemRenderers/label_item_renderer.dart";
+
+class NullTreeSanitizer implements NodeTreeSanitizer {
+  void sanitizeTree(Node node) {}
+}

@@ -516,12 +516,20 @@ class ListRenderer extends ListBase {
       ..index = index
       ..enableHighlight = true
       ..autoDrawBackground = _useSelectionEffects;
+    
+    StreamSubscription subscription;
 
     _updateRenderer(renderer);
 
     _itemRenderers.add(renderer);
 
-    renderer.onControlChanged.listen(_itemRenderer_controlChangedHandler);
+    subscription = renderer.onControlChanged.listen(
+      (FrameworkEvent event) {
+        subscription.cancel();
+        
+        event.relatedObject.onMouseDown.listen(_handleMouseInteraction);
+      }
+    );
 
     addComponent(renderer);
 
@@ -749,10 +757,6 @@ class ListRenderer extends ListBase {
     _updateVisibleItemRenderers();
     
     if (_autoScrollSelectionIntoView) later > scrollSelectionIntoView;
-  }
-
-  void _itemRenderer_controlChangedHandler(FrameworkEvent<Element> event) {
-    event.relatedObject.onMouseDown.listen(_handleMouseInteraction);
   }
   
   @override

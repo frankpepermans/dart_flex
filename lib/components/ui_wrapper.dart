@@ -1011,13 +1011,14 @@ class UIWrapper implements IUIWrapper {
     if (_control != null) {
       final Rectangle rect = _control.client;
       
-      width = rect.width;
-      height = rect.height;
-      
       if (
-          (_width == 0) && 
-          (_height == 0)
-      ) reflowManager.animationFrame.then((_) => forceInvalidateSize());
+          (rect.width == 0) && 
+          (rect.height == 0)
+      ) reflowManager.animationFrame.whenComplete(_updateSize);
+      else {
+        width = rect.width;
+        height = rect.height;
+      }
     } else {
       width = height = 0;
     }

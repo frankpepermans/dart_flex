@@ -172,7 +172,7 @@ class RichText extends UIWrapper {
     final String newText = (_richText != null) ? _richText : (_text != null) ? _text : '';
     
     if (_richText != null) {
-      _label.innerHtml = newText;
+      _label.setInnerHtml(newText, treeSanitizer: new NullTreeSanitizer());
     } else {
       _label.text = newText;
     }

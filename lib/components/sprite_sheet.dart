@@ -33,7 +33,7 @@ class SpriteSheet extends Group {
         )
       );
       
-      later > _updateSource;
+      _updateIndex();
     }
   }
 
@@ -56,7 +56,7 @@ class SpriteSheet extends Group {
           )
       );
 
-      later > _updateIndex;
+      _updateIndex();
     }
   }
 
@@ -80,7 +80,7 @@ class SpriteSheet extends Group {
           )
       );
 
-      later > _updateIndex;
+      _updateIndex();
     }
   }
 
@@ -104,7 +104,7 @@ class SpriteSheet extends Group {
           )
       );
 
-      later > _updateIndex;
+      _updateIndex();
     }
   }
 
@@ -127,7 +127,7 @@ class SpriteSheet extends Group {
           )
       );
 
-      later > _updateIndex;
+      _updateIndex();
     }
   }
 
@@ -150,7 +150,7 @@ class SpriteSheet extends Group {
           )
       );
 
-      later > _updateIndex;
+      _updateIndex();
     }
   }
 
@@ -189,7 +189,7 @@ class SpriteSheet extends Group {
   void _updateSource() {
     if (_control != null) _reflowManager.invalidateCSS(_control, 'background-image', 'url($_source)');
     
-    later > _updateIndex;
+    _updateIndex();
   }
 
   void _updateIndex() {
