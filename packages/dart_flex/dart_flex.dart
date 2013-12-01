@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:core';
 import 'dart:html';
+import 'dart:html_common';
 import 'dart:math';
 
 import 'package:observe/observe.dart';

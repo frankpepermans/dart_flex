@@ -821,6 +821,9 @@ class UIWrapper implements IUIWrapper {
     
     if (_cssClasses != null)
       _reflowManager.scheduleMethod(this, _addAllPendingClasses, [], forceSingleExecution: true);
+    
+    _reflowManager.invalidateCSS(_control, 'left', '0px');
+    _reflowManager.invalidateCSS(_control, 'top', '0px');
 
     _updateVisibility();
     _updateControl(5);
@@ -858,19 +861,19 @@ class UIWrapper implements IUIWrapper {
   void _updateControl(int type) {
     if (_control != null) {
       if (_elementId == null) {
-        final String cssX = '${_x}px';
-        final String cssY = '${_y}px';
         final String cssWidth = (_width == 0) ? 'auto' : '${_width}px';
         final String cssHeight = (_height == 0) ? 'auto' : '${_height}px';
-
+        
+        if (
+          (type == 1) ||
+          (type == 2) ||
+          (type == 5)
+        ) _reflowManager.invalidateCSS(_control, '${Device.cssPrefix}transform', 'translate(${_x}px,${_y}px)');
+        
         switch (type) {
-          case 1 : _reflowManager.invalidateCSS(_control, 'left', cssX);        break;
-          case 2 : _reflowManager.invalidateCSS(_control, 'top', cssY);         break;
           case 3 : _reflowManager.invalidateCSS(_control, 'width', cssWidth);   break;
           case 4 : _reflowManager.invalidateCSS(_control, 'height', cssHeight); break;
           case 5 :
-            _reflowManager.invalidateCSS(_control, 'left', cssX);
-            _reflowManager.invalidateCSS(_control, 'top', cssY);
             _reflowManager.invalidateCSS(_control, 'width', cssWidth);
             _reflowManager.invalidateCSS(_control, 'height', cssHeight);
 

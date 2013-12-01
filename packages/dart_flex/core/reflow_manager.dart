@@ -220,9 +220,7 @@ class _ElementCSSMap {
     if (index == -1) {
       _dirtyProperties.add(propertyName);
       _dirtyValues.add(value);
-    } else {
-      _dirtyValues[index] = value;
-    }
+    } else _dirtyValues[index] = value;
     
     _detachedElement.style.setProperty(propertyName, value, _PRIORITY);
   }
