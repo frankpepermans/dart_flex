@@ -102,45 +102,28 @@ class VerticalLayout implements ILayout {
       w = h = 0;
       
       if (element.includeInLayout) {
-        if (element.percentWidth > 0.0) {
-          w = (width * element.percentWidth * .01).toInt() - element.paddingLeft - element.paddingRight;
-        } else if (element.width > 0) {
-          w = element.width - element.paddingLeft - element.paddingRight;
-        }
+        if (element.percentWidth > 0.0) w = (width * element.percentWidth * .01).toInt() - element.paddingLeft - element.paddingRight;
+        else if (element.width > 0) w = element.width - element.paddingLeft - element.paddingRight;
 
-        if (element.percentHeight > 0.0) {
-          h = (element.percentHeight * .01 * (percHeight - _gap * (sx - 1)) ~/ sx) - element.paddingTop - element.paddingBottom;
-        } else if (element.height > 0) {
-          h = element.height - element.paddingTop - element.paddingBottom;
-        }
+        if (element.percentHeight > 0.0) h = (element.percentHeight * .01 * (percHeight - _gap * (sx - 1)) ~/ sx) - element.paddingTop - element.paddingBottom;
+        else if (element.height > 0) h = element.height - element.paddingTop - element.paddingBottom;
 
         if (w == null) w = 0;
         if (h == null) h = 0;
 
-        if (_constrainToBounds && (w > 0)) {
-          element.x = (width * .5 - w * .5).toInt() + element.paddingLeft;
-        }
+        if (_constrainToBounds && (w > 0)) element.x = (width >> 2) - (w >> 2) + element.paddingLeft;
 
         if (
             (pageSize == 0) ||
             ((offset + h) <= pageSize)
         ) {
-          if (_align == 'top') {
-            element.y = offset + element.paddingTop;
-          } else if (_align == 'bottom') {
-            element.y = height - offset - element.paddingTop - element.paddingBottom - element.height;
-          }
-        } else {
-          element.y = element.paddingTop;
-        }
+          if (_align == 'top') element.y = offset + element.paddingTop;
+          else if (_align == 'bottom') element.y = height - offset - element.paddingTop - element.paddingBottom - element.height;
+        } else element.y = element.paddingTop;
 
-        if (_constrainToBounds && element.autoSize) {
-          element.width = w;
-        }
+        if (_constrainToBounds && element.autoSize) element.width = w;
 
-        if (element.autoSize) {
-          element.height = h;
-        }
+        if (element.autoSize) element.height = h;
 
         offset += h + _gap + element.paddingTop + element.paddingBottom;
       } else if (element.visible) {

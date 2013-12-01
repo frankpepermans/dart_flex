@@ -145,13 +145,17 @@ class DataGridItemRenderer extends ItemRenderer {
   }
 
   void _updateItemRenderers() {
-    if (_itemRendererInstances != null) _itemRendererInstances.forEach(
-      (ItemRenderer renderer) {
-        renderer._dataPropertyChangesListener.cancel();
-        
-        removeComponent(renderer);
-      }
-    );
+    
+    
+    if (_itemRendererInstances != null) {
+      _itemRendererInstances.forEach(
+          (ItemRenderer renderer) {
+            renderer._dataPropertyChangesListener.cancel();
+            
+            removeComponent(renderer);
+          }
+      );
+    }
     
     _itemRendererInstances = new List<IItemRenderer>();
 

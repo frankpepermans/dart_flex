@@ -490,19 +490,11 @@ class ListRenderer extends ListBase {
   }
 
   void _updateRenderer(IItemRenderer renderer) {
-    //reflowManager.invalidateCSS(renderer.control, '${Device.cssPrefix}transition', 'all .001s linear');
-    
-    if (_colWidth > 0) {
-      renderer.width = _colWidth;
-    } else if (_colPercentWidth > .0) {
-      renderer.percentWidth = _colPercentWidth;
-    }
+    if (_colWidth > 0) renderer.width = _colWidth;
+    else if (_colPercentWidth > .0) renderer.percentWidth = _colPercentWidth;
 
-    if (_rowHeight > 0) {
-      renderer.height = _rowHeight;
-    } else if (_rowPercentHeight > .0) {
-      renderer.percentHeight = _rowPercentHeight;
-    }
+    if (_rowHeight > 0) renderer.height = _rowHeight;
+    else if (_rowPercentHeight > .0) renderer.percentHeight = _rowPercentHeight;
   }
 
   static const EventHook<FrameworkEvent> onRendererAddedEvent = const EventHook<FrameworkEvent>('rendererAdded');

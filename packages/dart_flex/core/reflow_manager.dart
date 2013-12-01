@@ -31,7 +31,7 @@ class ReflowManager {
     _invocationFrameCompleter = new Completer();
     
     new Timer(
-      new Duration(milliseconds: 1),
+      new Duration(milliseconds: 30),
       _invocationFrameCompleter.complete
     );
     
@@ -127,7 +127,7 @@ class ReflowManager {
 
       ownerMap.add(invokation);
       
-      invocationFrame.then(
+      animationFrame.then(
           (_) {
             ownerMap.remove(invokation);
             
@@ -177,7 +177,7 @@ class _MethodInvokationMap {
 
 class _ElementCSSMap {
 
-  static const String _PRIORITY = '';
+  static const String _PRIORITY = null;
   
   final Element _element;
   final HtmlHtmlElement _detachedElement = new HtmlHtmlElement();
