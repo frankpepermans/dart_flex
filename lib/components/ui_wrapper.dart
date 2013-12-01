@@ -868,7 +868,7 @@ class UIWrapper implements IUIWrapper {
           (type == 1) ||
           (type == 2) ||
           (type == 5)
-        ) _reflowManager.invalidateCSS(_control, '${Device.cssPrefix}transform', 'translate(${_x}px,${_y}px)');
+        ) _reflowManager.invalidateCSS(_control, '${Device.cssPrefix}transform', 'translate3d(${_x}px,${_y}px,0px)');
         
         switch (type) {
           case 3 : _reflowManager.invalidateCSS(_control, 'width', cssWidth);   break;

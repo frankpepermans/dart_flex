@@ -490,6 +490,8 @@ class ListRenderer extends ListBase {
   }
 
   void _updateRenderer(IItemRenderer renderer) {
+    //reflowManager.invalidateCSS(renderer.control, '${Device.cssPrefix}transition', 'all .001s linear');
+    
     if (_colWidth > 0) {
       renderer.width = _colWidth;
     } else if (_colPercentWidth > .0) {

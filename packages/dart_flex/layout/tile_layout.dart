@@ -77,7 +77,6 @@ class TileLayout implements ILayout {
       element = elements[i];
       
       element.reflowManager.invalidateCSS(element.control, 'position', 'absolute');
-      element.reflowManager.invalidateCSS(element.control, '${Device.cssPrefix}transition', 'all .01s ease-in');
 
       if (!element.includeInLayout) {
         staticElmLen++;
