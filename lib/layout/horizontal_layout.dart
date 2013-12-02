@@ -117,7 +117,7 @@ class HorizontalLayout implements ILayout {
           else if (_align == 'right') element.x = width - offset - element.paddingLeft - element.paddingRight - element.width;
         } else element.x = element.paddingLeft;
 
-        if (_constrainToBounds && (h > 0)) element.y = (height >> 2) - (h >> 2) + element.paddingTop;
+        if (_constrainToBounds && (h > 0)) element.y = ((height * .5) - (h * .5) + element.paddingTop).toInt();
 
         if (element.autoSize) element.width = w;
 

@@ -392,11 +392,8 @@ class ListRenderer extends ListBase {
           (_selectedIndex < startIndex) || 
           (_selectedIndex >= endIndex)
       ) {
-        if (_layout is VerticalLayout) {
-          _control.scrollTop = _selectedIndex * _rowHeight;
-        } else {
-          _control.scrollLeft = _selectedIndex * _colWidth;
-        }
+        if (_layout is VerticalLayout) _control.scrollTop = _selectedIndex * _rowHeight;
+        else _control.scrollLeft = _selectedIndex * _colWidth;
       }
     }
   }
@@ -466,8 +463,7 @@ class ListRenderer extends ListBase {
     ..onTouchEnd.listen(_container_scrollHandler)
     ..onTouchLeave.listen(_container_scrollHandler)
     ..onTouchStart.listen(_container_scrollHandler)
-    ..onTouchEnter.listen(_container_scrollHandler)
-    ..onMouseWheel.listen(_container_scrollHandler);
+    ..onTouchEnter.listen(_container_scrollHandler);
 
     _scrollTarget = new Group();
 

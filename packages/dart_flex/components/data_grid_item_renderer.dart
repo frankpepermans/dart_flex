@@ -145,8 +145,6 @@ class DataGridItemRenderer extends ItemRenderer {
   }
 
   void _updateItemRenderers() {
-    
-    
     if (_itemRendererInstances != null) {
       _itemRendererInstances.forEach(
           (ItemRenderer renderer) {
@@ -209,7 +207,7 @@ class DataGridItemRenderer extends ItemRenderer {
 
   void _updateLayout() {
     _layout.gap = _gap;
-
+    
     super._updateLayout();
   }
   

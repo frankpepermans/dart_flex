@@ -7,11 +7,14 @@ class ReflowManager {
   // Private properties
   //
   //---------------------------------
-
+  
   static final ReflowManager _instance = new ReflowManager._construct();
   
   final Map<dynamic, List<_MethodInvokationMap>> _scheduledHandlers = new Map<dynamic, List<_MethodInvokationMap>>();
   final Map<Element, _ElementCSSMap> _elements = <Element, _ElementCSSMap>{};
+  final Map<Element, CssStyleDeclaration> _cssStyles = <Element, CssStyleDeclaration>{};
+  
+  double _currentPerformance = -1.0;
   
   //---------------------------------
   //
@@ -30,8 +33,10 @@ class ReflowManager {
     
     _invocationFrameCompleter = new Completer();
     
+    final int interval = (_currentPerformance < 40.0) ? 40 : (_currentPerformance > 120.0) ? 120 : _currentPerformance.ceil();
+    
     new Timer(
-      new Duration(milliseconds: 30),
+      new Duration(milliseconds: interval),
       _invocationFrameCompleter.complete
     );
     
@@ -53,8 +58,14 @@ class ReflowManager {
     
     _animationFrameCompleter = new Completer();
     
+    double perf = window.performance.now();
+    
     window.requestAnimationFrame(
-        (_) => _animationFrameCompleter.complete()
+        (_) {
+          _animationFrameCompleter.complete();
+          
+          _currentPerformance = window.performance.now() - perf;
+        }
     );
     
     Future result = _animationFrameCompleter.future;
@@ -146,7 +157,6 @@ class ReflowManager {
 
     if (elementCSSMap == null) {
       elementCSSMap = new _ElementCSSMap(element)
-      ..detachedCCSText = element.style.cssText
       ..setProperty(property, value);
 
       _elements[element] = elementCSSMap;
@@ -177,31 +187,26 @@ class _MethodInvokationMap {
 
 class _ElementCSSMap {
 
-  static const String _PRIORITY = null;
+  static const String _PRIORITY = '';
   
   final Element _element;
-  final HtmlHtmlElement _detachedElement = new HtmlHtmlElement();
   final List<String> _dirtyProperties = <String>[];
   final List<String> _dirtyValues = <String>[];
   
-  bool get isDirty => (_element.style.cssText != _detachedElement.style.cssText);
+  CssStyleDeclaration _detachedElement;
   
-  String get detachedCCSText => _detachedElement.style.cssText;
-  void set detachedCCSText(String value) {
-    _detachedElement.style.cssText = value;
+  _ElementCSSMap(this._element) {
+    final CssStyleDeclaration matchCSS = ReflowManager._instance._cssStyles[_element];
+    
+    if (matchCSS == null) _detachedElement = ReflowManager._instance._cssStyles[_element] = new CssStyleDeclaration()..cssText = _element.style.cssText;
+    else _detachedElement = matchCSS..cssText = _element.style.cssText;
   }
-  
-  String get elementCCSText => _element.style.cssText;
-  void set elementCCSText(String value) {
-    _element.style.cssText = value;
-  }
-  
-  _ElementCSSMap(this._element);
   
   void finalize() {
-    if (_element.style.cssText != _detachedElement.style.cssText) {
+    if (_element.style.cssText != _detachedElement.cssText) {
       int i = _dirtyProperties.length;
       String propertyName, leftValue, rightValue;
+      String oldDisplayStyle = _element.style.display;
       
       while (i > 0) {
         propertyName = _dirtyProperties[--i];
@@ -222,7 +227,6 @@ class _ElementCSSMap {
       _dirtyValues.add(value);
     } else _dirtyValues[index] = value;
     
-    _detachedElement.style.setProperty(propertyName, value, _PRIORITY);
+    _detachedElement.setProperty(propertyName, value, _PRIORITY);
   }
-
 }

@@ -111,7 +111,7 @@ class VerticalLayout implements ILayout {
         if (w == null) w = 0;
         if (h == null) h = 0;
 
-        if (_constrainToBounds && (w > 0)) element.x = (width >> 2) - (w >> 2) + element.paddingLeft;
+        if (_constrainToBounds && (w > 0)) element.x = ((width * .5) - (w * .5) + element.paddingLeft).toInt();
 
         if (
             (pageSize == 0) ||

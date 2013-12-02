@@ -638,12 +638,6 @@ class UIWrapper implements IUIWrapper {
   String get className => _className;
   set className(String value) {
     if (value != _className) {
-      if (_isInitialized) {
-        _control.classes.removeWhere(
-            (String classNameEntry) => true    
-        );
-      }
-      
       _className = value;
       
       if (_isInitialized) later > _updateDefaultClass;
@@ -816,14 +810,9 @@ class UIWrapper implements IUIWrapper {
     _updateVisibility();
     _updateEnabledStatus();
     
-    if (_inheritsDefaultCSS)
-      _reflowManager.scheduleMethod(this, _addDefaultClass, [], forceSingleExecution: true);
+    if (_inheritsDefaultCSS) _reflowManager.scheduleMethod(this, _addDefaultClass, [], forceSingleExecution: true);
     
-    if (_cssClasses != null)
-      _reflowManager.scheduleMethod(this, _addAllPendingClasses, [], forceSingleExecution: true);
-    
-    _reflowManager.invalidateCSS(_control, 'left', '0px');
-    _reflowManager.invalidateCSS(_control, 'top', '0px');
+    if (_cssClasses != null) _reflowManager.scheduleMethod(this, _addAllPendingClasses, [], forceSingleExecution: true);
 
     _updateVisibility();
     _updateControl(5);
@@ -843,13 +832,17 @@ class UIWrapper implements IUIWrapper {
   void _updateDefaultClass() {
     final List<String> cssList = '_${_className}'.split(' ');
     
+    if (_isInitialized) {
+      _control.classes.removeWhere(
+          (String classNameEntry) => !cssList.contains(classNameEntry)    
+      );
+    }
+    
     cssList.forEach(
       (String css) {
         if (_inheritsDefaultCSS) {
           if (!_control.classes.contains(css)) _control.classes.add(css);
-        } else {
-          _control.classes.remove(css);
-        }
+        } else _control.classes.remove(css);
       }
     );
   }
@@ -859,30 +852,23 @@ class UIWrapper implements IUIWrapper {
   void _addAllPendingClasses() => _control.classes.addAll(_cssClasses);
 
   void _updateControl(int type) {
-    if (_control != null) {
-      if (_elementId == null) {
-        final String cssWidth = (_width == 0) ? 'auto' : '${_width}px';
-        final String cssHeight = (_height == 0) ? 'auto' : '${_height}px';
-        
-        if (
-          (type == 1) ||
-          (type == 2) ||
-          (type == 5)
-        ) _reflowManager.invalidateCSS(_control, '${Device.cssPrefix}transform', 'translate(${_x}px,${_y}px)');
-        
-        switch (type) {
-          case 3 : _reflowManager.invalidateCSS(_control, 'width', cssWidth);   break;
-          case 4 : _reflowManager.invalidateCSS(_control, 'height', cssHeight); break;
-          case 5 :
-            _reflowManager.invalidateCSS(_control, 'width', cssWidth);
-            _reflowManager.invalidateCSS(_control, 'height', cssHeight);
+    if (
+        (_control != null) &&  
+        (_elementId == null)
+    ) {
+      switch (type) {
+        case 1 : _reflowManager.invalidateCSS(_control, 'left', (_x.toString() + 'px'));                                    break;
+        case 2 : _reflowManager.invalidateCSS(_control, 'top', (_y.toString() + 'px'));                                     break;
+        case 3 : _reflowManager.invalidateCSS(_control, 'width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));    break;
+        case 4 : _reflowManager.invalidateCSS(_control, 'height', ((_height == 0) ? 'auto' : (_height.toString() + 'px'))); break;
+        case 5 :
+          _reflowManager.invalidateCSS(_control, 'left', (_x.toString() + 'px'));
+          _reflowManager.invalidateCSS(_control, 'top', (_y.toString() + 'px'));
+          _reflowManager.invalidateCSS(_control, 'width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));
+          _reflowManager.invalidateCSS(_control, 'height', ((_height == 0) ? 'auto' : (_height.toString() + 'px')));
 
-            break;
-        }
-      } /*else {
-        width = _control.clientWidth;
-        height = _control.clientHeight;
-      }*/
+          break;
+      }
     }
   }
 
@@ -941,8 +927,6 @@ class UIWrapper implements IUIWrapper {
       _isCSSClassesChanged = false;
       
       if (_control != null) {
-        _control.classes.removeWhere((_) => true);
-        
         _updateDefaultClass();
         
         _cssClasses.forEach(
@@ -1012,6 +996,24 @@ class UIWrapper implements IUIWrapper {
 
   void _updateSize() {
     if (_control != null) {
+      Element parentElement = _control;
+      
+      while (parentElement != null) {
+        if (
+            (
+              (parentElement.attributes.containsKey('aria-hidden')) &&
+              (parentElement.attributes['aria-hidden'] == 'true') 
+            ) ||
+            (parentElement.style.display == 'none')
+        ) {
+          reflowManager.animationFrame.whenComplete(_updateSize);
+          
+          return;
+        }
+          
+        parentElement = parentElement.parent;
+      }
+      
       final Rectangle rect = _control.client;
       
       if (
