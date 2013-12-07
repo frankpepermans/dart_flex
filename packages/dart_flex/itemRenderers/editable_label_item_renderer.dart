@@ -8,7 +8,7 @@ class EditableLabelItemRenderer extends ItemRenderer {
   //
   //---------------------------------
 
-  EditableText _textArea;
+  EditableText textArea;
 
   //---------------------------------
   //
@@ -35,19 +35,19 @@ class EditableLabelItemRenderer extends ItemRenderer {
   //---------------------------------
 
   void createChildren() {
-    _textArea = new EditableText()
+    textArea = new EditableText()
     ..percentWidth = 100.0
     ..height = 18
     ..paddingLeft = 5
     ..text = itemToLabel();
     
-    _textArea.onTextChanged.listen(textArea_onTextChangedHandler);
+    textArea.onTextChanged.listen(textArea_onTextChangedHandler);
 
-    addComponent(_textArea);
+    addComponent(textArea);
   }
 
   void invalidateData() {
-    if (_textArea != null) _textArea.text = itemToLabel();
+    if (textArea != null) textArea.text = itemToLabel();
   }
   
   String itemToLabel() {
@@ -63,6 +63,6 @@ class EditableLabelItemRenderer extends ItemRenderer {
     if (
         (_data != null) &&
         (_field != null)
-    ) _data[_field] = _textArea.text;
+    ) _data[_field] = textArea.text;
   }
 }

@@ -53,7 +53,7 @@ class DataGrid extends ListBase {
         _columnsChangesListener = null;
       }
 
-      if (value != null) _columnsChangesListener = value.changes.listen(_columns_collectionChangedHandler);
+      if (value != null) _columnsChangesListener = value.listChanges.listen(_columns_collectionChangedHandler);
 
       notify(
         new FrameworkEvent(
@@ -212,6 +212,8 @@ class DataGrid extends ListBase {
     if (value != _useSelectionEffects) {
       _useSelectionEffects = value;
       _isUseSelectionEffectsChanged = true;
+      
+      if (_list != null) _list.useSelectionEffects = value;
 
       notify(
         new FrameworkEvent(
@@ -575,7 +577,7 @@ class DataGrid extends ListBase {
     return isAscSort ? valA.toString().compareTo(valB.toString()) : valB.toString().compareTo(valA.toString());
   }
 
-  void _columns_collectionChangedHandler(List<ChangeRecord> changes) {
+  void _columns_collectionChangedHandler(List<ListChangeRecord> changes) {
     _isColumnsChanged = true;
 
     invalidateProperties();
@@ -594,7 +596,7 @@ class DataGrid extends ListBase {
   }
   
   @override
-  void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
+  void _dataProvider_collectionChangedHandler(List<ListChangeRecord> changes) {
     super._dataProvider_collectionChangedHandler(changes);
     
     selectedIndex = _dataProvider.indexOf(_selectedItem);

@@ -99,7 +99,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   static const EventHook<FrameworkEvent> onDataPropertyChangedEvent = const EventHook<FrameworkEvent>('dataPropertyChanged');
   Stream<FrameworkEvent> get onDataPropertyChanged => ItemRenderer.onDataPropertyChangedEvent.forTarget(this);
   
-  SpanElement highlightElement;
+  //SpanElement highlightElement;
   StreamSubscription _highlightElementChangesListener;
   StreamSubscription _dataPropertyChangesListener;
 
@@ -369,7 +369,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   void highlight() {
     if (_control == null) return;
     
-    if (highlightElement == null) {
+    /*if (highlightElement == null) {
       highlightElement = new SpanElement();
       
       _highlightElementChangesListener = highlightElement.onTransitionEnd.listen(
@@ -383,7 +383,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     
     reflowManager.invalidateCSS(highlightElement, 'opacity', '0');
     
-    if (!_control.contains(highlightElement)) _control.append(highlightElement);
+    if (!_control.contains(highlightElement)) _control.append(highlightElement);*/
   }
   
   dynamic getDataToObserve() {
@@ -501,7 +501,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     later > _invalidateData;
   }
   
-  void _highlightElement_transitionEndHandler(TransitionEvent event) {
+  /*void _highlightElement_transitionEndHandler(TransitionEvent event) {
     _control.children.remove(highlightElement);
     
     _highlightElementChangesListener.cancel();
@@ -509,6 +509,6 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     _highlightElementChangesListener = null;
     
     highlightElement = null;
-  }
+  }*/
 }
 

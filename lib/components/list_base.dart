@@ -47,7 +47,7 @@ class ListBase extends Group {
         _dataProviderChangesListener = null;
       }
 
-      if (value != null) _dataProviderChangesListener = value.changes.listen(_dataProvider_collectionChangedHandler);
+      if (value != null) _dataProviderChangesListener = value.listChanges.listen(_dataProvider_collectionChangedHandler);
       
       notify(
           new FrameworkEvent(
@@ -276,7 +276,7 @@ class ListBase extends Group {
 
   void _createElement(dynamic item, int index) {}
 
-  void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) {
+  void _dataProvider_collectionChangedHandler(List<ListChangeRecord> changes) {
     _isElementUpdateRequired = true;
     _skipPresentationUpdate = true;
 

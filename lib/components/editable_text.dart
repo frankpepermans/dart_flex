@@ -68,6 +68,29 @@ class EditableText extends UIWrapper {
   }
   
   //---------------------------------
+  // pattern
+  //---------------------------------
+
+  static const EventHook<FrameworkEvent> onPatternChangedEvent = const EventHook<FrameworkEvent>('patternChanged');
+  Stream<FrameworkEvent> get onPatternChanged => EditableText.onPatternChangedEvent.forTarget(this);
+  String _pattern;
+
+  String get pattern => _pattern;
+  set pattern(String value) {
+    if (value != _pattern) {
+      _pattern = value;
+
+      notify(
+        new FrameworkEvent(
+          'patternChanged'
+        )
+      );
+
+      _commitTextPattern();
+    }
+  }
+  
+  //---------------------------------
   // verticalAlign
   //---------------------------------
 
@@ -131,12 +154,17 @@ class EditableText extends UIWrapper {
     _setControl(input);
 
     _commitTextAlign();
+    _commitTextPattern();
     _commitTextVerticalAlign();
     _commitText();
   }
 
   void _commitTextAlign() {
     if (_control != null) _reflowManager.invalidateCSS(_control, 'text-align', _align);
+  }
+  
+  void _commitTextPattern() {
+    if (input != null) input.pattern = _pattern;
   }
   
   void _commitTextVerticalAlign() {
@@ -221,6 +249,9 @@ class EditableTextMask<T> extends EditableText {
       text = _formatToString(value);
       
       _oldInputValue = _text;
+      
+      _selectedIndex = -1;
+      _selectedSubIndex = 0;
     }
   }
 

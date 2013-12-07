@@ -40,6 +40,16 @@ class EditableDateTime<T> extends EditableTextMask {
   // Public properties
   //
   //---------------------------------
+  
+  //---------------------------------
+  // data
+  //---------------------------------
+  
+  set data(T value) {
+    super.data = value;
+    
+    if (value == null) text = DATE_TIME_MASK;
+  }
 
   //---------------------------------
   //

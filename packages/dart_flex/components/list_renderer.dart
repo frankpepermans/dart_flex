@@ -444,7 +444,10 @@ class ListRenderer extends ListBase {
 
     if (_layout != null) _layout.gap = _rowSpacing;
     
-    if (_isUseSelectionEffectsChanged) {
+    if (
+        _isUseSelectionEffectsChanged &&
+        (_itemRenderers != null)
+    ) {
       _isUseSelectionEffectsChanged = false;
       
       _itemRenderers.forEach(
@@ -694,7 +697,7 @@ class ListRenderer extends ListBase {
             ..index = i
             ..includeInLayout = isRendererShown
             ..visible = isRendererShown
-            ..selected = (i == _selectedIndex)
+            ..selected = (_useSelectionEffects && (i == _selectedIndex))
             ..data = data
             ..inactiveHandler = _inactiveHandler
             ..field = _field
@@ -750,5 +753,5 @@ class ListRenderer extends ListBase {
   }
   
   @override
-  void _dataProvider_collectionChangedHandler(List<ChangeRecord> changes) => _forceRefresh();
+  void _dataProvider_collectionChangedHandler(List<ListChangeRecord> changes) => _forceRefresh();
 }

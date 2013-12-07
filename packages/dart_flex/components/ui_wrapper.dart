@@ -808,7 +808,6 @@ class UIWrapper implements IUIWrapper {
     _control = element;
     
     _updateVisibility();
-    _updateEnabledStatus();
     
     if (_inheritsDefaultCSS) _reflowManager.scheduleMethod(this, _addDefaultClass, [], forceSingleExecution: true);
     
@@ -884,7 +883,6 @@ class UIWrapper implements IUIWrapper {
       _reflowManager = new ReflowManager();
       
       _updateVisibility();
-      _updateEnabledStatus();
 
       window.onResize.listen(_invalidateSize);
       
