@@ -33,15 +33,10 @@ class Graphics extends UIWrapper {
   // Public properties
   //
   //---------------------------------
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
-
-  void _createChildren() {
-    super._createChildren();
+  
+  @override
+  void createChildren() {
+    super.createChildren();
 
     CanvasElement controlCast = new CanvasElement(width: _owner.width, height: _owner.height);
 
@@ -53,8 +48,9 @@ class Graphics extends UIWrapper {
 
     _context = controlCast.getContext("2d");
   }
-
-  void _updateLayout() {
+  
+  @override
+  void updateLayout() {
     if (
       (_width > 0) &&
       (_height > 0)
@@ -66,9 +62,15 @@ class Graphics extends UIWrapper {
         controlCast.height = _height;
       }
 
-      super._updateLayout();
+      super.updateLayout();
     }
   }
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
 }
 
 

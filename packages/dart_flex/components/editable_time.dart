@@ -8,7 +8,7 @@ class EditableTime<T> extends EditableTextMask {
   //
   //---------------------------------
   
-  static const String TIME_MASK = 'HH/MM';
+  static const String TIME_MASK = 'HH:MM';
   static const String TIME_MASK_HOUR = 'H';
   static const String TIME_MASK_MINUTE = 'M';
 

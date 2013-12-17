@@ -100,15 +100,10 @@ class EditableTextArea extends UIWrapper {
   // Public properties
   //
   //---------------------------------
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
-
-  void _createChildren() {
-    super._createChildren();
+  
+  @override
+  void createChildren() {
+    super.createChildren();
     
     label = new TextAreaElement()
     ..style.resize = 'none'
@@ -124,6 +119,19 @@ class EditableTextArea extends UIWrapper {
     _commitTextVerticalAlign();
     _commitText();
   }
+  
+  @override
+  void updateEnabledStatus() {
+    super.updateEnabledStatus();
+    
+    if (label != null) label.readOnly = !_enabled;
+  }
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
 
   void _commitTextAlign() {
     if (_control != null) {
@@ -152,13 +160,6 @@ class EditableTextArea extends UIWrapper {
     }
     
     controlCast.value = newText;
-  }
-  
-  @override
-  void _updateEnabledStatus() {
-    super._updateEnabledStatus();
-    
-    if (label != null) label.readOnly = !_enabled;
   }
   
   void _label_inputHandler(Event event) {

@@ -130,20 +130,8 @@ class EditableText extends UIWrapper {
   //---------------------------------
   
   @override
-  void _updateEnabledStatus() {
-    super._updateEnabledStatus();
-    
-    if (input != null) input.readOnly = !_enabled;
-  }
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
-
-  void _createChildren() {
-    super._createChildren();
+  void createChildren() {
+    super.createChildren();
     
     input = new TextInputElement()..readOnly = !_enabled;
     
@@ -158,6 +146,19 @@ class EditableText extends UIWrapper {
     _commitTextVerticalAlign();
     _commitText();
   }
+  
+  @override
+  void updateEnabledStatus() {
+    super.updateEnabledStatus();
+    
+    if (input != null) input.readOnly = !_enabled;
+  }
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
 
   void _commitTextAlign() {
     if (_control != null) _reflowManager.invalidateCSS(_control, 'text-align', _align);
@@ -270,16 +271,10 @@ class EditableTextMask<T> extends EditableText {
   // Public properties
   //
   //---------------------------------
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
   
   @override
-  void _createChildren() {
-    super._createChildren();
+  void createChildren() {
+    super.createChildren();
     
     input.pattern = '[^]{${_mask.length}}';
     
@@ -301,6 +296,12 @@ class EditableTextMask<T> extends EditableText {
     input.onDragOver.listen(_input_preventEvent);
     input.onDragStart.listen(_input_preventEvent);
   }
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
   
   @override
   void _inputHandler(Event event) {

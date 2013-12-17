@@ -135,15 +135,10 @@ class RichText extends UIWrapper {
   // Public properties
   //
   //---------------------------------
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
-
-  void _createChildren() {
-    super._createChildren();
+  
+  @override
+  void createChildren() {
+    super.createChildren();
     
     _label = new LabelElement();
     
@@ -155,6 +150,12 @@ class RichText extends UIWrapper {
     _commitTextVerticalAlign();
     _commitText();
   }
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
 
   void _commitTextAlign() {
     if (_label != null) _reflowManager.invalidateCSS(_control, 'text-align', _align);

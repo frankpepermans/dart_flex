@@ -50,16 +50,9 @@ abstract class IItemRenderer implements IUIWrapper {
 
   String get interactionStyle;
 
-  void createChildren();
-
   void invalidateData();
-  
   void invalidateDataChangesListener();
-
-  void updateLayout();
-
   void updateAfterInteraction();
-  
   void highlight();
 
 }
@@ -100,8 +93,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   Stream<FrameworkEvent> get onDataPropertyChanged => ItemRenderer.onDataPropertyChangedEvent.forTarget(this);
   
   //SpanElement highlightElement;
-  StreamSubscription _highlightElementChangesListener;
-  StreamSubscription _dataPropertyChangesListener;
+  StreamSubscription _dataPropertyChangesListener, _controlHighlightListener;
 
   //---------------------------------
   // index
@@ -147,7 +139,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
         new FrameworkEvent<dynamic>('dataChanged', relatedObject: value)
       );
 
-      later > _invalidateData;
+      later > invalidateData;
     }
   }
   
@@ -166,7 +158,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
           new FrameworkEvent('fieldChanged')    
       );
       
-      later > _invalidateData;
+      later > invalidateData;
     }
   }
   
@@ -195,7 +187,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
           new FrameworkEvent('fieldsChanged')    
       );
       
-      later > _invalidateData;
+      later > invalidateData;
     }
   }
   
@@ -210,7 +202,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     if (value != _labelHandler) {
       _labelHandler = value;
       
-      later > _invalidateData;
+      later > invalidateData;
     }
   }
 
@@ -225,7 +217,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     if (value != _state) {
       _state = value;
 
-      later > _updateAfterInteraction;
+      later > updateAfterInteraction;
     }
   }
 
@@ -242,7 +234,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       
       className = 'ItemRenderer${_selected ? ' ItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
 
-      later > _updateAfterInteraction;
+      later > updateAfterInteraction;
     }
   }
   
@@ -330,7 +322,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     if (value != _gap) {
       _gap = value;
 
-      later > _updateLayout;
+      later > updateLayout;
     }
   }
 
@@ -354,64 +346,9 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   //
   //---------------------------------
 
-  void createChildren() {}
-
-  void invalidateData() {}
-
-  void updateLayout() {}
-
-  void updateAfterInteraction() {}
-  
-  void updateForEditable() {}
-  
-  void invalidateDataChangesListener() => _data_changesHandler(null);
-  
-  void highlight() {
-    if (_control == null) return;
-    
-    /*if (highlightElement == null) {
-      highlightElement = new SpanElement();
-      
-      _highlightElementChangesListener = highlightElement.onTransitionEnd.listen(
-          _highlightElement_transitionEndHandler
-      );
-    }
-    
-    highlightElement.style.opacity = '.75';
-    
-    highlightElement.className = 'item-renderer-highlight';
-    
-    reflowManager.invalidateCSS(highlightElement, 'opacity', '0');
-    
-    if (!_control.contains(highlightElement)) _control.append(highlightElement);*/
-  }
-  
-  dynamic getDataToObserve() {
-    if (_data == null) return null;
-    
-    if (_fields == null) return data;
-    
-    dynamic value;
-    
-    value = _data;
-    
-    _fields.forEach(
-        (Symbol subField) {
-          if (value != null) value = value[subField];
-        }
-    );
-    
-    return value;
-  }
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
-
-  void _createChildren() {
-    super._createChildren();
+  @override
+  void createChildren() {
+    super.createChildren();
 
     SpanElement container = new SpanElement();
     
@@ -441,20 +378,72 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
         )
     );
 
-    createChildren();
-
-    later > _invalidateData;
+    later > invalidateData;
   }
 
-  void _invalidateData() => invalidateData();
+  void invalidateData() {}
 
-  void _updateLayout() {
-    super._updateLayout();
-
-    updateLayout();
+  void updateAfterInteraction() {}
+  
+  void updateForEditable() {}
+  
+  void invalidateDataChangesListener() => _data_changesHandler(null);
+  
+  void highlight() {
+    if (_control == null) return;
+    
+    _control.style.setProperty('background-color', '#ccffcc', 'important');
+    _control.style.transition = 'background-color .5s ease-out';
+    
+    if (_controlHighlightListener != null) {
+      _controlHighlightListener.cancel();
+      
+      _controlHighlightListener = null;
+    }
+    
+    new Timer(
+        new Duration(milliseconds: 250), 
+        () {
+          _control.style.removeProperty('background-color');
+          
+          _controlHighlightListener = _control.onTransitionEnd.listen(
+            (_) {
+              _control.style.removeProperty('transition');
+              
+              if (_controlHighlightListener != null) {
+                _controlHighlightListener.cancel();
+                
+                _controlHighlightListener = null;
+              }
+            }
+          );
+        }
+    );
+  }
+  
+  dynamic getDataToObserve() {
+    if (_data == null) return null;
+    
+    if (_fields == null) return data;
+    
+    dynamic value;
+    
+    value = _data;
+    
+    _fields.forEach(
+        (Symbol subField) {
+          if (value != null) value = value[subField];
+        }
+    );
+    
+    return value;
   }
 
-  void _updateAfterInteraction() => updateAfterInteraction();
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
   
   void _data_changesHandler(List<ChangeRecord> changes) {
     if (_fields != null) {
@@ -498,17 +487,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     
     className = 'ItemRenderer${_selected ? ' ItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
     
-    later > _invalidateData;
+    later > invalidateData;
   }
-  
-  /*void _highlightElement_transitionEndHandler(TransitionEvent event) {
-    _control.children.remove(highlightElement);
-    
-    _highlightElementChangesListener.cancel();
-    
-    _highlightElementChangesListener = null;
-    
-    highlightElement = null;
-  }*/
 }
 

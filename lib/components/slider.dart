@@ -123,13 +123,8 @@ class Slider extends UIWrapper {
   // Public methods
   //
   //---------------------------------
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
-
+  
+  @override
   void _createChildren() {
     _handle = new RangeInputElement()
     ..value = _value.toString()
@@ -141,12 +136,14 @@ class Slider extends UIWrapper {
     
     _setControl(_handle);
 
-    super._createChildren();
+    super.createChildren();
   }
-  
-  void _updateLayout() {
-    //super._updateLayout();
-  }
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
   
   void _commit() {
     if (_control != null)

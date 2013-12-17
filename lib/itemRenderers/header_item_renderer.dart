@@ -40,8 +40,11 @@ class HeaderItemRenderer extends ItemRenderer {
   // Public methods
   //
   //---------------------------------
-
+  
+  @override
   void createChildren() {
+    super.createChildren();
+    
     _button = new Button()
     ..percentWidth = 100.0
     ..percentHeight = 100.0
@@ -51,8 +54,11 @@ class HeaderItemRenderer extends ItemRenderer {
 
     addComponent(_button);
   }
-
+  
+  @override
   void invalidateData() {
+    super.invalidateData();
+    
     if (
        (_button != null) &&
        (_data != null)

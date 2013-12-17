@@ -105,20 +105,8 @@ class EditableInt extends UIWrapper {
   //---------------------------------
   
   @override
-  void _updateEnabledStatus() {
-    super._updateEnabledStatus();
-    
-    if (label != null) label.readOnly = !_enabled;
-  }
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
-
-  void _createChildren() {
-    super._createChildren();
+  void createChildren() {
+    super.createChildren();
     
     label = new NumberInputElement()..readOnly = !_enabled;
     
@@ -130,6 +118,19 @@ class EditableInt extends UIWrapper {
 
     _commitValue();
   }
+  
+  @override
+  void updateEnabledStatus() {
+    super.updateEnabledStatus();
+    
+    if (label != null) label.readOnly = !_enabled;
+  }
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
 
   void _commitValue() {
     if (_control != null) {

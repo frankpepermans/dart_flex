@@ -265,6 +265,26 @@ class DataGrid extends ListBase {
   //
   //---------------------------------
   
+  @override
+  void commitProperties() {
+    super.commitProperties();
+
+    if (
+        _isColumnsChanged &&
+        (_headerContainer != null)
+    ) {
+      _isColumnsChanged = false;
+
+      _updateColumnsAndHeaders();
+    }
+    
+    if (_isUseSelectionEffectsChanged) {
+      _isUseSelectionEffectsChanged = false;
+      
+      if (_list != null) _list.useSelectionEffects = _useSelectionEffects;
+    }
+  }
+  
   void setScrollTarget(DataGridItemRenderer target, int offset) {
     final int low = target.y;
     final int high = target.y + offset;
@@ -296,7 +316,7 @@ class DataGrid extends ListBase {
   //---------------------------------
   
   @override
-  void _createChildren() {
+  void createChildren() {
     final SpanElement container = new SpanElement();
 
     _gridContainer = new VGroup(gap: 0)
@@ -336,7 +356,7 @@ class DataGrid extends ListBase {
     
     _updateScrollPolicy();
 
-    super._createChildren();
+    super.createChildren();
   }
   
   @override
@@ -347,26 +367,6 @@ class DataGrid extends ListBase {
       _list._updateVisibleItemRenderers(ignorePreviousIndex: true);
       
       later > _list.invalidateLayout;
-    }
-  }
-  
-  @override
-  void _commitProperties() {
-    super._commitProperties();
-
-    if (
-        _isColumnsChanged &&
-        (_headerContainer != null)
-    ) {
-      _isColumnsChanged = false;
-
-      _updateColumnsAndHeaders();
-    }
-    
-    if (_isUseSelectionEffectsChanged) {
-      _isUseSelectionEffectsChanged = false;
-      
-      if (_list != null) _list.useSelectionEffects = _useSelectionEffects;
     }
   }
 
@@ -438,7 +438,7 @@ class DataGrid extends ListBase {
   }
   
   @override
-  void _updateLayout() {
+  void updateLayout() {
     if (
         (_list != null) &&
         (_columns != null)
@@ -495,7 +495,7 @@ class DataGrid extends ListBase {
       }
     }
 
-    super._updateLayout();
+    super.updateLayout();
   }
 
   void _list_rendererAddedHandler(FrameworkEvent<DataGridItemRenderer> event) {
@@ -522,25 +522,27 @@ class DataGrid extends ListBase {
     );
   }
   
-  void _list_rendererRemovedHandler(FrameworkEvent<DataGridItemRenderer> event) {
-    final DataGridItemRenderer renderer = event.relatedObject
-    ..columns = null
-    ..data = null
-    ..field = null
-    ..fields = null;
-    
-    if (renderer._dataPropertyChangesListener != null) {
-      renderer._dataPropertyChangesListener.cancel();
+  void _list_rendererRemovedHandler(FrameworkEvent<IUIWrapper> event) {
+    if (event.relatedObject is DataGridItemRenderer) {
+      final DataGridItemRenderer renderer = (event.relatedObject as DataGridItemRenderer)
+          ..columns = null
+          ..data = null
+          ..field = null
+          ..fields = null;
       
-      renderer._dataPropertyChangesListener = null;
+      if (renderer._dataPropertyChangesListener != null) {
+        renderer._dataPropertyChangesListener.cancel();
+        
+        renderer._dataPropertyChangesListener = null;
+      }
+      
+      notify(
+          new FrameworkEvent<DataGridItemRenderer>(
+              'rendererRemoved',
+              relatedObject: renderer
+          )
+      );
     }
-    
-    notify(
-        new FrameworkEvent<DataGridItemRenderer>(
-            'rendererRemoved',
-            relatedObject: renderer
-        )
-    );
   }
   
   void _list_selectedItemChangedHandler(FrameworkEvent<dynamic> event) {

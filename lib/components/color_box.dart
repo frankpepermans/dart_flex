@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class Image extends UIWrapper {
+class ColorBox extends UIWrapper {
 
   //---------------------------------
   //
@@ -9,23 +9,23 @@ class Image extends UIWrapper {
   //---------------------------------
 
   //---------------------------------
-  // source
+  // color
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onSourceChangedEvent = const EventHook<FrameworkEvent>('sourceChanged');
-  Stream<FrameworkEvent> get onSourceChanged => Image.onSourceChangedEvent.forTarget(this);
-  String _source;
+  static const EventHook<FrameworkEvent> onColorChangedEvent = const EventHook<FrameworkEvent>('colorChanged');
+  Stream<FrameworkEvent> get onColorChanged => ColorBox.onColorChangedEvent.forTarget(this);
+  String _color;
 
-  String get source => _source;
-  set source(String value) {
-    if (value != _source) {
-      _source = value;
+  String get color => _color;
+  set color(String value) {
+    if (value != _color) {
+      _color = value;
 
       notify(
-          new FrameworkEvent('sourceChanged')
+          new FrameworkEvent('colorChanged')
       );
 
-      _commitSource();
+      _commitColor();
     }
   }
 
@@ -41,8 +41,8 @@ class Image extends UIWrapper {
   //
   //---------------------------------
 
-  Image({String elementId: null}) : super(elementId: elementId) {
-  	_className = 'Image';
+  ColorBox({String elementId: null}) : super(elementId: elementId) {
+    _className = 'ColorBox';
   }
 
   //---------------------------------
@@ -55,10 +55,8 @@ class Image extends UIWrapper {
   void createChildren() {
     if (_control == null) {
       SpanElement controlCast = new SpanElement();
-
-      _reflowManager.invalidateCSS(controlCast, 'overflow', 'hidden');
-      _reflowManager.invalidateCSS(controlCast, 'background-repeat', 'no-repeat');
-      _reflowManager.invalidateCSS(controlCast, 'background-image', 'url($_source)');
+      
+      _reflowManager.invalidateCSS(controlCast, 'background-color', _color);
 
       _setControl(controlCast);
     }
@@ -72,13 +70,13 @@ class Image extends UIWrapper {
   //
   //---------------------------------
 
-  void _commitSource() {
+  void _commitColor() {
     super.commitProperties();
 
     if (_control != null) {
       SpanElement controlCast = _control as SpanElement;
 
-      _reflowManager.invalidateCSS(controlCast, 'background-image', 'url($_source)');
+      _reflowManager.invalidateCSS(controlCast, 'background-color', _color);
     }
   }
 }

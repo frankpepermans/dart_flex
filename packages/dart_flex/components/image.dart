@@ -50,6 +50,21 @@ class Image extends UIWrapper {
   // Public methods
   //
   //---------------------------------
+  
+  @override
+  void createChildren() {
+    if (_control == null) {
+      SpanElement controlCast = new SpanElement();
+
+      _reflowManager.invalidateCSS(controlCast, 'overflow', 'hidden');
+      _reflowManager.invalidateCSS(controlCast, 'background-repeat', 'no-repeat');
+      _reflowManager.invalidateCSS(controlCast, 'background-image', 'url($_source)');
+
+      _setControl(controlCast);
+    }
+
+    super.createChildren();
+  }
 
   //---------------------------------
   //
@@ -57,22 +72,8 @@ class Image extends UIWrapper {
   //
   //---------------------------------
 
-  void _createChildren() {
-    if (_control == null) {
-      SpanElement controlCast = new SpanElement();
-
-      _reflowManager.invalidateCSS(controlCast, 'overflow', 'hidden');
-      _reflowManager.invalidateCSS(controlCast, 'background-repeat', 'no-repeat');
-      _reflowManager.invalidateCSS(controlCast, 'background-rmage', 'url($_source)');
-
-      _setControl(controlCast);
-    }
-
-    super._createChildren();
-  }
-
   void _commitSource() {
-    super._commitProperties();
+    super.commitProperties();
 
     if (_control != null) {
       SpanElement controlCast = _control as SpanElement;

@@ -160,6 +160,19 @@ class DataGridColumn {
       _labelHandler = value;
     }
   }
+  
+  //---------------------------------
+  // cssClasses
+  //---------------------------------
+
+  List<String> _cssClasses;
+
+  List<String> get cssClasses => _cssClasses;
+  set cssClasses(List<String> value) {
+    if (value != _cssClasses) {
+      _cssClasses = value;
+    }
+  }
 
   //---------------------------------
   //

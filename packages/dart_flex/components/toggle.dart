@@ -54,14 +54,9 @@ class Toggle extends UIWrapper {
   // Public methods
   //
   //---------------------------------
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
-
-  void _createChildren() {
+  
+  @override
+  void createChildren() {
     _handle = new RangeInputElement()
       ..value = _isToggled ? '1' : '0'
       ..min = '0'
@@ -72,12 +67,14 @@ class Toggle extends UIWrapper {
       
     _setControl(_handle);
 
-    super._createChildren();
+    super.createChildren();
   }
-  
-  void _updateLayout() {
-    //super._updateLayout();
-  }
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
   
   void _commitIsToggled() {
     if (_control != null) {

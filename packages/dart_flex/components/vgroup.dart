@@ -33,7 +33,7 @@ class VGroup extends Group {
   //---------------------------------
   
   static const EventHook<FrameworkEvent> onAlignChangedEvent = const EventHook<FrameworkEvent>('alignChanged');
-  Stream<FrameworkEvent> get onAlignChanged => HGroup.onAlignChangedEvent.forTarget(this);
+  Stream<FrameworkEvent> get onAlignChanged => VGroup.onAlignChangedEvent.forTarget(this);
 
   String get align => _layout.align;
   

@@ -31,8 +31,4 @@ class Footer extends HGroup {
   // Public methods
   //
   //---------------------------------
-  
-  void _createChildren() {
-    super._createChildren();
-  }
 }

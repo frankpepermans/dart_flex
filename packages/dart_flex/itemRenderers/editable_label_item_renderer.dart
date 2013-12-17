@@ -33,8 +33,11 @@ class EditableLabelItemRenderer extends ItemRenderer {
   // Public properties
   //
   //---------------------------------
-
+  
+  @override
   void createChildren() {
+    super.createChildren();
+    
     textArea = new EditableText()
     ..percentWidth = 100.0
     ..height = 18
@@ -45,8 +48,11 @@ class EditableLabelItemRenderer extends ItemRenderer {
 
     addComponent(textArea);
   }
-
+  
+  @override
   void invalidateData() {
+    super.invalidateData();
+    
     if (textArea != null) textArea.text = itemToLabel();
   }
   

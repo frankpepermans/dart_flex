@@ -43,12 +43,13 @@ class ComboBox extends ListBase {
 
   //---------------------------------
   //
-  // Protected methods
+  // Public methods
   //
   //---------------------------------
-
-  void _createChildren() {
-    super._createChildren();
+  
+  @override
+  void createChildren() {
+    super.createChildren();
 
     _setControl(new SelectElement());
 
@@ -56,6 +57,12 @@ class ComboBox extends ListBase {
     
     _updateSelection();
   }
+  
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
   
   void _updateElements() {
     if (_dataProvider == null || _control == null) return;

@@ -113,8 +113,36 @@ class DataGridItemRenderer extends ItemRenderer {
   // Public methods
   //
   //---------------------------------
+  
+  @override
+  void commitProperties() {
+    super.commitProperties();
 
-  void invalidateData() {}
+    if (_isColumnsChanged) {
+      _isColumnsChanged = false;
+
+      _updateItemRenderers();
+    }
+  }
+
+  @override
+  void invalidateData() {
+    super.invalidateData();
+
+    if (
+        (_itemRendererInstances != null) &&
+        (_itemRendererInstances.length > 0)
+    ) _itemRendererInstances.forEach(
+        (IItemRenderer renderer) => renderer.data = _data
+    );
+  }
+  
+  @override
+  void updateLayout() {
+    _layout.gap = _gap;
+    
+    super.updateLayout();
+  }
   
   //---------------------------------
   //
@@ -132,16 +160,6 @@ class DataGridItemRenderer extends ItemRenderer {
     );
 
     invalidateProperties();
-  }
-
-  void _commitProperties() {
-    super._commitProperties();
-
-    if (_isColumnsChanged) {
-      _isColumnsChanged = false;
-
-      _updateItemRenderers();
-    }
   }
 
   void _updateItemRenderers() {
@@ -166,9 +184,12 @@ class DataGridItemRenderer extends ItemRenderer {
                 ..enableHighlight = true
                 ..field = column._field
                 ..fields = column._fields
+                ..inactiveHandler = _inactiveHandler
                 ..labelHandler = column.labelHandler
                 ..height = _grid.rowHeight
                 ..onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
+            
+            renderer.cssClasses = _concat_css(column, renderer);
             
             renderer._dataPropertyChangesListener = renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
 
@@ -191,25 +212,14 @@ class DataGridItemRenderer extends ItemRenderer {
     }
   }
   
-  @override
-  void _invalidateData() {
-    super._invalidateData();
-
-    if (
-        (_itemRendererInstances != null) &&
-        (_itemRendererInstances.length > 0)
-    ) _itemRendererInstances.forEach(
-        (IItemRenderer renderer) => renderer.data = _data
-    );
+  List<String> _concat_css(DataGridColumn column, ItemRenderer renderer) {
+    if (renderer.cssClasses != null) {
+      if (column.cssClasses != null) return renderer.cssClasses.toList(growable: true)..addAll(column.cssClasses);
+      else return renderer.cssClasses;
+    } else return column.cssClasses;
   }
 
   void _itemRenderers_collectionChangedHandler(List<ChangeRecord> changes) => _updateItemRenderers();
-
-  void _updateLayout() {
-    _layout.gap = _gap;
-    
-    super._updateLayout();
-  }
   
   void _renderer_dataPropertyChangedHandler(FrameworkEvent event) {
     IItemRenderer itemRenderer = event.currentTarget as IItemRenderer;

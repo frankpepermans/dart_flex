@@ -151,7 +151,8 @@ class Header extends Group {
   //
   //---------------------------------
   
-  void _createChildren() {
+  @override
+  void createChildren() {
     _layout = new AbsoluteLayout();
     
     _headerLabel = new RichText()
@@ -174,11 +175,12 @@ class Header extends Group {
     addComponent(_rightSideContainer);
     addComponent(_headerLabel);
 
-    super._createChildren();
+    super.createChildren();
   }
   
-  void _commitProperties() {
-    super._commitProperties();
+  @override
+  void commitProperties() {
+    super.commitProperties();
 
     if (
         _isLabelChanged &&
@@ -208,7 +210,8 @@ class Header extends Group {
     }
   }
   
-  void _updateLayout() {
+  @override
+  void updateLayout() {
     if (
         (_width > 0) &&
         (_height > 0)
@@ -251,8 +254,14 @@ class Header extends Group {
       _rightSideContainer.width = _leftSideContainer.width;
     }
     
-    super._updateLayout();
+    super.updateLayout();
   }
+  
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
   
   void _updateWidth(FrameworkEvent event) {
     invalidateProperties();

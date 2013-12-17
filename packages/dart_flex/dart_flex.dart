@@ -4,12 +4,12 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:core';
 import 'dart:html';
-import 'dart:html_common';
 import 'dart:math';
 
 import 'package:observe/observe.dart';
 
 part "components/button.dart";
+part "components/color_box.dart";
 part "components/combo_box.dart";
 part "components/dart_flex_root_container.dart";
 part "components/data_grid.dart";

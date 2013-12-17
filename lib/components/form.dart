@@ -32,6 +32,15 @@ class Form extends VGroup {
   //
   //---------------------------------
   
+  @override
+  void createChildren() {
+    super.createChildren();
+    
+    _tag = new FormElement();
+
+    _setControl(_tag);
+  }
+  
   bool runValidation() => _tag.checkValidity();
   
   //---------------------------------
@@ -39,13 +48,5 @@ class Form extends VGroup {
   // Protected methods
   //
   //---------------------------------
-
-  void _createChildren() {
-    super._createChildren();
-    
-    _tag = new FormElement();
-
-    _setControl(_tag);
-  }
 }
 

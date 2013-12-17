@@ -81,27 +81,17 @@ class Group extends UIWrapper {
   // Public methods
   //
   //---------------------------------
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
-
-  void _createChildren() {
+  
+  @override
+  void createChildren() {
     if (_control == null) _setControl(new SpanElement());
 
-    super._createChildren();
+    super.createChildren();
   }
-
-  void _setControl(Element element) {
-    super._setControl(element);
-
-    _isScrollPolicyInvalid = true;
-  }
-
-  void _commitProperties() {
-    super._commitProperties();
+  
+  @override
+  void commitProperties() {
+    super.commitProperties();
 
     if (_control != null) {
       if (_isScrollPolicyInvalid) {
@@ -110,6 +100,18 @@ class Group extends UIWrapper {
         _updateScrollPolicy();
       }
     }
+  }
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
+
+  void _setControl(Element element) {
+    super._setControl(element);
+
+    _isScrollPolicyInvalid = true;
   }
 
   void _updateScrollPolicy() {

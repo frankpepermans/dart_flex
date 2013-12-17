@@ -378,34 +378,30 @@ class ListRenderer extends ListBase {
   //
   //---------------------------------
   
-  void scrollSelectionIntoView() {
-    if (
-        (_selectedIndex >= 0) &&
-        (_itemRenderers != null)
-    ) {
-      final int pageItemSize = _getPageItemSize();
-      final int startIndex = (pageItemSize > 0) ? (_scrollPosition ~/ pageItemSize) : 0;
-      final int endIndex = startIndex + ((_itemRenderers != null) ? _itemRenderers.length : 0);
-      int offset, target;
-      
-      if (
-          (_selectedIndex < startIndex) || 
-          (_selectedIndex >= endIndex)
-      ) {
-        if (_layout is VerticalLayout) _control.scrollTop = _selectedIndex * _rowHeight;
-        else _control.scrollLeft = _selectedIndex * _colWidth;
-      }
-    }
-  }
+  @override
+  void createChildren() {
+    final SpanElement container = new SpanElement()
+    ..onScroll.listen(_container_scrollHandler)
+    ..onTouchCancel.listen(_container_scrollHandler)
+    ..onTouchEnd.listen(_container_scrollHandler)
+    ..onTouchLeave.listen(_container_scrollHandler)
+    ..onTouchStart.listen(_container_scrollHandler)
+    ..onTouchEnter.listen(_container_scrollHandler);
 
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
+    _scrollTarget = new Group();
+
+    _scrollTarget.autoSize = false;
+    _scrollTarget.includeInLayout = false;
+
+    addComponent(_scrollTarget);
+
+    _setControl(container);
+
+    super.createChildren();
+  }
   
   @override
-  void _commitProperties() {
+  void commitProperties() {
     ILayout defaultLayout;
 
     if (_isOrientationChanged) {
@@ -455,30 +451,34 @@ class ListRenderer extends ListBase {
       );
     }
 
-    super._commitProperties();
+    super.commitProperties();
   }
   
-  @override
-  void _createChildren() {
-    final SpanElement container = new SpanElement()
-    ..onScroll.listen(_container_scrollHandler)
-    ..onTouchCancel.listen(_container_scrollHandler)
-    ..onTouchEnd.listen(_container_scrollHandler)
-    ..onTouchLeave.listen(_container_scrollHandler)
-    ..onTouchStart.listen(_container_scrollHandler)
-    ..onTouchEnter.listen(_container_scrollHandler);
-
-    _scrollTarget = new Group();
-
-    _scrollTarget.autoSize = false;
-    _scrollTarget.includeInLayout = false;
-
-    addComponent(_scrollTarget);
-
-    _setControl(container);
-
-    super._createChildren();
+  void scrollSelectionIntoView() {
+    if (
+        (_selectedIndex >= 0) &&
+        (_itemRenderers != null)
+    ) {
+      final int pageItemSize = _getPageItemSize();
+      final int startIndex = (pageItemSize > 0) ? (_scrollPosition ~/ pageItemSize) : 0;
+      final int endIndex = startIndex + ((_itemRenderers != null) ? _itemRenderers.length : 0);
+      int offset, target;
+      
+      if (
+          (_selectedIndex < startIndex) || 
+          (_selectedIndex >= endIndex)
+      ) {
+        if (_layout is VerticalLayout) _control.scrollTop = _selectedIndex * _rowHeight;
+        else _control.scrollLeft = _selectedIndex * _colWidth;
+      }
+    }
   }
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
 
   void _removeAllElements() {
     if (_itemRenderers != null) _itemRenderers = <IItemRenderer>[];
@@ -637,7 +637,7 @@ class ListRenderer extends ListBase {
 
       if (len > 0) {
         _updateVisibleItemRenderers(ignorePreviousIndex: true);
-        _updateLayout();
+        updateLayout();
 
         return true;
       }
@@ -653,7 +653,7 @@ class ListRenderer extends ListBase {
       _updateVisibleItemRenderers();
     }
     
-    later > _updateLayout;
+    later > updateLayout;
   }
 
   void _updateVisibleItemRenderers({bool ignorePreviousIndex: false}) {

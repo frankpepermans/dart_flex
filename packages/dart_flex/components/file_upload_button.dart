@@ -72,14 +72,9 @@ class FileUploadButton extends Button {
   // Public properties
   //
   //---------------------------------
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
   
-  void _createChildren() {
+  @override
+  void createChildren() {
     _fileUploadInput = new FileUploadInputElement()
     ..style.opacity = '0.0'
     ..multiple = false
@@ -92,8 +87,14 @@ class FileUploadButton extends Button {
     
     _autoSize = true;
     
-    super._createChildren();
+    super.createChildren();
   }
+
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
   
   void _fileUpload_selectHandler(Event event) {
     FileReader fileReader = new FileReader();

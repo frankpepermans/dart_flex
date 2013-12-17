@@ -68,8 +68,6 @@ class ViewStack extends UIWrapper {
 
   ViewStack({String elementId: null}) : super(elementId: elementId) {
   	_className = 'ViewStack';
-  	
-  	//_createChildren();
   }
 
   //---------------------------------
@@ -78,9 +76,55 @@ class ViewStack extends UIWrapper {
   //
   //---------------------------------
   
-  void addComponent(IUIWrapper element, {bool prepend: false}) {
-    throw new ArgumentError('Please use addView() instead');
+  @override
+  void createChildren() {
+    if (_control == null) _setControl(new SpanElement());
+    
+    _layout = new AbsoluteLayout();
+    
+    _container = new Group()
+    ..inheritsDefaultCSS = false
+    ..cssClasses = const <String>['_ViewStackSlider']
+    .._layout = new AbsoluteLayout()
+    ..onControlChanged.listen(
+      (FrameworkEvent<Element> event) => _reflowManager.invalidateCSS(
+          event.relatedObject,
+          'position',
+          'absolute'
+      )    
+    );
+    
+    super.addComponent(_container);
+    
+    super.createChildren();
+    
+    notify(
+        new FrameworkEvent(
+            'controlChanged',
+            relatedObject: _control
+        )
+    );
   }
+  
+  @override
+  void updateLayout() {
+    super.updateLayout();
+    
+    if (_container != null) {
+      _container.x = _xOffset * _width;
+      _container.width = _registeredViews.length * _width;
+      _container.height = _height;
+    }
+
+    if (_activeViewStackElement != null) {
+      _activeViewStackElement.element.x = _xOffset * -_width;
+      _activeViewStackElement.element.width = _width;
+      _activeViewStackElement.element.height = _height;
+    }
+  }
+  
+  @override
+  void addComponent(IUIWrapper element, {bool prepend: false}) => throw new ArgumentError('Please use addView() instead');
   
   void addView(String uniqueId, IViewStackElement element) {
     ViewStackElementData viewStackElement = _registeredViews.firstWhere(
@@ -147,7 +191,7 @@ class ViewStack extends UIWrapper {
       
       _container.addComponent(viewStackElement.element);
       
-      _updateLayout();
+      updateLayout();
       
       _activeViewStackElement.element.visible = true;
       
@@ -179,7 +223,7 @@ class ViewStack extends UIWrapper {
     
     _xOffset = 0;
     
-    _updateLayout();
+    updateLayout();
   }
 
   //---------------------------------
@@ -187,51 +231,6 @@ class ViewStack extends UIWrapper {
   // Protected methods
   //
   //---------------------------------
-
-  void _createChildren() {
-    if (_control == null) _setControl(new SpanElement());
-    
-    _layout = new AbsoluteLayout();
-    
-    _container = new Group()
-    ..inheritsDefaultCSS = false
-    ..cssClasses = const <String>['_ViewStackSlider']
-    .._layout = new AbsoluteLayout()
-    ..onControlChanged.listen(
-      (FrameworkEvent<Element> event) => _reflowManager.invalidateCSS(
-          event.relatedObject,
-          'position',
-          'absolute'
-      )    
-    );
-    
-    super.addComponent(_container);
-    
-    super._createChildren();
-    
-    notify(
-        new FrameworkEvent(
-            'controlChanged',
-            relatedObject: _control
-        )
-    );
-  }
-  
-  void _updateLayout() {
-    super._updateLayout();
-    
-    if (_container != null) {
-      _container.x = _xOffset * _width;
-      _container.width = _registeredViews.length * _width;
-      _container.height = _height;
-    }
-
-    if (_activeViewStackElement != null) {
-      _activeViewStackElement.element.x = _xOffset * -_width;
-      _activeViewStackElement.element.width = _width;
-      _activeViewStackElement.element.height = _height;
-    }
-  }
   
   void _viewStackElement_requestViewChangeHandler(ViewStackEvent event) {
     if (event.namedView != null) {

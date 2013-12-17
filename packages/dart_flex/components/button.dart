@@ -7,6 +7,9 @@ class Button extends UIWrapper {
   // Public properties
   //
   //---------------------------------
+  
+  static const EventHook<FrameworkEvent> onButtonClickEvent = const EventHook<FrameworkEvent>('buttonClick');
+  Stream<FrameworkEvent> get onButtonClick => Button.onButtonClickEvent.forTarget(this);
 
   //---------------------------------
   // label
@@ -46,17 +49,9 @@ class Button extends UIWrapper {
   // Public methods
   //
   //---------------------------------
-
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
   
-  static const EventHook<FrameworkEvent> onButtonClickEvent = const EventHook<FrameworkEvent>('buttonClick');
-  Stream<FrameworkEvent> get onButtonClick => Button.onButtonClickEvent.forTarget(this);
-
-  void _createChildren() {
+  @override
+  void createChildren() {
     if (_control == null) {
       ButtonElement element = new ButtonElement()
       ..type = 'button';
@@ -80,8 +75,14 @@ class Button extends UIWrapper {
       _setControl(element);
     }
 
-    super._createChildren();
+    super.createChildren();
   }
+  
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
 
   void _commitLabel() {
     if (_control != null) {

@@ -173,18 +173,19 @@ class SpriteSheet extends Group {
   // Public properties
   //
   //---------------------------------
+  
+  @override
+  void createChildren() {
+    super.createChildren();
+
+    if (_source != null) _reflowManager.invalidateCSS(_control, 'background-image', 'url($_source)');
+  }
 
   //---------------------------------
   //
   // Protected methods
   //
   //---------------------------------
-
-  void _createChildren() {
-    super._createChildren();
-
-    if (_source != null) _reflowManager.invalidateCSS(_control, 'background-image', 'url($_source)');
-  }
 
   void _updateSource() {
     if (_control != null) _reflowManager.invalidateCSS(_control, 'background-image', 'url($_source)');
@@ -216,6 +217,3 @@ class SpriteSheet extends Group {
     }
   }
 }
-
-
-

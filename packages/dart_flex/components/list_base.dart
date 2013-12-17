@@ -207,6 +207,26 @@ class ListBase extends Group {
   //
   //---------------------------------
   
+  @override
+  void commitProperties() {
+    super.commitProperties();
+
+    if (_control != null) {
+      if (_isElementUpdateRequired) {
+        _isElementUpdateRequired = false;
+        
+        if (!_skipPresentationUpdate) _updatePresentation();
+        
+        _skipPresentationUpdate = false;
+        
+        _updateElements();
+        _updateAfterScrollPositionChanged();
+        
+        if (_dataProvider != null) selectedIndex = _dataProvider.indexOf(_selectedItem);
+      }
+    }
+  }
+  
   void invalidatePresentation() {
     _isElementUpdateRequired = true;
     
@@ -230,25 +250,6 @@ class ListBase extends Group {
     super._setControl(element);
 
     _isElementUpdateRequired = true;
-  }
-
-  void _commitProperties() {
-    super._commitProperties();
-
-    if (_control != null) {
-      if (_isElementUpdateRequired) {
-        _isElementUpdateRequired = false;
-        
-        if (!_skipPresentationUpdate) _updatePresentation();
-        
-        _skipPresentationUpdate = false;
-        
-        _updateElements();
-        _updateAfterScrollPositionChanged();
-        
-        if (_dataProvider != null) selectedIndex = _dataProvider.indexOf(_selectedItem);
-      }
-    }
   }
 
   void _removeAllElements() {

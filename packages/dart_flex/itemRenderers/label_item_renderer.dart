@@ -40,8 +40,11 @@ class LabelItemRenderer extends ItemRenderer {
   // Public properties
   //
   //---------------------------------
-
+  
+  @override
   void createChildren() {
+    super.createChildren();
+    
     _label = new RichText()
     ..percentWidth = 100.0
     ..autoSize = true
@@ -50,8 +53,11 @@ class LabelItemRenderer extends ItemRenderer {
 
     addComponent(_label);
   }
-
+  
+  @override
   void invalidateData() {
+    super.invalidateData();
+    
     if (_label != null) {
       _label.text = itemToLabel();
       

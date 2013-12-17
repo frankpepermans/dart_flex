@@ -116,6 +116,15 @@ abstract class IUIWrapper implements IFrameworkEventDispatcher {
   void preInitialize(IUIWrapper forOwner);
   void invalidateLayout();
   void invalidateProperties();
+  void invalidateSize(Event event);
+  void forceInvalidateSize();
+  void initialize();
+  void createChildren();
+  void commitProperties();
+  void updateLayout();
+  void updateSize();
+  void updateVisibility();
+  void updateEnabledStatus();
   void addComponent(IUIWrapper element, {bool prepend: false});
   void removeComponent(IUIWrapper element);
   void removeAll();
@@ -134,16 +143,19 @@ class UIWrapper implements IUIWrapper {
 
   FrameworkEventDispatcher _eventDispatcher;
   bool _isLayoutUpdateRequired = false;
-
-  //---------------------------------
-  // graphics
-  //---------------------------------
+  
+  int _getPageItemSize() => 0;
+  int _getPageOffset() => 0;
+  int _getPageSize() => 0;
 
   //---------------------------------
   //
   // Public properties
   //
   //---------------------------------
+  
+  static const EventHook<FrameworkEvent> onInitializationCompleteEvent = const EventHook<FrameworkEvent>('initializationComplete');
+  Stream<FrameworkEvent> get onInitializationComplete => UIWrapper.onInitializationCompleteEvent.forTarget(this);
 
   //---------------------------------
   // reflowManager
@@ -307,7 +319,7 @@ class UIWrapper implements IUIWrapper {
         new FrameworkEvent('visibleChanged')
       );
 
-      _updateVisibility();
+      updateVisibility();
     }
   }
 
@@ -715,17 +727,65 @@ class UIWrapper implements IUIWrapper {
         )
     );
     
-    _initialize();
+    initialize();
   }
   
   void invalidateLayout() {
     _isLayoutUpdateRequired = _allowLayoutUpdate;
 
-    later > _commitProperties;
+    later > commitProperties;
   }
 
   void invalidateProperties() {
     if (!_isLayoutUpdateRequired) invalidateLayout();
+  }
+  
+  void invalidateSize(Event event) => later > updateSize;
+  
+  void initialize() {
+    if (!_isInitialized) {
+      _isInitialized = true;
+      
+      createChildren();
+      
+      notify(
+          new FrameworkEvent(
+              'initializationComplete'
+          )
+      );
+
+      invalidateProperties();
+    }
+  }
+
+  void createChildren() {}
+  
+  void commitProperties() {
+    if (_isCSSClassesChanged) {
+      _isCSSClassesChanged = false;
+      
+      if (_control != null) {
+        _updateDefaultClass();
+        
+        if (_cssClasses != null) _cssClasses.forEach(
+          (String cssClass) {
+            if (!_control.classes.contains(cssClass)) _control.classes.add(cssClass);
+          }
+        );
+      }
+    }
+    
+    if (_isEnabledChanged) {
+      _isEnabledChanged = false;
+      
+      updateEnabledStatus();
+    }
+    
+    if (_isLayoutUpdateRequired) {
+      _isLayoutUpdateRequired = false;
+
+      updateLayout();
+    }
   }
 
   void addComponent(IUIWrapper element, {bool prepend: false}) {
@@ -752,7 +812,7 @@ class UIWrapper implements IUIWrapper {
           (elementCast._stylePrefix == null)
       ) elementCast._stylePrefix = _stylePrefix;
       
-      elementCast._initialize();
+      elementCast.initialize();
       
       if (_elementId != null) {
         prepend ? _control.children.insert(0, element.control) : _control.append(element.control);
@@ -767,10 +827,6 @@ class UIWrapper implements IUIWrapper {
       _childWrappers.add(element);
     }
   }
-  
-  void _prependControl(Element controlToPrepend) => _control.children.insert(0, controlToPrepend);
-  
-  Node _appendControl(Element controlToAppend) => _control.append(controlToAppend);
 
   void removeComponent(IUIWrapper element, {bool flush: true}) {
     if (
@@ -796,24 +852,108 @@ class UIWrapper implements IUIWrapper {
     _childWrappers = <IUIWrapper>[];
   }
   
-  void propertiesInvalidated() {}
+  void forceInvalidateSize() => invalidateSize(null);
+  
+  void updateLayout() {
+    if ( 
+      _allowLayoutUpdate &&
+      (_width > 0) &&
+      (_height > 0)
+    ) {
+      if (_layout != null) {
+        _layout.doLayout(
+           _width,
+           _height,
+           _getPageItemSize(),
+           _getPageOffset(),
+           _getPageSize(),
+           _childWrappers
+        );
+      } else {
+        IUIWrapper element;
+
+        _childWrappers.forEach(
+          (element) {
+            element.x = element.paddingLeft;
+            element.y = element.paddingRight;
+            element.width = _width - element.paddingLeft - element.paddingRight;
+            element.height = _height - element.paddingTop - element.paddingBottom;
+          }
+        );
+      }
+    }
+  }
+  
+  void updateSize() {
+    if (_control != null) {
+      Element parentElement = _control;
+      
+      while (parentElement != null) {
+        if (
+            (
+              (parentElement.attributes.containsKey('aria-hidden')) &&
+              (parentElement.attributes['aria-hidden'] == 'true') 
+            ) ||
+            (parentElement.style.display == 'none')
+        ) {
+          reflowManager.animationFrame.whenComplete(updateSize);
+          
+          return;
+        }
+          
+        parentElement = parentElement.parent;
+      }
+      
+      final Rectangle rect = _control.client;
+      
+      if (
+          (rect.width == 0) && 
+          (rect.height == 0)
+      ) reflowManager.animationFrame.whenComplete(updateSize);
+      else {
+        width = rect.width;
+        height = rect.height;
+      }
+    } else {
+      width = height = 0;
+    }
+  }
+
+  void updateVisibility() {
+    if (
+        (_control != null) &&
+        (_reflowManager != null)
+    ) {
+      _control.hidden = !_visible;
+      
+      _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
+    }
+  }
+  
+  void updateEnabledStatus() {
+    if (_control != null) reflowManager.invalidateCSS(_control, 'pointer-events', (_enabled ? 'auto' : 'none'));
+  }
 
   //---------------------------------
   //
   // Protected methods
   //
   //---------------------------------
+  
+  void _prependControl(Element controlToPrepend) => _control.children.insert(0, controlToPrepend);
+  
+  Node _appendControl(Element controlToAppend) => _control.append(controlToAppend);
 
   void _setControl(Element element) {
     _control = element;
     
-    _updateVisibility();
+    updateVisibility();
     
     if (_inheritsDefaultCSS) _reflowManager.scheduleMethod(this, _addDefaultClass, [], forceSingleExecution: true);
     
     if (_cssClasses != null) _reflowManager.scheduleMethod(this, _addAllPendingClasses, [], forceSingleExecution: true);
 
-    _updateVisibility();
+    updateVisibility();
     _updateControl(5);
 
     notify(
@@ -882,9 +1022,9 @@ class UIWrapper implements IUIWrapper {
       
       _reflowManager = new ReflowManager();
       
-      _updateVisibility();
+      updateVisibility();
 
-      window.onResize.listen(_invalidateSize);
+      window.onResize.listen(invalidateSize);
       
       notify(
           new FrameworkEvent<Element>(
@@ -893,148 +1033,9 @@ class UIWrapper implements IUIWrapper {
           )
       );
       
-      _initialize();
+      initialize();
       
-      later > _updateSize;
-    }
-  }
-  
-  static const EventHook<FrameworkEvent> onInitializationCompleteEvent = const EventHook<FrameworkEvent>('initializationComplete');
-  Stream<FrameworkEvent> get onInitializationComplete => UIWrapper.onInitializationCompleteEvent.forTarget(this);
-
-  void _initialize() {
-    if (!_isInitialized) {
-      _isInitialized = true;
-
-      _createChildren();
-      
-      notify(
-          new FrameworkEvent(
-              'initializationComplete'
-          )
-      );
-
-      invalidateProperties();
-    }
-  }
-
-  void _createChildren() {}
-
-  void _commitProperties() {
-    if (_isCSSClassesChanged) {
-      _isCSSClassesChanged = false;
-      
-      if (_control != null) {
-        _updateDefaultClass();
-        
-        _cssClasses.forEach(
-          (String cssClass) {
-            if (!_control.classes.contains(cssClass)) _control.classes.add(cssClass);
-          }
-        );
-      }
-    }
-    
-    if (_isEnabledChanged) {
-      _isEnabledChanged = false;
-      
-      _updateEnabledStatus();
-    }
-    
-    if (_isLayoutUpdateRequired) {
-      _isLayoutUpdateRequired = false;
-
-      _updateLayout();
-    }
-    
-    propertiesInvalidated();
-  }
-  
-  void _updateEnabledStatus() {
-    if (_control != null) reflowManager.invalidateCSS(_control, 'pointer-events', (_enabled ? 'auto' : 'none'));
-  }
-
-  void _updateLayout() {
-    if ( 
-      _allowLayoutUpdate &&
-      (_width > 0) &&
-      (_height > 0)
-    ) {
-      if (_layout != null) {
-        _layout.doLayout(
-           _width,
-           _height,
-           _getPageItemSize(),
-           _getPageOffset(),
-           _getPageSize(),
-           _childWrappers
-        );
-      } else {
-        IUIWrapper element;
-
-        _childWrappers.forEach(
-          (element) {
-            element.x = element.paddingLeft;
-            element.y = element.paddingRight;
-            element.width = _width - element.paddingLeft - element.paddingRight;
-            element.height = _height - element.paddingTop - element.paddingBottom;
-          }
-        );
-      }
-    }
-  }
-
-  int _getPageItemSize() => 0;
-  int _getPageOffset() => 0;
-  int _getPageSize() => 0;
-  
-  void forceInvalidateSize() => _invalidateSize(null);
-
-  void _invalidateSize(Event event) => later > _updateSize;
-
-  void _updateSize() {
-    if (_control != null) {
-      Element parentElement = _control;
-      
-      while (parentElement != null) {
-        if (
-            (
-              (parentElement.attributes.containsKey('aria-hidden')) &&
-              (parentElement.attributes['aria-hidden'] == 'true') 
-            ) ||
-            (parentElement.style.display == 'none')
-        ) {
-          reflowManager.animationFrame.whenComplete(_updateSize);
-          
-          return;
-        }
-          
-        parentElement = parentElement.parent;
-      }
-      
-      final Rectangle rect = _control.client;
-      
-      if (
-          (rect.width == 0) && 
-          (rect.height == 0)
-      ) reflowManager.animationFrame.whenComplete(_updateSize);
-      else {
-        width = rect.width;
-        height = rect.height;
-      }
-    } else {
-      width = height = 0;
-    }
-  }
-
-  void _updateVisibility() {
-    if (
-        (_control != null) &&
-        (_reflowManager != null)
-    ) {
-      _control.hidden = !_visible;
-      
-      _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
+      later > updateSize;
     }
   }
 
