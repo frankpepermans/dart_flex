@@ -30,8 +30,8 @@ abstract class IItemRenderer implements IUIWrapper {
   bool get enableHighlight;
   set enableHighlight(bool value);
 
-  Object get data;
-  set data(Object value);
+  dynamic get data;
+  set data(dynamic value);
   
   Symbol get field;
   set field(Symbol value);
