@@ -22,6 +22,7 @@ part "components/editable_int.dart";
 part "components/editable_text.dart";
 part "components/editable_text_area.dart";
 part "components/editable_time.dart";
+part "components/editable_time_extended.dart";
 part "components/file_upload_button.dart";
 part "components/footer.dart";
 part "components/form.dart";

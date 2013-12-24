@@ -747,7 +747,7 @@ class ListRenderer extends ListBase {
   }
   
   void _updateSelection() {
-    _updateVisibleItemRenderers();
+    _updateVisibleItemRenderers(ignorePreviousIndex: true);
     
     if (_autoScrollSelectionIntoView) later > scrollSelectionIntoView;
   }

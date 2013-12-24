@@ -71,7 +71,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   //
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onDataChangedEvent = const EventHook<FrameworkEvent>('dataChanged');
+  static const EventHook<FrameworkEvent<dynamic>> onDataChangedEvent = const EventHook<FrameworkEvent<dynamic>>('dataChanged');
   Stream<FrameworkEvent> get onDataChanged => ItemRenderer.onDataChangedEvent.forTarget(this);
   
   static const EventHook<FrameworkEvent> onFieldChangedEvent = const EventHook<FrameworkEvent>('fieldChanged');
@@ -89,7 +89,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   static const EventHook<FrameworkEvent> onMouseOutEvent = const EventHook<FrameworkEvent>('mouseOut');
   Stream<FrameworkEvent> get onMouseOut => ItemRenderer.onMouseOutEvent.forTarget(this);
   
-  static const EventHook<FrameworkEvent> onDataPropertyChangedEvent = const EventHook<FrameworkEvent>('dataPropertyChanged');
+  static const EventHook<FrameworkEvent<dynamic>> onDataPropertyChangedEvent = const EventHook<FrameworkEvent<dynamic>>('dataPropertyChanged');
   Stream<FrameworkEvent> get onDataPropertyChanged => ItemRenderer.onDataPropertyChangedEvent.forTarget(this);
   
   //SpanElement highlightElement;
@@ -476,7 +476,10 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       
       if (propertyChangeRecord != null) {
         notify(
-            new FrameworkEvent('dataPropertyChanged')    
+            new FrameworkEvent<dynamic>(
+                'dataPropertyChanged',
+                relatedObject: _data
+            )
         );
         
         later > highlight;

@@ -176,10 +176,13 @@ class DataGridItemRenderer extends ItemRenderer {
     _itemRendererInstances = new List<IItemRenderer>();
 
     if (_columns != null) {
+      int rendererIndex = 0;
+      
       _columns.forEach(
         (DataGridColumn column) {
           if (column._isActive) {
             ItemRenderer renderer = column.columnItemRendererFactory.immediateInstance()
+                ..index = rendererIndex++
                 ..data = _data
                 ..enableHighlight = true
                 ..field = column._field

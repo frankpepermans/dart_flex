@@ -131,6 +131,21 @@ class ListBase extends Group {
   set selectedIndex(int value) {
     if (value != _selectedIndex) {
       _selectedIndex = value;
+      
+      if (
+          (_dataProvider != null) &&
+          (value >= 0) &&
+          (value < _dataProvider.length)
+      ) {
+        _selectedItem = _dataProvider[value];
+        
+        notify(
+            new FrameworkEvent<dynamic>(
+                'selectedItemChanged',
+                relatedObject: _selectedItem
+            )
+        );
+      }
 
       notify(
           new FrameworkEvent(
@@ -155,6 +170,17 @@ class ListBase extends Group {
   set selectedItem(dynamic value) {
     if (value != _selectedItem) {
       _selectedItem = value;
+      
+      if (_dataProvider != null) {
+        _selectedIndex = _dataProvider.indexOf(value);
+        
+        notify(
+            new FrameworkEvent(
+                'selectedIndexChanged',
+                relatedObject: _selectedIndex
+            )
+        );
+      }
 
       notify(
           new FrameworkEvent<dynamic>(
