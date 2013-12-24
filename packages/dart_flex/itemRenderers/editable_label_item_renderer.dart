@@ -40,8 +40,7 @@ class EditableLabelItemRenderer extends ItemRenderer {
     
     textArea = new EditableText()
     ..percentWidth = 100.0
-    ..height = 18
-    ..paddingLeft = 5
+    ..percentHeight = 100.0
     ..text = itemToLabel();
     
     textArea.onTextChanged.listen(textArea_onTextChangedHandler);
