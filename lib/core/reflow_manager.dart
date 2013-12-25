@@ -14,8 +14,6 @@ class ReflowManager {
   final Map<Element, _ElementCSSMap> _elements = <Element, _ElementCSSMap>{};
   final Map<Element, CssStyleDeclaration> _cssStyles = <Element, CssStyleDeclaration>{};
   
-  double _currentPerformance = -1.0;
-  
   //---------------------------------
   //
   // Public properties
@@ -33,10 +31,8 @@ class ReflowManager {
     
     _invocationFrameCompleter = new Completer();
     
-    final int interval = (_currentPerformance < 40.0) ? 40 : (_currentPerformance > 120.0) ? 120 : _currentPerformance.ceil();
-    
     new Timer(
-      new Duration(milliseconds: interval),
+      new Duration(milliseconds: 40),
       _invocationFrameCompleter.complete
     );
     
@@ -61,11 +57,7 @@ class ReflowManager {
     double perf = window.performance.now();
     
     window.requestAnimationFrame(
-        (_) {
-          _animationFrameCompleter.complete();
-          
-          _currentPerformance = window.performance.now() - perf;
-        }
+        (_) => _animationFrameCompleter.complete()
     );
     
     Future result = _animationFrameCompleter.future;
