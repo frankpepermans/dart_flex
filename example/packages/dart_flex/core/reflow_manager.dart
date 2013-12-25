@@ -14,6 +14,8 @@ class ReflowManager {
   final Map<Element, _ElementCSSMap> _elements = <Element, _ElementCSSMap>{};
   final Map<Element, CssStyleDeclaration> _cssStyles = <Element, CssStyleDeclaration>{};
   
+  double _currentPeformance = .0;
+  
   //---------------------------------
   //
   // Public properties
@@ -32,11 +34,11 @@ class ReflowManager {
     _invocationFrameCompleter = new Completer();
     
     new Timer(
-      new Duration(milliseconds: 40),
+      new Duration(milliseconds: (_currentPeformance < 40.0) ? 40 : (_currentPeformance > 120.0) ? 120 : _currentPeformance.toInt()),
       _invocationFrameCompleter.complete
     );
     
-    Future result = _invocationFrameCompleter.future;
+    final Future result = _invocationFrameCompleter.future;
     
     result.whenComplete(() => _invocationFrameCompleter = null);
     
@@ -54,13 +56,17 @@ class ReflowManager {
     
     _animationFrameCompleter = new Completer();
     
-    double perf = window.performance.now();
+    final double perf = getPerformanceNow();
     
     window.requestAnimationFrame(
-        (_) => _animationFrameCompleter.complete()
+        (_) {
+          _currentPeformance = perf - getPerformanceNow();
+          
+          _animationFrameCompleter.complete();
+        }
     );
     
-    Future result = _animationFrameCompleter.future;
+    final Future result = _animationFrameCompleter.future;
     
     result.whenComplete(() => _animationFrameCompleter = null);
     
@@ -85,7 +91,7 @@ class ReflowManager {
         ]
     ).whenComplete(_layoutFrameCompleter.complete);
     
-    Future result = _layoutFrameCompleter.future;
+    final Future result = _layoutFrameCompleter.future;
     
     result.whenComplete(() => _layoutFrameCompleter = null);
     
@@ -111,6 +117,14 @@ class ReflowManager {
   // Public methods
   //
   //-----------------------------------
+  
+  double getPerformanceNow() {
+    if (
+      (window.performance != null) &&
+      (window.performance.now != null)
+    ) return window.performance.now();
+    return .0;
+  }
   
   void scheduleMethod(dynamic owner, Function method, List arguments, {bool forceSingleExecution: false}) {
     List<_MethodInvokationMap> ownerMap = _scheduledHandlers[owner];
