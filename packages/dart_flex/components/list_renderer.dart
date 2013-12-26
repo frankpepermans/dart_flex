@@ -381,12 +381,7 @@ class ListRenderer extends ListBase {
   @override
   void createChildren() {
     final SpanElement container = new SpanElement()
-    ..onScroll.listen(_container_scrollHandler)
-    ..onTouchCancel.listen(_container_scrollHandler)
-    ..onTouchEnd.listen(_container_scrollHandler)
-    ..onTouchLeave.listen(_container_scrollHandler)
-    ..onTouchStart.listen(_container_scrollHandler)
-    ..onTouchEnter.listen(_container_scrollHandler);
+    ..onScroll.listen(_container_scrollHandler);
 
     _scrollTarget = new Group();
 

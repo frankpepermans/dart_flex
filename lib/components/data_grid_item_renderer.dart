@@ -69,7 +69,9 @@ class DataGridItemRenderer extends ItemRenderer {
   set selected(bool value) {
     super.selected = value;
     
-    className = 'DataGridItemRenderer${_selected ? ' DataGridItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
+    final String mainClassName = className.split(' ').first;
+    
+    className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}';
   }
   
   //---------------------------------
@@ -77,7 +79,9 @@ class DataGridItemRenderer extends ItemRenderer {
   //---------------------------------
   
   set inactiveHandler(InactiveHandler value) {
-    if (value != _inactiveHandler) className = 'DataGridItemRenderer${_selected ? ' DataGridItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
+    final String mainClassName = className.split(' ').first;
+    
+    if (value != _inactiveHandler) className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}';
     
     super.inactiveHandler = value;
   }

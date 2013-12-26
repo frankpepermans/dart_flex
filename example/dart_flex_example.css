@@ -21,11 +21,13 @@ body {
   height: 240px;
   background-color: #fff;
   background: url(images/bg_header.jpg);
+  overflow: hidden;
 }
 
 .header-large {
   font-size: 24px;
   left: 110px;
+  right: 110px;
   top: 20px;
   position: relative;
   font-weight: bold;

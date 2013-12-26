@@ -133,7 +133,9 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       
       _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
       
-      className = '${className.split(' ').first}${_selected ? ' ItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
+      final String mainClassName = className.split(' ').first;
+      
+      className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}';
       
       notify(
         new FrameworkEvent<dynamic>('dataChanged', relatedObject: value)
@@ -232,7 +234,9 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     if (value != _selected) {
       _selected = value;
       
-      className = '${className.split(' ').first}${_selected ? ' ItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
+      final String mainClassName = className.split(' ').first;
+      
+      className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}';
 
       later > updateAfterInteraction;
     }
@@ -250,7 +254,9 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       _inactiveHandler = value;
       _inactive = (value != null) ? value(data) : false;
       
-      className = '${className.split(' ').first}${_selected ? ' ItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
+      final String mainClassName = className.split(' ').first;
+      
+      className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}';
     }
   }
   
@@ -488,7 +494,9 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     
     _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
     
-    className = '${className.split(' ').first}${_selected ? ' ItemRenderer-selected' : ''}${_inactive ? ' inactive' : ''}';
+    final String mainClassName = className.split(' ').first;
+    
+    className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}';
     
     later > invalidateData;
   }

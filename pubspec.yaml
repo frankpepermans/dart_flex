@@ -1,6 +1,6 @@
 name: dart_flex
 author: Frank Pepermans <frank@igindo.com>
-version: 0.8.21
+version: 0.8.22
 homepage: https://github.com/frankpepermans/dart_flex
 description: Flex-like components in Dart
 dependencies:

@@ -143,81 +143,27 @@ const Symbol statusSymbol = const Symbol('task.status');
 
 ObservableList<ObservableMap<Symbol, String>> taskNames = new ObservableList<ObservableMap<Symbol, String>>.from(
     [
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            taskNameSymbol: 'water plants'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            taskNameSymbol: 'take out trash'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            taskNameSymbol: 'clean the garage'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            taskNameSymbol: 'bring car to garage'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            taskNameSymbol: 'football practice'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            taskNameSymbol: 'buy groceries'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            taskNameSymbol: 'buy xmas gifts'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            taskNameSymbol: 'make dart flex example'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            taskNameSymbol: 'walk the dog'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            taskNameSymbol: 'do laundry'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            taskNameSymbol: 'write better css'
-          }
-      )
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'water plants'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'go to dentist'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'mow the lawn'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'take out trash'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'clean the garage'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'bring car to garage'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'football practice'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'buy groceries'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'buy xmas gifts'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'make dart flex example'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'walk the dog'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'do laundry'}),
+      new ObservableMap<Symbol, String>.from({taskNameSymbol: 'write better css'})
     ]  
 );
 
 ObservableList<ObservableMap<Symbol, String>> urgencyNames = new ObservableList<ObservableMap<Symbol, String>>.from(
     [
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            urgencyNameSymbol: 'immediately'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            urgencyNameSymbol: 'this week'
-          }
-      ),
-      new ObservableMap<Symbol, String>.from(
-          <Symbol, dynamic>{
-            urgencyNameSymbol: 'later...'
-          }
-      )
+      new ObservableMap<Symbol, String>.from({urgencyNameSymbol: 'immediately'}),
+      new ObservableMap<Symbol, String>.from({urgencyNameSymbol: 'this week'}),
+      new ObservableMap<Symbol, String>.from({urgencyNameSymbol: 'later...'})
     ]  
 );
 
