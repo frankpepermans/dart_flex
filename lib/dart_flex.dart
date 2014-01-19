@@ -46,6 +46,8 @@ part "components/view_stack.dart";
 
 part "core/class_factory.dart";
 part "core/event_hook.dart";
+part "core/invalidation.dart";
+part "core/layout.dart";
 part "core/function_equality_util.dart";
 part "core/reflow_manager.dart";
 part "core/scroll_policy.dart";

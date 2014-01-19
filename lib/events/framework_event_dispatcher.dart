@@ -15,6 +15,20 @@ abstract class IFrameworkEventDispatcher {
 
 }
 
+class FrameworkEventDispatcherMixin {
+  
+  FrameworkEventDispatcher _eventDispatcher;
+  
+  bool hasObserver(String type) => _eventDispatcher.hasObserver(type);
+
+  void observeEventType(String type, Function eventHandler) => _eventDispatcher.observeEventType(type, eventHandler);
+
+  void ignoreEventType(String type, Function eventHandler) => _eventDispatcher.ignoreEventType(type, eventHandler);
+
+  void notify(FrameworkEvent event) => _eventDispatcher.notify(event);
+  
+}
+
 class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
 
   //-----------------------------------

@@ -1,5 +1,23 @@
 part of dart_flex;
 
+abstract class ICallLater {
+  
+  UpdateManager get later;
+  
+}
+
+abstract class CallLaterMixin implements ICallLater {
+  
+  //---------------------------------
+  // later
+  //---------------------------------
+
+  UpdateManager _later;
+
+  UpdateManager get later => _later;
+  
+}
+
 class UpdateManager {
 
   //---------------------------------
