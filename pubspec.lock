@@ -4,7 +4,7 @@ packages:
   analyzer:
     description: analyzer
     source: hosted
-    version: "0.10.2"
+    version: "0.10.5"
   args:
     description: args
     source: hosted
@@ -12,7 +12,7 @@ packages:
   barback:
     description: barback
     source: hosted
-    version: "0.9.0"
+    version: "0.11.0+1"
   browser:
     description: browser
     source: hosted
@@ -24,11 +24,11 @@ packages:
   observe:
     description: observe
     source: hosted
-    version: "0.9.0+1"
+    version: "0.9.3"
   path:
     description: path
     source: hosted
-    version: "0.9.0"
+    version: "1.0.0"
   source_maps:
     description: source_maps
     source: hosted
@@ -36,7 +36,7 @@ packages:
   stack_trace:
     description: stack_trace
     source: hosted
-    version: "0.9.0"
+    version: "0.9.1"
   unmodifiable_collection:
     description: unmodifiable_collection
     source: hosted

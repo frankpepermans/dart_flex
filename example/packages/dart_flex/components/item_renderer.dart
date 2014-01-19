@@ -131,6 +131,9 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       if (value is Observable) _dataChangesListener = value.changes.listen(_data_changesHandler);
       if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
       
+      if (value is ObservableList) _dataChangesListener = value.listChanges.listen(_data_changesHandler);
+      if (dataToObserve is ObservableList) _dataFieldsChangesListener = dataToObserve.listChanges.listen(_data_changesHandler);
+      
       _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
       
       final String mainClassName = className.split(' ').first;
@@ -462,6 +465,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       dynamic dataToObserve = getDataToObserve();
       
       if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
+      if (dataToObserve is ObservableList) _dataFieldsChangesListener = dataToObserve.listChanges.listen(_data_changesHandler);
     }
     
     if (_enableHighlight && (changes != null)) {
