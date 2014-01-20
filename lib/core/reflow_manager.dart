@@ -151,9 +151,9 @@ class ReflowManager {
               
               if (ownerMap.length == 0) _scheduledHandlers.remove(owner);
               
-              invokation.invoke();
+              try { invokation.invoke(); } catch (invokeError) { print('original trace: $invokation $invokeError'); }
             }
-        ), onError: (error) => throw new ArgumentError('async error for scheduleMethod')
+        )
       );
     } else invokation._arguments = arguments;
   }
@@ -176,7 +176,7 @@ class ReflowManager {
                 
                 elementCSSMap.finalize();
               }
-          ), onError: (error) => throw new ArgumentError('async error for invalidateCSS')
+          ), onError: (Error error) => throw new ArgumentError('async error for invalidateCSS')
       );
     } else elementCSSMap.setProperty(property, value);
   }
@@ -193,6 +193,7 @@ class _MethodInvokationMap {
   
   dynamic invoke() => Function.apply(_method, _arguments);
 
+  String toString() => '$_owner $_method $_arguments';
 }
 
 class _ElementCSSMap {

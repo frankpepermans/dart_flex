@@ -64,7 +64,7 @@ class TileLayout implements ILayout {
   //
   //---------------------------------
 
-  void doLayout(int width, int height, int pageItemSize, int pageOffset, int pageSize, List<IUIWrapper> elements) {
+  void doLayout(int width, int height, int pageItemSize, int pageOffset, int pageSize, List<IFlexLayout> elements) {
     UIWrapper element;
     int percWidth = width;
     final int percWidthFloored = (pageItemSize == 0) ? 0 : (pageOffset ~/ pageItemSize * pageItemSize);
@@ -74,7 +74,7 @@ class TileLayout implements ILayout {
     final int len = elements.length;
     
     for (i=0; i<len; i++) {
-      element = elements[i];
+      element = elements[i] as UIWrapper;
       
       element.reflowManager.invalidateCSS(element.control, 'position', 'absolute');
 

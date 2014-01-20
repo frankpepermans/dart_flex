@@ -278,7 +278,8 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   //---------------------------------
 
   UIWrapper({String elementId: null}) {
-    _later = new UpdateManager(this);
+    updateManager = new UpdateManager(this);
+    
     _eventDispatcher = new FrameworkEventDispatcher(dispatcher: this);
 
     _elementId = elementId;
@@ -450,27 +451,22 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       (_width > 0) &&
       (_height > 0)
     ) {
-      if (_layout != null) {
-        _layout.doLayout(
-           _width,
-           _height,
-           _getPageItemSize(),
-           _getPageOffset(),
-           _getPageSize(),
-           _childWrappers
-        );
-      } else {
-        IUIWrapper element;
-
-        _childWrappers.forEach(
-          (element) {
+      if (_layout != null) _layout.doLayout(
+          _width,
+          _height,
+          _getPageItemSize(),
+          _getPageOffset(),
+          _getPageSize(),
+          _childWrappers
+      );
+      else _childWrappers.forEach(
+          (IFlexLayout element) {
             element.x = element.paddingLeft;
             element.y = element.paddingRight;
             element.width = _width - element.paddingLeft - element.paddingRight;
             element.height = _height - element.paddingTop - element.paddingBottom;
           }
-        );
-      }
+      );
     }
   }
   
