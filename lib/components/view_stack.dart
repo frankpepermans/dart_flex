@@ -29,6 +29,9 @@ class ViewStack extends UIWrapper {
   //
   //---------------------------------
   
+  static const EventHook<FrameworkEvent<ViewStackElementData>> onViewChangedEvent = const EventHook<FrameworkEvent<ViewStackElementData>>('viewChanged');
+  Stream<FrameworkEvent<ViewStackElementData>> get onViewChanged => ViewStack.onViewChangedEvent.forTarget(this);
+  
   //---------------------------------
   // container
   //---------------------------------
@@ -194,6 +197,10 @@ class ViewStack extends UIWrapper {
       updateLayout();
       
       _activeViewStackElement.element.visible = true;
+      
+      notify(
+        new FrameworkEvent<ViewStackElementData>('viewChanged', relatedObject: viewStackElement)    
+      );
       
       return true;
     }
