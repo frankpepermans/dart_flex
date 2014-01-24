@@ -132,9 +132,7 @@ class EditableDouble extends UIWrapper {
   //---------------------------------
 
   void _commitValue() {
-    if (_control != null) {
-      _reflowManager.scheduleMethod(this, _commitValueOnReflow, []);
-    }
+    if (_control != null) _reflowManager.scheduleMethod(this, _commitValueOnReflow, []);
   }
   
   void _commitValueOnReflow() {
@@ -143,21 +141,20 @@ class EditableDouble extends UIWrapper {
     controlCast.min = _min.toString();
     controlCast.max = max.toString();
     
-    if (_value == controlCast.valueAsNumber) {
-      return;
-    }
+    if (_value == controlCast.valueAsNumber) return;
     
     controlCast.value = (_value != null) ? _value.toDouble().toString() : null;
   }
   
   void _label_inputHandler(Event event) {
     final NumberInputElement label = _control as NumberInputElement;
+    final num doubleValue = label.valueAsNumber;
     
-    if (!label.valueAsNumber.isNaN) {
-      value = label.valueAsNumber.toDouble();
-    } else {
-      value = null;
-    }
+    if (
+        (doubleValue != null) &&
+        !doubleValue.isNaN
+    ) value = label.valueAsNumber.toDouble();
+    else value = null;
   
     _commitValue();
   }

@@ -50,6 +50,25 @@ class EditableDateTime<T> extends EditableTextMask {
     
     if (value == null) text = DATE_TIME_MASK;
   }
+  
+  //---------------------------------
+  //
+  // Public methods
+  //
+  //---------------------------------
+  
+  @override
+  bool isValidEntry(String value) {
+    final List<String> dateParts = value.split('/');
+    final List<String> timeParts = value.split(':');
+    
+    if (
+        (dateParts.length != 3) ||
+        (timeParts.length != 2)
+    ) return false;
+    
+    return true;
+  }
 
   //---------------------------------
   //
@@ -160,7 +179,22 @@ class EditableDateTime<T> extends EditableTextMask {
     final int selectionStart = _selectedIndex * 2 + _selectedIndex + _selectedSubIndex;
     final int selectionEnd = (selectionStart + 2 - _selectedSubIndex);
     final int actualSelectionEnd = (selectionEnd > incomingLen) ? incomingLen : selectionEnd;
-    final String currentInput = (selectionStart == actualSelectionEnd) ? _getPlaceholder() : incoming.substring(selectionStart, actualSelectionEnd);
+    final String substr = failSafeSubstring(incoming, selectionStart, actualSelectionEnd);
+    final String currentInput = (substr == null) ? _getPlaceholder() : substr;
+    
+    if (
+        !isValidEntry(incoming) ||
+        (
+            (selectionStart != 0) && 
+            (failSafeSubstring(incoming, 0, selectionStart) == null)
+        )
+    ) {
+      _selectedIndex = -1;
+      _selectedSubIndex = 0;
+      
+      return DATE_TIME_MASK;
+    }
+    
     final List<int> codeUnits = new List<int>.from(currentInput.codeUnits, growable: false);
     final StringBuffer buffer = new StringBuffer(incoming.substring(0, selectionStart));
     final int len = currentInput.length;
@@ -214,12 +248,25 @@ class EditableDateTime<T> extends EditableTextMask {
     final List<String> dateParts = value.split('/');
     final List<String> timeParts = value.split(':');
     
+    if (
+        (dateParts.length != 3)
+    ) return null;
+    
+    if (!isValidEntry(value)) return null;
+    
+    final int yy = int.parse(dateParts.removeLast().substring(0, 2), onError: (_) => 0);
+    final int mm = int.parse(dateParts.removeLast(), onError: (_) => 0);
+    final int dd = int.parse(dateParts.removeLast(), onError: (_) => 0);
+    
+    final int thh = int.parse(timeParts.first.substring(timeParts.first.length - 2), onError: (_) => 0);
+    final int tmm = int.parse(timeParts.last, onError: (_) => 0);
+    
     return new DateTime.utc(
-        (2000 + int.parse(dateParts.removeLast().substring(0, 2))), 
-        int.parse(dateParts.removeLast()), 
-        int.parse(dateParts.removeLast()), 
-        int.parse(timeParts.first.substring(timeParts.first.length - 2)), 
-        int.parse(timeParts.last)
+        (2000 + yy), 
+        mm, 
+        dd, 
+        thh, 
+        tmm
     );
   }
 }

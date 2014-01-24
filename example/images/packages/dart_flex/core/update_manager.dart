@@ -11,9 +11,13 @@ abstract class CallLaterMixin implements ICallLater {
   //---------------------------------
   // later
   //---------------------------------
-
+  
   UpdateManager _later;
 
+  void set updateManager(UpdateManager value) {
+    if (value != _later) _later = value;
+  }
+  
   UpdateManager get later => _later;
   
 }
@@ -26,7 +30,7 @@ class UpdateManager {
   //
   //---------------------------------
 
-  final UIWrapper _owner;
+  final dynamic _owner;
   final ReflowManager _reflowManager = new ReflowManager();
 
   //---------------------------------

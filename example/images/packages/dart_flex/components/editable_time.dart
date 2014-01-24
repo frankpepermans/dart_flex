@@ -37,6 +37,21 @@ class EditableTime<T> extends EditableTextMask {
   // Public properties
   //
   //---------------------------------
+  
+  //---------------------------------
+  //
+  // Public methods
+  //
+  //---------------------------------
+  
+  @override
+  bool isValidEntry(String value) {
+    final List<String> dateParts = value.split(':');
+    
+    if (dateParts.length != 2) return false;
+    
+    return true;
+  }
 
   //---------------------------------
   //
@@ -127,7 +142,22 @@ class EditableTime<T> extends EditableTextMask {
     final int selectionStart = _selectedIndex * 2 + _selectedIndex + _selectedSubIndex;
     final int selectionEnd = (selectionStart + 2 - _selectedSubIndex);
     final int actualSelectionEnd = (selectionEnd > incomingLen) ? incomingLen : selectionEnd;
-    final String currentInput = (selectionStart == actualSelectionEnd) ? _getPlaceholder() : incoming.substring(selectionStart, actualSelectionEnd);
+    final String substr = failSafeSubstring(incoming, selectionStart, actualSelectionEnd);
+    final String currentInput = (substr == null) ? _getPlaceholder() : substr;
+    
+    if (
+        !isValidEntry(incoming) ||
+        (
+            (selectionStart != 0) && 
+            (failSafeSubstring(incoming, 0, selectionStart) == null)
+        )
+    ) {
+      _selectedIndex = -1;
+      _selectedSubIndex = 0;
+      
+      return TIME_MASK;
+    }
+    
     final List<int> codeUnits = new List<int>.from(currentInput.codeUnits, growable: false);
     final StringBuffer buffer = new StringBuffer(incoming.substring(0, selectionStart));
     final int len = currentInput.length;
@@ -177,6 +207,11 @@ class EditableTime<T> extends EditableTextMask {
     
     final List<String> dateParts = value.split(':');
     
-    return new DateTime.utc(2000, 1, 1, int.parse(dateParts.first), int.parse(dateParts.last));
+    if (!isValidEntry(value)) return null;
+    
+    final int hh = int.parse(dateParts.first.trim(), onError: (_) => 0);
+    final int mm = int.parse(dateParts.last.trim(), onError: (_) => 0);
+    
+    return new DateTime.utc(2000, 1, 1, hh, mm);
   }
 }

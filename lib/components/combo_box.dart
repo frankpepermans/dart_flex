@@ -98,6 +98,8 @@ class ComboBox extends ListBase {
     if (_labelFunction != null) itemToString = _labelFunction(item) as String;
     else if (_field != null) itemToString = (item as dynamic)[_field];
     else itemToString = item.toString();
+    
+    if (itemToString == null) throw new ArgumentError('ComboBox items cannot be null $_labelFunction $_field $item');
 
     _control.children.add(
         new OptionElement(

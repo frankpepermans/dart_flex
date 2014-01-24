@@ -81,6 +81,17 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
+  // allowHeaderColumnSorting
+  //---------------------------------
+
+  bool _allowHeaderColumnSorting = false;
+
+  bool get allowHeaderColumnSorting => _allowHeaderColumnSorting;
+  set allowHeaderColumnSorting(bool value) {
+    _allowHeaderColumnSorting = value;
+  }
+  
+  //---------------------------------
   // inactiveHandler
   //---------------------------------
   
@@ -238,6 +249,17 @@ class DataGrid extends ListBase {
 
       if (_list != null) _list.autoScrollSelectionIntoView = value;
     }
+  }
+  
+  //---------------------------------
+  // autoScrollOnDataChange
+  //---------------------------------
+
+  bool _autoScrollOnDataChange = true;
+
+  bool get autoScrollOnDataChange => _autoScrollOnDataChange;
+  set autoScrollOnDataChange(bool value) {
+    _autoScrollOnDataChange = value;
   }
   
   //---------------------------------
@@ -430,6 +452,8 @@ class DataGrid extends ListBase {
   }
 
   void _header_clickHandler(FrameworkEvent<HeaderData> event) {
+    if (!_allowHeaderColumnSorting) return;
+    
     final HeaderItemRenderer renderer = event.currentTarget as HeaderItemRenderer;
     
     presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, event.relatedObject.field, renderer.isSortedAsc);
@@ -632,5 +656,7 @@ class DataGrid extends ListBase {
     }
   }
   
-  void _renderer_dataPropertyChangedHandler(FrameworkEvent<IItemRenderer> event) => event.relatedObject.control.scrollIntoView(ScrollAlignment.CENTER);
+  void _renderer_dataPropertyChangedHandler(FrameworkEvent<IItemRenderer> event) {
+    if (_autoScrollOnDataChange) event.relatedObject.control.scrollIntoView(ScrollAlignment.CENTER);
+  }
 }

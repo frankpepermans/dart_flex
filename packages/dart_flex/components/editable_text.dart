@@ -296,6 +296,19 @@ class EditableTextMask<T> extends EditableText {
     input.onDragOver.listen(_input_preventEvent);
     input.onDragStart.listen(_input_preventEvent);
   }
+  
+  String failSafeSubstring(String value, int startIndex, int endIndex) {
+    if (
+        (value == null) ||
+        (startIndex >= endIndex) ||
+        (startIndex < 0) ||
+        (endIndex < 0)
+    ) return null;
+    
+    return value.substring(startIndex, endIndex);
+  }
+  
+  bool isValidEntry(String entry) => false;
 
   //---------------------------------
   //

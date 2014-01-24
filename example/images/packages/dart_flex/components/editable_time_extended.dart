@@ -48,6 +48,22 @@ class EditableTimeExtended<T> extends EditableTextMask {
     
     if (value == null) text = DATE_MASK;
   }
+  
+  //---------------------------------
+  //
+  // Public methods
+  //
+  //---------------------------------
+  
+  @override
+  bool isValidEntry(String value) {
+    final List<String> datePartsA = value.split(':');
+    final List<String> datePartsB = datePartsA.first.split('-');
+    
+    if (datePartsA.length != 2 || datePartsB.length != 2) return false;
+    
+    return true;
+  }
 
   //---------------------------------
   //
@@ -147,7 +163,22 @@ class EditableTimeExtended<T> extends EditableTextMask {
     final int selectionStart = _selectedIndex * 2 + _selectedIndex + _selectedSubIndex;
     final int selectionEnd = (selectionStart + 2 - _selectedSubIndex);
     final int actualSelectionEnd = (selectionEnd > incomingLen) ? incomingLen : selectionEnd;
-    final String currentInput = (selectionStart == actualSelectionEnd) ? _getPlaceholder() : incoming.substring(selectionStart, actualSelectionEnd);
+    final String substr = failSafeSubstring(incoming, selectionStart, actualSelectionEnd);
+    final String currentInput = (substr == null) ? _getPlaceholder() : substr;
+    
+    if (
+        !isValidEntry(incoming) ||
+        (
+            (selectionStart != 0) && 
+            failSafeSubstring(incoming, 0, selectionStart) == null
+        )
+    ) {
+      _selectedIndex = -1;
+      _selectedSubIndex = 0;
+      
+      return DATE_MASK;
+    }
+    
     final List<int> codeUnits = new List<int>.from(currentInput.codeUnits, growable: false);
     final StringBuffer buffer = new StringBuffer(incoming.substring(0, selectionStart));
     final int len = currentInput.length;
@@ -199,9 +230,11 @@ class EditableTimeExtended<T> extends EditableTextMask {
     final List<String> datePartsA = value.split(':');
     final List<String> datePartsB = datePartsA.first.split('-');
     
-    final int minutes = int.parse(datePartsA.last);
-    final int hours = int.parse(datePartsB.last);
-    final int days = int.parse(datePartsB.first);
+    if (!isValidEntry(value)) return null;
+    
+    final int minutes = int.parse(datePartsA.last, onError: (_) => 0);
+    final int hours = int.parse(datePartsB.last, onError: (_) => 0);
+    final int days = int.parse(datePartsB.first, onError: (_) => 0);
     
     return new DateTime.utc(2013, DateTime.APRIL, (days + 1), hours, minutes);
   }
