@@ -12,7 +12,7 @@ class DataGrid extends ListBase {
   //
   //---------------------------------
 
-  List<HeaderItemRenderer> _headerItemRenderers;
+  List<IHeaderItemRenderer> _headerItemRenderers;
 
   VGroup _gridContainer;
   HGroup _headerContainer;
@@ -404,12 +404,12 @@ class DataGrid extends ListBase {
 
   void _updateColumnsAndHeaders() {
     DataGridColumn column;
-    HeaderItemRenderer header;
+    IHeaderItemRenderer header;
     int i, len;
 
     _removeAllElements();
 
-    _headerItemRenderers = new List<HeaderItemRenderer>();
+    _headerItemRenderers = new List<IHeaderItemRenderer>();
 
     if (_columns != null) {
       len = _columns.length;
@@ -454,7 +454,7 @@ class DataGrid extends ListBase {
   void _header_clickHandler(FrameworkEvent<HeaderData> event) {
     if (!_allowHeaderColumnSorting) return;
     
-    final HeaderItemRenderer renderer = event.currentTarget as HeaderItemRenderer;
+    final IHeaderItemRenderer renderer = event.currentTarget as IHeaderItemRenderer;
     
     presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, event.relatedObject.field, renderer.isSortedAsc);
 
@@ -639,16 +639,16 @@ class DataGrid extends ListBase {
   void _invalidateHeaderHoverHandlers() {
     if (_headerItemRenderers != null) {
       _headerItemRenderers.forEach(
-        (ItemRenderer header) {
+        (IHeaderItemRenderer header) {
           if (_headerMouseOutHandler != null) {
             header.onMouseOut.listen(
-                (FrameworkEvent event) => _headerMouseOutHandler(event.currentTarget as IItemRenderer)
+                (FrameworkEvent event) => _headerMouseOutHandler(event.currentTarget as IHeaderItemRenderer)
             );
           }
           
           if (_headerMouseOverHandler != null) {
             header.onMouseOver.listen(
-                (FrameworkEvent event) => _headerMouseOverHandler(event.currentTarget as IItemRenderer)    
+                (FrameworkEvent event) => _headerMouseOverHandler(event.currentTarget as IHeaderItemRenderer)    
             );
           }
         }

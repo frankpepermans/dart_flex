@@ -220,15 +220,15 @@ class Header extends Group {
       int maxHeight = 0;
       int i = _leftSideItems.length;
       
+      _headerLabel.width = width - _leftSideItems.length * 40 - _rightSideItems.length * 40 - 20;
+      
       _headerLabel.x = (_width * .5 - _headerLabel._width * .5).toInt();
       _headerLabel.y = (_height * .5 - _headerLabel._height * .5).toInt();
       
       while (i > 0) {
         child = _leftSideItems[--i];
         
-        if (child.height > maxHeight) {
-          maxHeight = child.height;
-        }
+        if (child.height > maxHeight) maxHeight = child.height;
       }
       
       _leftSideContainer.height = maxHeight;
@@ -243,9 +243,7 @@ class Header extends Group {
       while (i > 0) {
         child = _rightSideItems[--i];
         
-        if (child.height > maxHeight) {
-          maxHeight = child.height;
-        }
+        if (child.height > maxHeight) maxHeight = child.height;
       }
       
       _rightSideContainer.height = maxHeight;

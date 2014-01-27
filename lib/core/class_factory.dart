@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class ClassFactory<T extends UIWrapper> {
+class ClassFactory<T extends IUIWrapper> {
 
   Function _constructorMethod;
 
