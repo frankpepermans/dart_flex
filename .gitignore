@@ -1,5 +1,10 @@
 // Don’t commit the following files and directories created by pub and dart2js
+packages
 packages/
+example/packages/
+example/packages
+example/images/packages/
+example/images/packages
 *.js_
 *.js.deps
 *.js.map
@@ -17,10 +22,6 @@ pubspec.lock
 *.pydevproject
 .project
 .metadata
-packages
-packages/
-example/packages/
-example/packages
 tmp/
 *.tmp
 *.bak
