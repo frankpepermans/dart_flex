@@ -141,21 +141,23 @@ class EditableDouble extends UIWrapper {
     controlCast.min = _min.toString();
     controlCast.max = max.toString();
     
-    if (_value == controlCast.valueAsNumber) return;
+    if (_value == _valueAsNumber(controlCast.value)) return;
     
-    controlCast.value = (_value != null) ? _value.toDouble().toString() : null;
+    controlCast.value = (_value != null) ? _value.toString() : null;
   }
   
   void _label_inputHandler(Event event) {
     final NumberInputElement label = _control as NumberInputElement;
-    final num doubleValue = label.valueAsNumber;
+    final num doubleValue = _valueAsNumber(label.value);
     
     if (
         (doubleValue != null) &&
         !doubleValue.isNaN
-    ) value = label.valueAsNumber.toDouble();
+    ) value = _valueAsNumber(label.value);
     else value = null;
   
     _commitValue();
   }
+  
+  double _valueAsNumber(String value) => double.parse(value, (_) => .0);
 }

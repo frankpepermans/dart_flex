@@ -142,19 +142,19 @@ class EditableInt extends UIWrapper {
     controlCast.min = _min.toString();
     controlCast.max = max.toString();
     
-    if (_value == controlCast.valueAsNumber) return;
+    if (_value == _valueAsNumber(controlCast.value)) return;
     
-    controlCast.value = (_value != null) ? _value.toInt().toString() : null;
+    controlCast.value = (_value != null) ? _value.toString() : null;
   }
   
   void _label_inputHandler(Event event) {
     final NumberInputElement label = _control as NumberInputElement;
-    final num intValue = label.valueAsNumber;
+    final int intValue = _valueAsNumber(label.value);
     
     if (
         (intValue != null) &&
         !intValue.isNaN
-    ) value = label.valueAsNumber.toInt();
+    ) value = _valueAsNumber(label.value);
     else value = null;
   
     _commitValue();
@@ -165,4 +165,6 @@ class EditableInt extends UIWrapper {
         )
     );
   }
+  
+  int _valueAsNumber(String value) => int.parse(value, onError: (_) => 0);
 }
