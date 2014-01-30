@@ -454,7 +454,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   //
   //---------------------------------
   
-  void _data_changesHandler(List<ChangeRecord> changes) {
+  void _data_changesHandler(Iterable changes) {
     if (_fields != null) {
       if (_dataFieldsChangesListener != null) {
         _dataFieldsChangesListener.cancel();
