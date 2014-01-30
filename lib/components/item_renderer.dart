@@ -129,10 +129,10 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       dynamic dataToObserve = getDataToObserve();
       
       if (value is Observable) _dataChangesListener = value.changes.listen(_data_changesHandler);
-      if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
+      else if (value is ObservableList) _dataChangesListener = value.listChanges.listen(_data_changesHandler);
       
-      if (value is ObservableList) _dataChangesListener = value.listChanges.listen(_data_changesHandler);
-      if (dataToObserve is ObservableList) _dataFieldsChangesListener = dataToObserve.listChanges.listen(_data_changesHandler);
+      if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
+      else if (dataToObserve is ObservableList) _dataFieldsChangesListener = dataToObserve.listChanges.listen(_data_changesHandler);
       
       _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
       
@@ -454,7 +454,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   //
   //---------------------------------
   
-  void _data_changesHandler(Iterable changes) {
+  void _data_changesHandler(Iterable<dynamic> changes) {
     if (_fields != null) {
       if (_dataFieldsChangesListener != null) {
         _dataFieldsChangesListener.cancel();
@@ -465,26 +465,28 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       dynamic dataToObserve = getDataToObserve();
       
       if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
-      if (dataToObserve is ObservableList) _dataFieldsChangesListener = dataToObserve.listChanges.listen(_data_changesHandler);
+      else if (dataToObserve is ObservableList) _dataFieldsChangesListener = dataToObserve.listChanges.listen(_data_changesHandler);
     }
     
     if (_enableHighlight && (changes != null)) {
-      PropertyChangeRecord propertyChangeRecord = changes.firstWhere(
-          (ChangeRecord changeRecord) => (
-              (changeRecord is PropertyChangeRecord) &&
+      final dynamic bindableRecord = changes.firstWhere(
+          (dynamic changeRecord) => (
+              (changeRecord is ListChangeRecord) ||
               (
-                  (changeRecord.name == _field) ||
+                  (changeRecord is PropertyChangeRecord) &&
                   (
-                    (_fields != null) &&
-                    _fields.contains(changeRecord.name)
-                  )
+                      (changeRecord.name == _field) ||
+                      (
+                          (_fields != null) &&
+                          _fields.contains(changeRecord.name)
+                      )
+                  ) 
               )
-              
           ),
           orElse: () => null
       );
       
-      if (propertyChangeRecord != null) {
+      if (bindableRecord != null) {
         notify(
             new FrameworkEvent<dynamic>(
                 'dataPropertyChanged',
