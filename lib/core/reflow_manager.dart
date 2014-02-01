@@ -144,16 +144,14 @@ class ReflowManager {
 
       ownerMap.add(invokation);
       
-      runZoned(
-        () => animationFrame.then(
-            (_) {
-              ownerMap.remove(invokation);
-              
-              if (ownerMap.length == 0) _scheduledHandlers.remove(owner);
-              
-              try { invokation.invoke(); } catch (invokeError) { print('original trace: $invokation $invokeError'); }
-            }
-        )
+      animationFrame.then(
+          (_) {
+            ownerMap.remove(invokation);
+            
+            if (ownerMap.length == 0) _scheduledHandlers.remove(owner);
+            
+            invokation.invoke();
+          }
       );
     } else invokation._arguments = arguments;
   }
@@ -169,14 +167,12 @@ class ReflowManager {
 
       _elements[element] = elementCSSMap;
       
-      runZoned(
-          () => layoutFrame.then(
-              (_) {
-                _elements.remove(element);
-                
-                elementCSSMap.finalize();
-              }
-          ), onError: (Error error) => throw new ArgumentError('async error for invalidateCSS')
+      layoutFrame.then(
+          (_) {
+            _elements.remove(element);
+            
+            elementCSSMap.finalize();
+          }
       );
     } else elementCSSMap.setProperty(property, value);
   }
