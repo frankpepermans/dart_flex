@@ -4,5 +4,5 @@ version: 0.8.22
 homepage: https://github.com/frankpepermans/dart_flex
 description: Flex-like components in Dart
 dependencies:
-  browser: '>=0.9.0'
-  observe: '>=0.9.0'
+  browser: any
+  observe: any

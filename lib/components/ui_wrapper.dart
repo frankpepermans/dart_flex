@@ -335,6 +335,12 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       
       createChildren();
       
+      if (_control != null) {
+        _control.style.display = 'none';
+        
+        later > updateVisibility;
+      }
+      
       notify(
           new FrameworkEvent(
               'initializationComplete'
