@@ -18,7 +18,7 @@ web/docs
 web/docs/
 test/packages
 test/packages/
-
+*.lock
 *.scc
 
 # Exclude pubspec when developing library packages
