@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class Header extends Group {
+class Header extends HGroup {
   
   //---------------------------------
   //
@@ -67,23 +67,21 @@ class Header extends Group {
 
   ObservableList _leftSideItems;
   bool _isLeftSideItemsChanged = false;
+  StreamSubscription _leftSideItemChangeSubscription;
 
   ObservableList get leftSideItems => _leftSideItems;
   set leftSideItems(ObservableList value) {
     if (value != _leftSideItems) {
-      /*if (_leftSideItems != null) {
-        _leftSideItems.ignore(
-            CollectionEvent.COLLECTION_CHANGED, 
-            _leftSideItems_collectionChangedHandler
-        );
-      }*/
-      
       _leftSideItems = value;
       _isLeftSideItemsChanged = true;
       
-      if (value != null) {
-        value.changes.listen(_leftSideItems_collectionChangedHandler);
+      if (_leftSideItemChangeSubscription != null) {
+        _leftSideItemChangeSubscription.cancel();
+        
+        _leftSideItemChangeSubscription = null;
       }
+      
+      if (value != null) _leftSideItemChangeSubscription = value.listChanges.listen(_leftSideItems_collectionChangedHandler);
 
       notify(
         new FrameworkEvent(
@@ -104,23 +102,21 @@ class Header extends Group {
 
   ObservableList _rightSideItems;
   bool _isRightSideItemsChanged = false;
+  StreamSubscription _rightSideItemChangeSubscription;
 
   ObservableList get rightSideItems => _rightSideItems;
   set rightSideItems(ObservableList value) {
     if (value != _rightSideItems) {
-      /*if (_rightSideItems != null) {
-        _rightSideItems.ignore(
-            CollectionEvent.COLLECTION_CHANGED, 
-            _rightSideItems_collectionChangedHandler
-        );
-      }*/
-      
       _rightSideItems = value;
       _isRightSideItemsChanged = true;
       
-      if (value != null) {
-        value.changes.listen(_rightSideItems_collectionChangedHandler);
+      if (_rightSideItemChangeSubscription != null) {
+        _rightSideItemChangeSubscription.cancel();
+        
+        _rightSideItemChangeSubscription = null;
       }
+      
+      if (value != null) _rightSideItemChangeSubscription = value.listChanges.listen(_rightSideItems_collectionChangedHandler);
 
       notify(
         new FrameworkEvent(
@@ -153,27 +149,28 @@ class Header extends Group {
   
   @override
   void createChildren() {
-    _layout = new AbsoluteLayout();
-    
     _headerLabel = new RichText()
-    ..width = 400
-    ..height = 20
+    ..paddingTop = 7
+    ..percentWidth = 100.0
+    ..percentHeight = 100.0
+    ..autoSize = true
     ..align = 'center'
     ..text = _label
     ..cssClasses = const <String>['header-title'];
     
-    _leftSideContainer = new HGroup();
+    _leftSideContainer = new HGroup()
+    ..paddingLeft = 10
+    ..percentHeight = 100.0;
     
-    _rightSideContainer = new HGroup();
+    _rightSideContainer = new HGroup()
+    ..paddingRight = 10
+    ..percentHeight = 100.0;
     
     _rightSideContainer.layout.align = 'right';
     
-    _headerLabel.onWidthChanged.listen(_updateWidth);
-    _headerLabel.onHeightChanged.listen(_updateHeight);
-    
     addComponent(_leftSideContainer);
-    addComponent(_rightSideContainer);
     addComponent(_headerLabel);
+    addComponent(_rightSideContainer);
 
     super.createChildren();
   }
@@ -188,7 +185,7 @@ class Header extends Group {
     ) {
       _isLabelChanged = false;
 
-      _headerLabel.text = _label;
+      _headerLabel.richText = _label;
     }
     
     if (
@@ -208,51 +205,11 @@ class Header extends Group {
       
       _updateItems(_rightSideContainer, _rightSideItems);
     }
-  }
-  
-  @override
-  void updateLayout() {
-    if (
-        (_width > 0) &&
-        (_height > 0)
-    ) {
-      IUIWrapper child;
-      int maxHeight = 0;
-      int i = _leftSideItems.length;
-      
-      _headerLabel.width = width - _leftSideItems.length * 40 - _rightSideItems.length * 40 - 20;
-      
-      _headerLabel.x = (_width * .5 - _headerLabel._width * .5).toInt();
-      _headerLabel.y = (_height * .5 - _headerLabel._height * .5).toInt();
-      
-      while (i > 0) {
-        child = _leftSideItems[--i];
-        
-        if (child.height > maxHeight) maxHeight = child.height;
-      }
-      
-      _leftSideContainer.height = maxHeight;
-      _leftSideContainer.x = 10;
-      _leftSideContainer.y = (_height * .5 - _leftSideContainer.height * .5).toInt();
-      _leftSideContainer.width = _headerLabel.x - 20;
-      
-      maxHeight = 0;
-      
-      i = _rightSideItems.length;
-      
-      while (i > 0) {
-        child = _rightSideItems[--i];
-        
-        if (child.height > maxHeight) maxHeight = child.height;
-      }
-      
-      _rightSideContainer.height = maxHeight;
-      _rightSideContainer.x = _width - _leftSideContainer.width - 10;
-      _rightSideContainer.y = (_height * .5 - _rightSideContainer.height * .5).toInt();
-      _rightSideContainer.width = _leftSideContainer.width;
-    }
     
-    super.updateLayout();
+    if (
+      (_leftSideContainer != null) &&
+      (_rightSideContainer != null)
+    ) _leftSideContainer.width = _rightSideContainer.width = max(_leftSideContainer.width, _rightSideContainer.width);
   }
   
   //---------------------------------
@@ -261,49 +218,37 @@ class Header extends Group {
   //
   //---------------------------------
   
-  void _updateWidth(FrameworkEvent event) {
-    invalidateProperties();
-  }
-  
-  void _updateHeight(FrameworkEvent event) {
-    invalidateProperties();
-  }
-  
   void _updateItems(HGroup group, ObservableList dataProvider) {
     IUIWrapper child;
-    final int len = dataProvider.length;
+    int len = dataProvider.length;
     int i = group.childWrappers.length;
     
     while (i > 0) {
       child = group.childWrappers[--i];
       
-      if (dataProvider.indexOf(child) == -1) {
-        group.removeComponent(child);
-      }
+      if (dataProvider.indexOf(child) == -1) group.removeComponent(child);
     }
     
     for (i=0; i<len; i++) {
       child = dataProvider[i];
       
-      if (group.childWrappers.indexOf(child) == -1) {
-        child.onHeightChanged.listen(
-            (FrameworkEvent event) => invalidateProperties()
-        );
-        
-        group.addComponent(child);
-      }
+      if (group.childWrappers.indexOf(child) == -1) group.addComponent(child);
     }
+    
+    len = group.childWrappers.length;
+    
+    group.width = group.layout.gap * (len - 1) + 28 * len + group.paddingLeft + group.paddingRight;
     
     invalidateProperties();
   }
   
-  void _leftSideItems_collectionChangedHandler(List<ChangeRecord> changes) {
+  void _leftSideItems_collectionChangedHandler(List<ListChangeRecord> listChanges) {
     _isLeftSideItemsChanged = true;
     
     invalidateProperties();
   }
   
-  void _rightSideItems_collectionChangedHandler(List<ChangeRecord> changes) {
+  void _rightSideItems_collectionChangedHandler(List<ListChangeRecord> listChanges) {
     _isRightSideItemsChanged = true;
     
     invalidateProperties();

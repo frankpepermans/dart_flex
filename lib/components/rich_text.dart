@@ -128,6 +128,8 @@ class RichText extends UIWrapper {
 
   RichText({String elementId: null}) : super(elementId: elementId) {
   	_className = 'RichText';
+  	
+  	_autoSize = false;
   }
 
   //---------------------------------
@@ -141,8 +143,6 @@ class RichText extends UIWrapper {
     super.createChildren();
     
     _label = new LabelElement();
-    
-    _autoSize = false;
 
     _setControl(_label);
 
