@@ -218,11 +218,8 @@ class ListBase extends Group {
   }
 
   int operator -(Object item) {
-    if (_dataProvider == null) {
-      dataProvider = new ObservableList<dynamic>();
-    } else {
-      _dataProvider.remove(item);
-    }
+    if (_dataProvider == null) dataProvider = new ObservableList<dynamic>();
+    else _dataProvider.remove(item);
 
     return item;
   }
