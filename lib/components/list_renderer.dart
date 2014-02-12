@@ -652,7 +652,10 @@ class ListRenderer extends ListBase {
   }
 
   void _updateVisibleItemRenderers({bool ignorePreviousIndex: false}) {
-    if (_itemRenderers == null) return;
+    if (
+        (_itemRenderers == null) ||
+        (_dataProvider == null)
+    ) return;
     
     final int pageItemSize = _getPageItemSize();
     

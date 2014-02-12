@@ -195,7 +195,7 @@ class EditableText extends UIWrapper {
   }
 }
 
-class EditableTextMask<T> extends EditableText {
+class EditableTextMask<T extends DateTime> extends EditableText {
   
   //---------------------------------
   //
