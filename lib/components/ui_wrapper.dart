@@ -12,7 +12,7 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   Stream<FrameworkEvent> get onCSSClassesChanged;
   Stream<FrameworkEvent> get onVisibleChanged;
   Stream<FrameworkEvent> get onInheritsDefaultCSSChanged;
-  Stream<FrameworkEvent> get onControlChanged;
+  Stream<FrameworkEvent<Element>> get onControlChanged;
   Stream<FrameworkEvent> get onInitializationComplete;
   Stream<FrameworkEvent> get onOwnerChanged;
   
@@ -265,8 +265,8 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   // control
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onControlChangedEvent = const EventHook<FrameworkEvent>('controlChanged');
-  Stream<FrameworkEvent> get onControlChanged => UIWrapper.onControlChangedEvent.forTarget(this);
+  static const EventHook<FrameworkEvent<Element>> onControlChangedEvent = const EventHook<FrameworkEvent<Element>>('controlChanged');
+  Stream<FrameworkEvent<Element>> get onControlChanged => UIWrapper.onControlChangedEvent.forTarget(this);
   Element _control;
 
   Element get control => _control;

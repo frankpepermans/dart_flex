@@ -159,18 +159,18 @@ class Header extends HGroup {
     ..cssClasses = const <String>['header-title'];
     
     _leftSideContainer = new HGroup()
-    ..paddingLeft = 10
     ..percentHeight = 100.0;
     
     _rightSideContainer = new HGroup()
-    ..paddingRight = 10
     ..percentHeight = 100.0;
     
     _rightSideContainer.layout.align = 'right';
     
+    addComponent(new Group()..width = 3);
     addComponent(_leftSideContainer);
     addComponent(_headerLabel);
     addComponent(_rightSideContainer);
+    addComponent(new Group()..width = 3);
 
     super.createChildren();
   }
@@ -209,7 +209,12 @@ class Header extends HGroup {
     if (
       (_leftSideContainer != null) &&
       (_rightSideContainer != null)
-    ) _leftSideContainer.width = _rightSideContainer.width = max(_leftSideContainer.width, _rightSideContainer.width);
+    ) {
+      final int len = max(_leftSideContainer.childWrappers.length, _rightSideContainer.childWrappers.length);
+          
+      _leftSideContainer.width = _leftSideContainer.layout.gap * (len - 1) + 28 * len;
+      _rightSideContainer.width = _rightSideContainer.layout.gap * (len - 1) + 28 * len;
+    }
   }
   
   //---------------------------------
@@ -219,8 +224,8 @@ class Header extends HGroup {
   //---------------------------------
   
   void _updateItems(HGroup group, ObservableList dataProvider) {
+    final int len = dataProvider.length;
     IUIWrapper child;
-    int len = dataProvider.length;
     int i = group.childWrappers.length;
     
     while (i > 0) {
@@ -234,10 +239,6 @@ class Header extends HGroup {
       
       if (group.childWrappers.indexOf(child) == -1) group.addComponent(child);
     }
-    
-    len = group.childWrappers.length;
-    
-    group.width = group.layout.gap * (len - 1) + 28 * len + group.paddingLeft + group.paddingRight;
     
     invalidateProperties();
   }
