@@ -8,8 +8,6 @@ class ReflowManager {
   //
   //---------------------------------
   
-  static final ReflowManager _instance = new ReflowManager._construct();
-  
   final Map<dynamic, List<_MethodInvokationMap>> _scheduledHandlers = new Map<dynamic, List<_MethodInvokationMap>>();
   final Map<Element, _ElementCSSMap> _elements = <Element, _ElementCSSMap>{};
   final Map<Element, CssStyleDeclaration> _cssStyles = <Element, CssStyleDeclaration>{};
@@ -97,20 +95,24 @@ class ReflowManager {
     
     return result;
   }
+  
+  //---------------------------------
+  //
+  // Singleton Constructor
+  //
+  //---------------------------------
+  
+  ReflowManager._internal();
 
   //---------------------------------
   //
   // Constructor
   //
   //---------------------------------
+  
+  static final ReflowManager _reflowManager = new ReflowManager._internal();
 
-  //---------------------------------
-  // Singleton
-  //---------------------------------
-
-  ReflowManager._construct();
-
-  factory ReflowManager() => _instance;
+  factory ReflowManager() => _reflowManager;
 
   //-----------------------------------
   //
@@ -196,6 +198,7 @@ class _ElementCSSMap {
 
   static const String _PRIORITY = '';
   
+  final ReflowManager reflowManager = new ReflowManager();
   final Element _element;
   final List<String> _dirtyProperties = <String>[];
   final List<String> _dirtyValues = <String>[];
@@ -203,9 +206,9 @@ class _ElementCSSMap {
   CssStyleDeclaration _detachedElement;
   
   _ElementCSSMap(this._element) {
-    final CssStyleDeclaration matchCSS = ReflowManager._instance._cssStyles[_element];
+    final CssStyleDeclaration matchCSS = reflowManager._cssStyles[_element];
     
-    if (matchCSS == null) _detachedElement = ReflowManager._instance._cssStyles[_element] = new CssStyleDeclaration()..cssText = _element.style.cssText;
+    if (matchCSS == null) _detachedElement = reflowManager._cssStyles[_element] = new CssStyleDeclaration()..cssText = _element.style.cssText;
     else _detachedElement = matchCSS..cssText = _element.style.cssText;
   }
   
