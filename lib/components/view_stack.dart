@@ -215,7 +215,7 @@ class ViewStack extends UIWrapper {
     );
     
     if (viewStackElementData != null) {
-      _container.removeComponent(viewStackElementData.element);
+      _container.removeComponent(viewStackElementData.element, flush: false);
       
       return _registeredViews.remove(viewStackElementData);
     }
