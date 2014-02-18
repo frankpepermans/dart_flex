@@ -8,6 +8,7 @@ import 'dart:math';
 
 import 'package:observe/observe.dart';
 
+part "components/accordion.dart";
 part "components/button.dart";
 part "components/color_box.dart";
 part "components/combo_box.dart";
@@ -64,6 +65,7 @@ part "layout/horizontal_layout.dart";
 part "layout/tile_layout.dart";
 part "layout/vertical_layout.dart";
 
+part "itemRenderers/accordion_header_item_renderer.dart";
 part "itemRenderers/header_item_renderer.dart";
 part "itemRenderers/editable_label_item_renderer.dart";
 part "itemRenderers/label_item_renderer.dart";

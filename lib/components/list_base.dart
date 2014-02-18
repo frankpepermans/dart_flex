@@ -41,11 +41,7 @@ class ListBase extends Group {
       _dataProvider = value;
       _isElementUpdateRequired = true;
       
-      if (_dataProviderChangesListener != null) {
-        _dataProviderChangesListener.cancel();
-        
-        _dataProviderChangesListener = null;
-      }
+      if (_dataProviderChangesListener != null) _dataProviderChangesListener.cancel();
 
       if (value != null) _dataProviderChangesListener = value.listChanges.listen(_dataProvider_collectionChangedHandler);
       

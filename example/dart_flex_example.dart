@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:html';
 import 'dart:math';
 
 import 'package:dart_flex/dart_flex.dart';
@@ -42,6 +40,16 @@ void init() {
   ..dataProvider = createDataProvider()
   ..sortHandler = dataGrid_sortHandler
   ..onRendererAdded.listen(_dataGrid_rendererAddedHandler);
+  
+  Accordion accordion = new Accordion()
+  ..percentWidth = 100.0
+  ..percentHeight = 100.0
+  ..dataProvider = createAccordionDataProvider()
+  ..headerItemRendererFactory = new ClassFactory<AccordionHeaderItemRenderer>(constructorMethod: AccordionHeaderItemRenderer.construct)
+  ..headerHeight = 30
+  ..headerField = taskSymbol
+  ..contentItemRendererFactory = new ClassFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct)
+  ..contentField = statusSymbol;
   
   // a container to display the master tables vertically
   VGroup masterTables = new VGroup()
@@ -92,6 +100,7 @@ void init() {
   // central area
   // this is a sub container to the horizontalContainer, because the container has its own CSS rules
   centerContainer.addComponent(dataGrid);
+  centerContainer.addComponent(accordion);
   centerContainer.addComponent(masterTables);
   centerContainer.addComponent(new Group()..width = 8);
   
@@ -171,6 +180,23 @@ ObservableList<ObservableMap<Symbol, dynamic>> createDataProvider() {
   ObservableList<ObservableMap<Symbol, dynamic>> list = new ObservableList<ObservableMap<Symbol, dynamic>>();
   
   for (int i=0; i<1000; i++) list.add(
+      new ObservableMap<Symbol, dynamic>.from(
+          <Symbol, dynamic>{
+            taskSymbol: _getRandomTaskName(),
+            urgencySymbol: _getRandomUrgency(),
+            dueDateSymbol: _getRandomDate(),
+            statusSymbol: _getRandomStatus()
+          }
+      )
+  );
+  
+  return list;
+}
+
+ObservableList<ObservableMap<Symbol, dynamic>> createAccordionDataProvider() {
+  ObservableList<ObservableMap<Symbol, dynamic>> list = new ObservableList<ObservableMap<Symbol, dynamic>>();
+  
+  for (int i=0; i<4; i++) list.add(
       new ObservableMap<Symbol, dynamic>.from(
           <Symbol, dynamic>{
             taskSymbol: _getRandomTaskName(),
