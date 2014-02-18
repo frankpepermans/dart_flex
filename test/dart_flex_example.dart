@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:dart_flex/dart_flex.dart';
+import 'src/dart_flex_test.dart';
 import 'package:observe/observe.dart';
 
 void main() {
@@ -49,7 +51,7 @@ void init() {
   ..headerHeight = 30
   ..headerFields = const <Symbol>[taskSymbol]
   ..headerField = taskNameSymbol
-  ..contentItemRendererFactory = new ClassFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct)
+  ..contentItemRendererFactory = new ClassFactory<SpriteSheetItemRenderer>(constructorMethod: SpriteSheetItemRenderer.construct)
   ..contentFields = const <Symbol>[urgencySymbol]
   ..contentField = urgencyNameSymbol;
   
@@ -285,84 +287,4 @@ const List<String> statusNames = const <String>[
   ];
   
   return statusNames[random.nextInt(statusNames.length)];
-}
-
-//
-//
-// ITEM RENDERERS
-//
-//
-
-class DateItemRenderer extends ItemRenderer {
-  
-  EditableDate input;
-
-  static DateItemRenderer construct() => new DateItemRenderer();
-  
-  void createChildren() {
-    super.createChildren();
-    
-    input = new EditableDate()
-    ..percentWidth = 100.0
-    ..autoSize = true
-    ..onDataFinalized.listen(_input_dataChangedHandler);
-
-    addComponent(input);
-  }
-  
-  void invalidateData() {
-    super.invalidateData();
-    
-    if (
-        (input != null) &&
-        (data != null) &&
-        (field != null)
-    ) input.data = data[field];
-  }
-  
-  void _input_dataChangedHandler(FrameworkEvent event) {
-    data[field] = input.data;
-  }
-}
-
-class StatusComboBoxItemRenderer extends ItemRenderer {
-  
-  ComboBox input;
-
-  static StatusComboBoxItemRenderer construct() => new StatusComboBoxItemRenderer();
-  
-  void createChildren() {
-    super.createChildren();
-    
-    input = new ComboBox()
-    ..percentWidth = 100.0
-    ..percentHeight = 100.0
-    ..dataProvider = new ObservableList.from(const <String>['complete!', 'open'])
-    ..onSelectedItemChanged.listen(_input_onSelectedItemChanged);
-
-    addComponent(input);
-  }
-  
-  void invalidateData() {
-    super.invalidateData();
-    
-    if (
-        (input != null) &&
-        (data != null) &&
-        (field != null)
-    ) input.selectedItem = data[field];
-  }
-  
-  void _input_onSelectedItemChanged(FrameworkEvent<String> event) {
-    if (data[field] != event.relatedObject) {
-      data[field] = event.relatedObject;
-      
-      notify(
-          new FrameworkEvent<dynamic>(
-              'dataPropertyChanged',
-              relatedObject: data
-          )
-      );
-    }
-  }
 }
