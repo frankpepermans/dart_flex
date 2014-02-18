@@ -47,9 +47,11 @@ void init() {
   ..dataProvider = createAccordionDataProvider()
   ..headerItemRendererFactory = new ClassFactory<AccordionHeaderItemRenderer>(constructorMethod: AccordionHeaderItemRenderer.construct)
   ..headerHeight = 30
-  ..headerField = taskSymbol
+  ..headerFields = const <Symbol>[taskSymbol]
+  ..headerField = taskNameSymbol
   ..contentItemRendererFactory = new ClassFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct)
-  ..contentField = statusSymbol;
+  ..contentFields = const <Symbol>[urgencySymbol]
+  ..contentField = urgencyNameSymbol;
   
   // a container to display the master tables vertically
   VGroup masterTables = new VGroup()
@@ -196,7 +198,7 @@ ObservableList<ObservableMap<Symbol, dynamic>> createDataProvider() {
 ObservableList<ObservableMap<Symbol, dynamic>> createAccordionDataProvider() {
   ObservableList<ObservableMap<Symbol, dynamic>> list = new ObservableList<ObservableMap<Symbol, dynamic>>();
   
-  for (int i=0; i<4; i++) list.add(
+  for (int i=0; i<10; i++) list.add(
       new ObservableMap<Symbol, dynamic>.from(
           <Symbol, dynamic>{
             taskSymbol: _getRandomTaskName(),

@@ -47,11 +47,8 @@ body {
 }
 
 .main-panel {
-  box-sizing:border-box;
-     -moz-box-sizing:border-box;
-  -webkit-box-sizing:border-box;
-  border: 4px solid #bbb;
-  border-radius: 5px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
   background-color: #fff;
   -webkit-box-shadow: 5px 5px 5px rgba(50, 50, 50, 0.4);
   -moz-box-shadow:    5px 5px 5px rgba(50, 50, 50, 0.4);
@@ -73,10 +70,10 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 ._Accordion > span {
-  -webkit-transition: top .2s ease-out .2s;
-     -moz-transition: top .2s ease-out .2s;
-       -o-transition: top .2s ease-out .2s;
-          transition: top .2s ease-out .2s;
+  -webkit-transition: left, top .2s ease-out;
+     -moz-transition: left, top .2s ease-out;
+       -o-transition: left, top .2s ease-out;
+          transition: left, top .2s ease-out;
 }
 
 ._AccordionHeaderItemRenderer {
@@ -101,6 +98,13 @@ input[type=number]::-webkit-outer-spin-button {
   border-bottom-right-radius: 0px;
   z-index: 10;
   right: 0;
+}
+
+._AccordionHeaderItemRenderer:hover {
+  background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #e8effa), color-stop(0.4, #cad9ed) );
+  background:-moz-linear-gradient( center top, #e8effa 5%, #cad9ed 40% );
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#e8effa', endColorstr='#cad9ed');
+  color:#000;
 }
 
 ._Button {
