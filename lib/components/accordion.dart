@@ -25,8 +25,8 @@ class Accordion extends Group {
   static const EventHook<FrameworkEvent> onOrientationChangedEvent = const EventHook<FrameworkEvent>('orientationChanged');
   Stream<FrameworkEvent> get onOrientationChanged => Accordion.onOrientationChangedEvent.forTarget(this);
 
-  String _orientation;
-  bool _isOrientationChanged = false;
+  String _orientation = 'vertical';
+  bool _isOrientationChanged = true;
 
   String get orientation => _orientation;
   set orientation(String value) {
@@ -113,6 +113,7 @@ class Accordion extends Group {
   set headerHeight(int value) {
     if (value != _headerHeight) {
       _headerHeight = value;
+      _isPanelsUpdateRequired = true;
 
       notify(
         new FrameworkEvent(
@@ -267,8 +268,6 @@ class Accordion extends Group {
     _className = 'Accordion';
     
     horizontalScrollPolicy = verticalScrollPolicy = ScrollPolicy.NONE;
-    
-    orientation = 'vertical';
   }
   
   //---------------------------------
@@ -306,31 +305,29 @@ class Accordion extends Group {
   
   @override
   void updateLayout() {
-    super.updateLayout();
-    
     if (_panels != null) {
       bool isVerticalLayout = (_orientation == 'vertical');
       
       _panels.forEach(
         (_AccordionPanelElement panel) {
           if (isVerticalLayout) {
-            panel._headerItemRenderer.width = panel._contentItemRenderer.width = 0;
-            panel._headerItemRenderer.percentWidth = panel._contentItemRenderer.percentWidth = 100.0;
+            panel._headerItemRenderer.percentWidth = 100.0;
             panel._headerItemRenderer.height = _headerHeight;
-            panel._headerItemRenderer.percentHeight = .0;
-            panel._contentItemRenderer.height = 0;
+            
+            panel._contentItemRenderer.percentWidth = 100.0;
             panel._contentItemRenderer.percentHeight = 100.0;
           } else {
-            panel._headerItemRenderer.height = panel._contentItemRenderer.height = 0;
-            panel._headerItemRenderer.percentHeight = panel._contentItemRenderer.percentHeight = 100.0;
             panel._headerItemRenderer.width = _headerHeight;
-            panel._headerItemRenderer.percentWidth = .0;
-            panel._contentItemRenderer.width = 0;
+            panel._headerItemRenderer.percentHeight = 100.0;
+            
             panel._contentItemRenderer.percentWidth = 100.0;
+            panel._contentItemRenderer.percentHeight = 100.0;
           }
         }
       );
     }
+    
+    super.updateLayout();
   }
   
   //---------------------------------
@@ -375,6 +372,7 @@ class Accordion extends Group {
     
     for (k=j; k<i; k++) {
       headerItemRenderer = _headerItemRendererFactory.immediateInstance()
+        ..height = _headerHeight
         ..fields = _headerFields
         ..field = _headerField;
       
@@ -400,6 +398,8 @@ class Accordion extends Group {
     
     for (i=0; i<j; i++) {
       panel = _panels[i];
+      
+      panel._headerItemRenderer.data = panel._contentItemRenderer.data = _dataProvider[i];
       
       panel._contentItemRenderer.visible = panel._contentItemRenderer.includeInLayout = (_selectedIndex == i);
     }

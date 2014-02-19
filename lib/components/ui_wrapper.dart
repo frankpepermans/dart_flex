@@ -21,6 +21,8 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   // Public properties
   //
   //---------------------------------
+  
+  ReflowManager get reflowManager;
 
   bool get visible;
   set visible(bool value);

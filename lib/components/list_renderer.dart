@@ -126,6 +126,31 @@ class ListRenderer extends ListBase {
   }
   
   //---------------------------------
+  // autoManageScrollBars
+  //---------------------------------
+  
+  static const EventHook<FrameworkEvent> onAutoManageScrollBarsChangedEvent = const EventHook<FrameworkEvent>('autoManageScrollBarsChanged');
+  Stream<FrameworkEvent> get onAutoManageScrollBarsChanged => ListRenderer.onAutoManageScrollBarsChangedEvent.forTarget(this);
+
+  bool _autoManageScrollBars = true;
+
+  bool get autoManageScrollBars => _autoManageScrollBars;
+  set autoManageScrollBars(bool value) {
+    if (value != _autoManageScrollBars) {
+      _autoManageScrollBars = value;
+      _isOrientationChanged = true;
+
+      notify(
+        new FrameworkEvent(
+          'autoManageScrollBarsChanged'
+        )
+      );
+
+      invalidateProperties();
+    }
+  }
+  
+  //---------------------------------
   // useSelectionEffects
   //---------------------------------
   
@@ -407,24 +432,28 @@ class ListRenderer extends ListBase {
 
         _rowHeight = 0;
         _rowPercentHeight = 100.0;
-
-        horizontalScrollPolicy = ScrollPolicy.AUTO;
-        verticalScrollPolicy = ScrollPolicy.NONE;
+        
+        if (_autoManageScrollBars) {
+          horizontalScrollPolicy = ScrollPolicy.AUTO;
+          verticalScrollPolicy = ScrollPolicy.NONE;
+        }
       } else if (orientation == 'vertical') {
         defaultLayout = new VerticalLayout();
 
         _colWidth = 0;
         _colPercentWidth = 100.0;
-
-        horizontalScrollPolicy = ScrollPolicy.NONE;
-        verticalScrollPolicy = ScrollPolicy.AUTO;
+        
+        if (_autoManageScrollBars) {
+          horizontalScrollPolicy = ScrollPolicy.NONE;
+          verticalScrollPolicy = ScrollPolicy.AUTO;
+        }
       } else if (orientation == 'grid') {
         defaultLayout = new VerticalLayout(constrainToBounds: false);
 
         _colWidth = 0;
         _colPercentWidth = 100.0;
-
-        verticalScrollPolicy = ScrollPolicy.AUTO;
+        
+        if (_autoManageScrollBars) verticalScrollPolicy = ScrollPolicy.AUTO;
       }
 
       defaultLayout.useVirtualLayout = true;

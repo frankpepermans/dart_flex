@@ -209,6 +209,32 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
+  // autoManageScrollBars
+  //---------------------------------
+  
+  static const EventHook<FrameworkEvent> onAutoManageScrollBarsChangedEvent = const EventHook<FrameworkEvent>('autoManageScrollBarsChanged');
+  Stream<FrameworkEvent> get onAutoManageScrollBarsChanged => DataGrid.onAutoManageScrollBarsChangedEvent.forTarget(this);
+
+  bool _autoManageScrollBars = true;
+
+  bool get autoManageScrollBars => _autoManageScrollBars;
+  set autoManageScrollBars(bool value) {
+    if (value != _autoManageScrollBars) {
+      _autoManageScrollBars = value;
+      
+      if (_list != null) _list.autoManageScrollBars = value;
+
+      notify(
+        new FrameworkEvent(
+          'autoManageScrollBarsChanged'
+        )
+      );
+
+      invalidateProperties();
+    }
+  }
+  
+  //---------------------------------
   // useSelectionEffects
   //---------------------------------
 
@@ -216,13 +242,11 @@ class DataGrid extends ListBase {
   Stream<FrameworkEvent> get onUseSelectionEffectsChanged => DataGrid.onUseSelectionEffectsChangedEvent.forTarget(this);
   
   bool _useSelectionEffects = true;
-  bool _isUseSelectionEffectsChanged = false;
 
   bool get useSelectionEffects => _useSelectionEffects;
   set useSelectionEffects(bool value) {
     if (value != _useSelectionEffects) {
       _useSelectionEffects = value;
-      _isUseSelectionEffectsChanged = true;
       
       if (_list != null) _list.useSelectionEffects = value;
 
@@ -299,12 +323,6 @@ class DataGrid extends ListBase {
 
       _updateColumnsAndHeaders();
     }
-    
-    if (_isUseSelectionEffectsChanged) {
-      _isUseSelectionEffectsChanged = false;
-      
-      if (_list != null) _list.useSelectionEffects = _useSelectionEffects;
-    }
   }
   
   void setScrollTarget(DataGridItemRenderer target, int offset) {
@@ -362,7 +380,8 @@ class DataGrid extends ListBase {
     ..rowHeight = _rowHeight
     ..dataProvider = _dataProvider
     ..itemRendererFactory = new ClassFactory(constructorMethod: DataGridItemRenderer.construct)
-    ..useSelectionEffects = _useSelectionEffects;
+    ..useSelectionEffects = _useSelectionEffects
+    ..autoManageScrollBars = _autoManageScrollBars;
 
     _gridContainer.addComponent(_headerContainer);
     _gridContainer.addComponent(_list);

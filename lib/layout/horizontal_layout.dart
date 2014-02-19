@@ -103,7 +103,7 @@ class HorizontalLayout implements ILayout {
         if (element.percentWidth > 0.0) w = (element.percentWidth * .01 * (percWidth - _gap * (sx - 1)) ~/ sx) - element.paddingLeft - element.paddingRight;
         else if (element.width > 0) w = element.width - element.paddingLeft - element.paddingRight;
 
-        if (element.percentHeight > 0) h = (height * element.percentHeight * .01).toInt() - element.paddingTop - element.paddingBottom;
+        if (element.percentHeight > 0) h = (height * element.percentHeight) ~/ 100 - element.paddingTop - element.paddingBottom;
         else if (element.height > 0) h = element.height - element.paddingTop - element.paddingBottom;
 
         if (w == null) w = 0;

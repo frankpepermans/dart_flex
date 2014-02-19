@@ -64,7 +64,7 @@ class AbsoluteLayout implements ILayout {
 
   void doLayout(int width, int height, int pageItemSize, int pageOffset, int pageSize, List<IFlexLayout> elements) {
     elements.forEach(
-        (element) => element.reflowManager.invalidateCSS(element.control, 'position', 'absolute')
+        (IUIWrapper element) => element.reflowManager.invalidateCSS(element.control, 'position', 'absolute')
     );
   }
 
