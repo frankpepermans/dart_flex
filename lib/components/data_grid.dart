@@ -102,6 +102,15 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
+  // scrollPosition
+  //---------------------------------
+  
+  static const EventHook<FrameworkEvent> onListScrollPositionChangedEvent = const EventHook<FrameworkEvent>('listScrollPositionChanged');
+  Stream<FrameworkEvent> get onListScrollPositionChanged => DataGrid.onListScrollPositionChangedEvent.forTarget(this);
+  
+  int get scrollPosition => (_list != null) ? _list.scrollPosition : 0;
+  
+  //---------------------------------
   // headerMouseOutHandler
   //---------------------------------
 
@@ -381,7 +390,14 @@ class DataGrid extends ListBase {
     ..dataProvider = _dataProvider
     ..itemRendererFactory = new ClassFactory(constructorMethod: DataGridItemRenderer.construct)
     ..useSelectionEffects = _useSelectionEffects
-    ..autoManageScrollBars = _autoManageScrollBars;
+    ..autoManageScrollBars = _autoManageScrollBars
+    ..onListScrollPositionChanged.listen(
+      (FrameworkEvent event) => notify(
+        new FrameworkEvent(
+          'listScrollPositionChanged'
+        )
+      )
+    );
 
     _gridContainer.addComponent(_headerContainer);
     _gridContainer.addComponent(_list);
