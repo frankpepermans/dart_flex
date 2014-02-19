@@ -109,6 +109,9 @@ class DataGrid extends ListBase {
   Stream<FrameworkEvent> get onListScrollPositionChanged => DataGrid.onListScrollPositionChangedEvent.forTarget(this);
   
   int get scrollPosition => (_list != null) ? _list.scrollPosition : 0;
+  set scrollPosition(int value) {
+    if (_list != null) _list.scrollPosition = value;
+  }
   
   //---------------------------------
   // headerMouseOutHandler
