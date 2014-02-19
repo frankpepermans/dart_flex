@@ -18,6 +18,12 @@ class Accordion extends Group {
   //
   //---------------------------------
   
+  static const EventHook<FrameworkEvent<IItemRenderer>> onRendererAddedEvent = const EventHook<FrameworkEvent<IItemRenderer>>('rendererAdded');
+  Stream<FrameworkEvent<IItemRenderer>> get onRendererAdded => Accordion.onRendererAddedEvent.forTarget(this);
+  
+  static const EventHook<FrameworkEvent<IItemRenderer>> onRendererRemovedEvent = const EventHook<FrameworkEvent<IItemRenderer>>('rendererRemoved');
+  Stream<FrameworkEvent<IItemRenderer>> get onRendererRemoved => Accordion.onRendererRemovedEvent.forTarget(this);
+  
   //---------------------------------
   // orientation
   //---------------------------------
@@ -366,6 +372,15 @@ class Accordion extends Group {
       
       removeComponent(panel._contentItemRenderer, flush: true);
       removeComponent(panel._headerItemRenderer, flush: true);
+      
+      _panels.remove(panel);
+      
+      notify(
+          new FrameworkEvent<IItemRenderer>(
+              'rendererRemoved',
+              relatedObject: panel._contentItemRenderer
+          )
+      );
     }
     
     j = _panels.length;
@@ -392,6 +407,13 @@ class Accordion extends Group {
       
       addComponent(panel._headerItemRenderer);
       addComponent(panel._contentItemRenderer);
+      
+      notify(
+          new FrameworkEvent<IItemRenderer>(
+              'rendererAdded',
+              relatedObject: contentItemRenderer
+          )
+      );
     }
     
     j = _panels.length;

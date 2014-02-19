@@ -110,7 +110,7 @@ class DataGrid extends ListBase {
   
   int get scrollPosition => (_list != null) ? _list.scrollPosition : 0;
   set scrollPosition(int value) {
-    if (_list != null) _list.scrollPosition = value;
+    if (_list != null) _list.setScrollPositionExternally(value);
   }
   
   //---------------------------------

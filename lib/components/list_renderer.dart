@@ -298,6 +298,17 @@ class ListRenderer extends ListBase {
   static const EventHook<FrameworkEvent> onListScrollPositionChangedEvent = const EventHook<FrameworkEvent>('listScrollPositionChanged');
   Stream<FrameworkEvent> get onListScrollPositionChanged => ListRenderer.onListScrollPositionChangedEvent.forTarget(this);
   int _scrollPosition = 0;
+  
+  void setScrollPositionExternally(int value) {
+    if (value != _scrollPosition) {
+      _scrollPosition = value;
+      
+      if (_layout is VerticalLayout) _control.scrollTop = _scrollPosition;
+      else _control.scrollLeft = _scrollPosition;
+
+      _updateAfterScrollPositionChanged();
+    }
+  }
 
   int get scrollPosition => _scrollPosition;
   set scrollPosition(int value) {
