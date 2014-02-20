@@ -68,6 +68,8 @@ class Accordion extends Group {
       _dataProvider = value;
       _isPanelsUpdateRequired = true;
       
+      selectedIndex = 0;
+      
       if (_dataProviderChangesListener != null) _dataProviderChangesListener.cancel();
 
       if (value != null) _dataProviderChangesListener = value.listChanges.listen(_dataProvider_collectionChangedHandler);
@@ -441,6 +443,8 @@ class Accordion extends Group {
   
   void _dataProvider_collectionChangedHandler(List<ListChangeRecord> changes) {
     _isPanelsUpdateRequired = true;
+    
+    if (_selectedIndex >= _dataProvider.length) selectedIndex = (_dataProvider.length == 0) ? 0 : _dataProvider.length - 1;
 
     invalidateProperties();
   }

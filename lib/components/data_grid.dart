@@ -66,6 +66,28 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
+  // listClasses
+  //---------------------------------
+
+  static const EventHook<FrameworkEvent> onListCSSClassesChangedEvent = const EventHook<FrameworkEvent>('listCssClassesChanged');
+  Stream<FrameworkEvent> get onListCSSClassesChanged => DataGrid.onListCSSClassesChangedEvent.forTarget(this);
+  List<String> _listCssClasses = <String>[];
+
+  List<String> get listCssClasses => _listCssClasses;
+
+  set listCssClasses(List<String> value) {
+    if (value != _listCssClasses) {
+      _listCssClasses = value;
+      
+      if (_list != null) _list.cssClasses = _listCssClasses;
+
+      notify(
+        new FrameworkEvent('listCssClassesChanged')
+      );
+    }
+  }
+  
+  //---------------------------------
   // headerMouseOverHandler
   //---------------------------------
 
@@ -383,6 +405,7 @@ class DataGrid extends ListBase {
     ..className = 'data-grid-header-container';
 
     _list = new ListRenderer(orientation: 'grid')
+    ..cssClasses = _listCssClasses
     ..percentWidth = 100.0
     ..percentHeight = 100.0
     ..colPercentWidth = 100.0
