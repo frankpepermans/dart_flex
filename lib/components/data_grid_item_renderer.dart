@@ -159,9 +159,7 @@ class DataGridItemRenderer extends ItemRenderer {
     for (i=0; i<len; i++) {
       column = _columns[i];
       
-      if (column._isActive) {
-        if (++rendererIndex == renderer.index) return column;
-      }
+      if (column._isActive && (++rendererIndex == renderer.index)) return column;
     }
     
     return null;

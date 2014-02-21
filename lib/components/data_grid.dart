@@ -88,6 +88,27 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
+  // headless
+  //---------------------------------
+
+  bool _headless = false;
+
+  bool get headless => _headless;
+  set headless(bool value) {
+    if (value != _headless) {
+      _headless = value;
+      
+      if (_headerContainer != null) _headerContainer.visible = _headerContainer.includeInLayout = !value;
+
+      if (_headerItemRenderers != null) {
+        _headerItemRenderers.forEach(
+          (IHeaderItemRenderer headerRenderer) => headerRenderer.visible = headerRenderer.includeInLayout = !value
+        );
+      }
+    }
+  }
+  
+  //---------------------------------
   // headerMouseOverHandler
   //---------------------------------
 
@@ -399,6 +420,8 @@ class DataGrid extends ListBase {
     ..className = 'data-grid-container';
 
     _headerContainer = new HGroup(gap: _columnSpacing)
+    ..visible = !_headless
+    ..includeInLayout = !_headless
     ..percentWidth = 100.0
     ..height = _headerHeight
     ..autoSize = false
@@ -480,6 +503,8 @@ class DataGrid extends ListBase {
         
         if (column._isActive) {
           header = column.headerItemRendererFactory.immediateInstance()
+            ..visible = !_headless
+            ..includeInLayout = !_headless
             ..height = _headerHeight
             ..data =  column.headerData
             ..onButtonClick.listen(_header_clickHandler);
