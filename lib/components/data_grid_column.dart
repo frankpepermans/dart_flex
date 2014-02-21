@@ -60,11 +60,11 @@ class DataGridColumn {
   // headerData
   //---------------------------------
 
-  HeaderData _headerData;
+  IHeaderData _headerData;
 
-  HeaderData get headerData => _headerData;
+  IHeaderData get headerData => _headerData;
 
-  set headerData(HeaderData value) {
+  set headerData(IHeaderData value) {
     if (value != _headerData) {
       _headerData = value;
     }

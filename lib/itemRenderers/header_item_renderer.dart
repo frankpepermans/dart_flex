@@ -6,7 +6,7 @@ abstract class IHeaderItemRenderer extends IItemRenderer {
   
   bool isSortedAsc;
   
-  HeaderData get headerData;
+  IHeaderData get headerData;
   
 }
 
@@ -33,7 +33,7 @@ class HeaderItemRenderer extends ItemRenderer implements IHeaderItemRenderer {
   
   bool isSortedAsc = true;
   
-  HeaderData get headerData => _data as HeaderData;
+  IHeaderData get headerData => _data as IHeaderData;
 
   //---------------------------------
   //
@@ -83,7 +83,7 @@ class HeaderItemRenderer extends ItemRenderer implements IHeaderItemRenderer {
   
   void _button_buttonClickHandler(FrameworkEvent<dynamic> event) {
     notify(
-        new FrameworkEvent<HeaderData>(
+        new FrameworkEvent<IHeaderData>(
             'buttonClick',
             relatedObject: headerData
         )
@@ -91,10 +91,28 @@ class HeaderItemRenderer extends ItemRenderer implements IHeaderItemRenderer {
   }
 }
 
-class HeaderData {
+abstract class IHeaderData {
+  
+  final String label = '', labelLong = '', identifier = '';
+  final Symbol field = null;
+  final dynamic data = null;
+  
+}
+
+class HeaderData implements IHeaderData {
   
   final String label, labelLong, identifier;
   final Symbol field;
+  final dynamic data = null;
   
   const HeaderData(this.identifier, this.field, this.label, this.labelLong);
+}
+
+class DynamicHeaderData implements IHeaderData {
+  
+  final String label, labelLong, identifier;
+  final Symbol field;
+  final dynamic data;
+  
+  const DynamicHeaderData(this.identifier, this.field, this.label, this.labelLong, this.data);
 }

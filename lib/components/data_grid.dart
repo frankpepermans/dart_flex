@@ -512,7 +512,7 @@ class DataGrid extends ListBase {
     }
   }
 
-  void _header_clickHandler(FrameworkEvent<HeaderData> event) {
+  void _header_clickHandler(FrameworkEvent<IHeaderData> event) {
     if (!_allowHeaderColumnSorting) return;
     
     final IHeaderItemRenderer renderer = event.currentTarget as IHeaderItemRenderer;
