@@ -67,7 +67,7 @@ class ComboBox extends ListBase {
   void _updateElements() {
     if (_dataProvider == null || _control == null) return;
     
-    Object element;
+    dynamic element;
     int maxElementToStringLen = 6, i, len = _dataProvider.length;
     String elementToString, dividerLabel = '';
     OptionElement divider = new OptionElement(data: '', value: '-1');
@@ -91,7 +91,7 @@ class ComboBox extends ListBase {
     _updateSelection();
   }
 
-  String _createElement(Object item, int index) {
+  String _createElement(dynamic item, int index) {
     final SelectElement controlCast = _control as SelectElement;
     String itemToString;
 

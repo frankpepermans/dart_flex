@@ -205,7 +205,7 @@ class ListBase extends Group {
   //
   //---------------------------------
 
-  int operator +(Object item) {
+  int operator +(dynamic item) {
     if (_dataProvider == null) dataProvider = new ObservableList<dynamic>();
     
     _dataProvider.add(item);
@@ -213,7 +213,7 @@ class ListBase extends Group {
     return item;
   }
 
-  int operator -(Object item) {
+  int operator -(dynamic item) {
     if (_dataProvider == null) dataProvider = new ObservableList<dynamic>();
     else _dataProvider.remove(item);
 

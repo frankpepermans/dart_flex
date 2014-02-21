@@ -537,7 +537,7 @@ class ListRenderer extends ListBase {
   static const EventHook<FrameworkEvent> onRendererRemovedEvent = const EventHook<FrameworkEvent>('rendererRemoved');
   Stream<FrameworkEvent> get onRendererRemoved => ListRenderer.onRendererRemovedEvent.forTarget(this);
   
-  void _createElement(Object item, int index) {
+  void _createElement(dynamic item, int index) {
     if (_itemRenderers == null) _itemRenderers = new List<IItemRenderer>();
 
     final IItemRenderer renderer = (_itemRendererFactory.immediateInstance() as IItemRenderer)
@@ -645,7 +645,7 @@ class ListRenderer extends ListBase {
         }
       }
 
-      Object element;
+      dynamic element;
       final int existingLen = (_itemRenderers != null) ? _itemRenderers.length : 0;
       final int len = elementsRequired - existingLen;
       int i;

@@ -148,6 +148,25 @@ class DataGridItemRenderer extends ItemRenderer {
     super.updateLayout();
   }
   
+  DataGridColumn getColumn(IItemRenderer renderer) {
+    if (_columns == null) return null;
+    
+    final int len = _columns.length;
+    
+    DataGridColumn column;
+    int i = _columns.length, rendererIndex = 0;
+    
+    for (i=0; i<len; i++) {
+      column = _columns[i];
+      
+      if (column._isActive) {
+        if (++rendererIndex == renderer.index) return column;
+      }
+    }
+    
+    return null;
+  }
+  
   //---------------------------------
   //
   // Protected methods
