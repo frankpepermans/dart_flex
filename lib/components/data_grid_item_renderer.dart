@@ -154,7 +154,7 @@ class DataGridItemRenderer extends ItemRenderer {
     final int len = _columns.length;
     
     DataGridColumn column;
-    int i = _columns.length, rendererIndex = 0;
+    int i = _columns.length, rendererIndex = -1;
     
     for (i=0; i<len; i++) {
       column = _columns[i];
