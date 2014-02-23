@@ -29,6 +29,7 @@ class DataGridItemRenderer extends ItemRenderer {
   ObservableList<DataGridColumn> _columns;
   bool _isColumnsChanged = false;
   StreamSubscription _columnsChangesListener;
+  Map<DataGridColumn, StreamSubscription> _columnChangesListeners = <DataGridColumn, StreamSubscription>{};
 
   ObservableList<DataGridColumn> get columns => _columns;
   set columns(ObservableList<DataGridColumn> value) {
@@ -199,6 +200,12 @@ class DataGridItemRenderer extends ItemRenderer {
     if (_columns != null) {
       int rendererIndex = 0;
       
+      _columnChangesListeners.forEach(
+        (_, StreamSubscription listener) => listener.cancel()
+      );
+      
+      _columnChangesListeners = <DataGridColumn, StreamSubscription>{};
+      
       _columns.forEach(
         (DataGridColumn column) {
           if (column._isActive) {
@@ -210,8 +217,9 @@ class DataGridItemRenderer extends ItemRenderer {
                 ..fields = column._fields
                 ..inactiveHandler = _inactiveHandler
                 ..labelHandler = column.labelHandler
-                ..height = _grid.rowHeight
-                ..onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
+                ..height = _grid.rowHeight;
+            
+            _columnChangesListeners[column] = renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
             
             renderer.cssClasses = _concat_css(column, renderer);
             

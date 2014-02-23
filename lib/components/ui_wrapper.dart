@@ -57,6 +57,7 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   void addComponent(IUIWrapper element, {bool prepend: false});
   void removeComponent(IUIWrapper element);
   void removeAll();
+  void flushHandler();
 
   void operator []=(String type, Function eventHandler) => observeEventType(type, eventHandler);
 
@@ -69,6 +70,8 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   // Protected properties
   //
   //---------------------------------
+  
+  StreamSubscription _windowResizeListener;
 
   bool _isLayoutUpdateRequired = false;
   
@@ -451,6 +454,10 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     _childWrappers = <IUIWrapper>[];
   }
   
+  void flushHandler() {
+    if (_windowResizeListener != null) _windowResizeListener.cancel();
+  }
+  
   void forceInvalidateSize() => invalidateSize(null);
   
   void updateLayout() {
@@ -618,7 +625,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       
       updateVisibility();
 
-      window.onResize.listen(invalidateSize);
+      _windowResizeListener = window.onResize.listen(invalidateSize);
       
       notify(
           new FrameworkEvent<Element>(

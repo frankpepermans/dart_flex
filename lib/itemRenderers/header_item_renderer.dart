@@ -57,8 +57,11 @@ class HeaderItemRenderer extends ItemRenderer implements IHeaderItemRenderer {
     
     _button = new Button()
     ..percentWidth = 100.0
-    ..percentHeight = 100.0
-    ..onButtonClick.listen(_button_buttonClickHandler);
+    ..percentHeight = 100.0;
+    
+    _rendererListeners.add(
+        _button.onButtonClick.listen(_button_buttonClickHandler)  
+    );
 
     invalidateData();
 

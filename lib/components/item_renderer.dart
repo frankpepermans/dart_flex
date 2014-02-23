@@ -64,6 +64,10 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   // Protected properties
   //
   //---------------------------------
+  
+  List<StreamSubscription> _rendererListeners = <StreamSubscription>[];
+  
+  List<StreamSubscription> get rendererListeners => _rendererListeners;
 
   //---------------------------------
   //
@@ -363,28 +367,34 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     
     _setControl(container);
     
-    container.onClick.listen(
-        (MouseEvent event) => notify(
-            new FrameworkEvent(
-                'click'
-            )
-        )
+    _rendererListeners.add(
+      container.onClick.listen(
+          (MouseEvent event) => notify(
+              new FrameworkEvent(
+                  'click'
+              )
+          )
+      )
     );
     
-    container.onMouseOver.listen(
-        (MouseEvent event) => notify(
-            new FrameworkEvent(
-                'mouseOver'
-            )
-        )
+    _rendererListeners.add(
+      container.onMouseOver.listen(
+          (MouseEvent event) => notify(
+              new FrameworkEvent(
+                  'mouseOver'
+              )
+          )
+      )
     );
     
-    container.onMouseOut.listen(
-        (MouseEvent event) => notify(
-            new FrameworkEvent(
-                'mouseOut'
-            )
-        )
+    _rendererListeners.add(
+      container.onMouseOut.listen(
+          (MouseEvent event) => notify(
+              new FrameworkEvent(
+                  'mouseOut'
+              )
+          )
+      )
     );
 
     later > invalidateData;
@@ -446,6 +456,15 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     );
     
     return value;
+  }
+  
+  @override
+  void flushHandler() {
+    super.flushHandler();
+    
+    _rendererListeners.forEach(
+      (StreamSubscription listener) => listener.cancel()     
+    );
   }
 
   //---------------------------------

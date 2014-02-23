@@ -8,7 +8,7 @@ class SpriteSheetItemRenderer extends ItemRenderer {
     className = '';
   }
 
-  static SpriteSheetItemRenderer construct() => new SpriteSheetItemRenderer();
+  static SpriteSheetItemRenderer construct() => new SpriteSheetItemRenderer()..layout = new TileLayout()..gap = 0;
   
   @override
   void createChildren() {

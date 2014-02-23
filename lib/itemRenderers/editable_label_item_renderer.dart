@@ -43,7 +43,9 @@ class EditableLabelItemRenderer extends ItemRenderer {
     ..percentHeight = 100.0
     ..text = itemToLabel();
     
-    textArea.onTextChanged.listen(textArea_onTextChangedHandler);
+    _rendererListeners.add(
+      textArea.onTextChanged.listen(textArea_onTextChangedHandler) 
+    );
 
     addComponent(textArea);
   }

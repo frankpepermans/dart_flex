@@ -15,6 +15,8 @@ class EditableInt extends UIWrapper {
   //---------------------------------
   
   NumberInputElement label;
+  
+  StreamSubscription _labelChangeListener;
 
   //---------------------------------
   // value
@@ -110,7 +112,7 @@ class EditableInt extends UIWrapper {
     
     label = new NumberInputElement()..readOnly = !_enabled;
     
-    label.onInput.listen(_label_inputHandler);
+    _labelChangeListener = label.onInput.listen(_label_inputHandler);
     
     _autoSize = true;
 
@@ -124,6 +126,13 @@ class EditableInt extends UIWrapper {
     super.updateEnabledStatus();
     
     if (label != null) label.readOnly = !_enabled;
+  }
+  
+  @override
+  void flushHandler() {
+    super.flushHandler();
+    
+    if (_labelChangeListener != null) _labelChangeListener.cancel();
   }
 
   //---------------------------------
