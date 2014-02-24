@@ -209,6 +209,7 @@ class EditableTextMask<T extends DateTime> extends EditableText {
   int _selectedIndex = -1;
   int _selectedSubIndex = 0;
   int _doubleCharSize = 20;
+  bool _hasFocus = false;
 
   //---------------------------------
   //
@@ -238,7 +239,10 @@ class EditableTextMask<T extends DateTime> extends EditableText {
 
   T get data => _data;
   set data(T value) {
-    if (value != _data) {
+    if (
+        !_hasFocus &&
+        (value != _data)
+    ) {
       _data = value;
 
       notify(
@@ -332,6 +336,8 @@ class EditableTextMask<T extends DateTime> extends EditableText {
   void _input_blurHandler(Event event) {
     text = _formatToString(_data);
     
+    _hasFocus = false;
+    
     notify(
       new FrameworkEvent(
         'dataFinalized'
@@ -346,6 +352,8 @@ class EditableTextMask<T extends DateTime> extends EditableText {
   }
   
   void _input_focusHandler(Event event) {
+    _hasFocus = true;
+    
     if (!_allowKeyStroke && (event is KeyboardEvent)) {
       event.preventDefault();
       

@@ -90,19 +90,13 @@ class EditableTime<T extends DateTime> extends EditableTextMask {
     
     List<String> list = <String>[];
     
-    if (date.hour < 10) {
-      list.add('0${date.hour}');
-    } else {
-      list.add(date.hour.toString());
-    }
+    if (date.hour < 10) list.add('0${date.hour}');
+    else list.add(date.hour.toString());
     
     list.add(':');
     
-    if (date.minute < 10) {
-      list.add('0${date.minute}');
-    } else {
-      list.add(date.minute.toString());
-    }
+    if (date.minute < 10) list.add('0${date.minute}');
+    else list.add(date.minute.toString());
     
     return list.join('');
   }
@@ -167,17 +161,11 @@ class EditableTime<T extends DateTime> extends EditableTextMask {
     for (i=0; i<len; i++) {
       codeUnit = codeUnits[i];
       
-      if (codeUnit < 48 || codeUnit >= 58) {
-        codeUnits[i] = 32;
-      } else {
-        hasNumericValue = true;
-      }
+      if (codeUnit < 48 || codeUnit >= 58) codeUnits[i] = 32;
+      else hasNumericValue = true;
       
-      if (hasNumericValue) {
-        buffer.writeCharCode((codeUnit < 48 || codeUnit >= 58) ? 32 : codeUnits[i]);
-      } else {
-        buffer.write((_selectedIndex == 0) ? TIME_MASK_HOUR : TIME_MASK_MINUTE);
-      }
+      if (hasNumericValue) buffer.writeCharCode((codeUnit < 48 || codeUnit >= 58) ? 32 : codeUnits[i]);
+      else buffer.write((_selectedIndex == 0) ? TIME_MASK_HOUR : TIME_MASK_MINUTE);
     }
     
     if (_selectedIndex < 1) buffer.write(incoming.substring(incomingLen + buffer.length - _mask.length));
