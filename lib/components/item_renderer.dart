@@ -68,6 +68,10 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   List<StreamSubscription> _rendererListeners = <StreamSubscription>[];
   
   List<StreamSubscription> get rendererListeners => _rendererListeners;
+  
+  StreamSubscription _dataPropertyChangesListener;
+  
+  Timer _highlightTimer;
 
   //---------------------------------
   //
@@ -95,9 +99,6 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   
   static const EventHook<FrameworkEvent<dynamic>> onDataPropertyChangedEvent = const EventHook<FrameworkEvent<dynamic>>('dataPropertyChanged');
   Stream<FrameworkEvent> get onDataPropertyChanged => ItemRenderer.onDataPropertyChangedEvent.forTarget(this);
-  
-  //SpanElement highlightElement;
-  StreamSubscription _dataPropertyChangesListener, _controlHighlightListener;
 
   //---------------------------------
   // index
@@ -409,34 +410,21 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   void invalidateDataChangesListener() => _data_changesHandler(null);
   
   void highlight() {
-    if (_control == null) return;
+    if (
+        (_control == null) ||
+        (
+          (_highlightTimer != null) &&
+          _highlightTimer.isActive
+        )
+    ) return;
+    
+    final String oldValue = _control.style.getPropertyValue('background-color');
     
     _control.style.setProperty('background-color', '#ccffcc', 'important');
-    _control.style.transition = 'background-color .5s ease-out';
     
-    if (_controlHighlightListener != null) {
-      _controlHighlightListener.cancel();
-      
-      _controlHighlightListener = null;
-    }
-    
-    new Timer(
-        new Duration(milliseconds: 250), 
-        () {
-          _control.style.removeProperty('background-color');
-          
-          _controlHighlightListener = _control.onTransitionEnd.listen(
-            (_) {
-              _control.style.removeProperty('transition');
-              
-              if (_controlHighlightListener != null) {
-                _controlHighlightListener.cancel();
-                
-                _controlHighlightListener = null;
-              }
-            }
-          );
-        }
+    _highlightTimer = new Timer(
+        new Duration(milliseconds: 350), 
+        () => _control.style.setProperty('background-color', oldValue)
     );
   }
   

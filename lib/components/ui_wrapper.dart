@@ -178,7 +178,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
         new FrameworkEvent('visibleChanged')
       );
 
-      updateVisibility();
+      later > updateVisibility;
     }
   }
   
@@ -340,11 +340,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       
       createChildren();
       
-      if (_control != null) {
-        _control.style.display = 'none';
-        
-        later > updateVisibility;
-      }
+      if (_control != null) later > updateVisibility;
       
       notify(
           new FrameworkEvent(
@@ -515,9 +511,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
         width = rect.width;
         height = rect.height;
       }
-    } else {
-      width = height = 0;
-    }
+    } else width = height = 0;
   }
 
   void updateVisibility() {
@@ -548,13 +542,12 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   void _setControl(Element element) {
     _control = element;
     
-    updateVisibility();
+    _control.style.display = 'none';
     
     if (_inheritsDefaultCSS) _reflowManager.scheduleMethod(this, _addDefaultClass, [], forceSingleExecution: true);
     
     if (_cssClasses != null) _reflowManager.scheduleMethod(this, _addAllPendingClasses, [], forceSingleExecution: true);
 
-    updateVisibility();
     _updateControl(5);
 
     notify(
@@ -622,8 +615,6 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       _control = target;
       
       _reflowManager = new ReflowManager();
-      
-      updateVisibility();
 
       _windowResizeListener = window.onResize.listen(invalidateSize);
       
