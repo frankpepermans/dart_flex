@@ -83,7 +83,14 @@ class ItemRendererFactory<T extends IItemRenderer> extends ClassFactory {
   //---------------------------------
   
   @override
-  T immediateInstance() => Function.apply(_constructorMethod, _constructorArguments);
+  T immediateInstance() {
+    final T renderer = Function.apply(_constructorMethod, _constructorArguments);
+    
+    renderer.inactiveHandler = _inactiveHandler;
+    renderer.validationHandler = _validationHandler;
+    
+    return renderer;
+  }
   
   ItemRendererFactory({String library: null, String className: null, Function constructorMethod: null, List<dynamic> constructorArguments: const <dynamic>[], InvalidHandler validationHandler: null, InactiveHandler inactiveHandler: null}) : super(library: library, className: className, constructorMethod: constructorMethod, constructorArguments: constructorArguments) {
     _validationHandler = validationHandler;

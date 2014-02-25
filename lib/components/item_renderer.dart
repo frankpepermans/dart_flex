@@ -22,6 +22,9 @@ abstract class IItemRenderer implements IUIWrapper {
   InactiveHandler get inactiveHandler;
   set inactiveHandler(InactiveHandler value);
   
+  InvalidHandler get validationHandler;
+  set validationHandler(InvalidHandler value);
+  
   bool get inactive;
   
   bool get editable;
@@ -272,9 +275,8 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   set validationHandler(InvalidHandler value) {
     if (value != _validationHandler) {
       _validationHandler = value;
-      _isInvalid = (value != null) ? value(data) : false;
       
-      later > _rebuildCSS;
+      later > invalidateData;
     }
   }
   
@@ -420,7 +422,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   }
 
   void invalidateData() {
-    _isInvalid = (_validationHandler != null) ? _validationHandler(data) : false;
+    _isInvalid = (_validationHandler != null) ? !_validationHandler(data) : false;
           
     later > _rebuildCSS;
   }
