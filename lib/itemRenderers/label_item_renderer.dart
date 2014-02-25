@@ -58,11 +58,7 @@ class LabelItemRenderer extends ItemRenderer {
   void invalidateData() {
     super.invalidateData();
     
-    if (_label != null) {
-      _label.text = itemToLabel();
-      
-      //reflowManager.scheduleMethod(this, invalidateSize, [], forceSingleExecution:true);
-    }
+    if (_label != null) _label.text = itemToLabel();
   }
   
   String obtainValue() {

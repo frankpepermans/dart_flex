@@ -437,7 +437,7 @@ class DataGrid extends ListBase {
     ..rowSpacing = _rowSpacing
     ..rowHeight = _rowHeight
     ..dataProvider = _dataProvider
-    ..itemRendererFactory = new ClassFactory(constructorMethod: DataGridItemRenderer.construct)
+    ..itemRendererFactory = new ItemRendererFactory(constructorMethod: DataGridItemRenderer.construct)
     ..useSelectionEffects = _useSelectionEffects
     ..autoManageScrollBars = _autoManageScrollBars
     ..onListScrollPositionChanged.listen(

@@ -141,9 +141,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       
       _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
       
-      final String mainClassName = className.split(' ').first;
-      
-      className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}';
+      _rebuildCSS();
       
       notify(
         new FrameworkEvent<dynamic>('dataChanged', relatedObject: value)
@@ -242,9 +240,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     if (value != _selected) {
       _selected = value;
       
-      final String mainClassName = className.split(' ').first;
-      
-      className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}';
+      later > _rebuildCSS;
 
       later > updateAfterInteraction;
     }
@@ -262,9 +258,23 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       _inactiveHandler = value;
       _inactive = (value != null) ? value(data) : false;
       
-      final String mainClassName = className.split(' ').first;
+      later > _rebuildCSS;
+    }
+  }
+  
+  //---------------------------------
+  // validationHandler
+  //---------------------------------
+
+  InvalidHandler _validationHandler;
+
+  InvalidHandler get validationHandler => _validationHandler;
+  set validationHandler(InvalidHandler value) {
+    if (value != _validationHandler) {
+      _validationHandler = value;
+      _isInvalid = (value != null) ? value(data) : false;
       
-      className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}';
+      later > _rebuildCSS;
     }
   }
   
@@ -275,6 +285,14 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   bool _inactive = false;
 
   bool get inactive => _inactive;
+  
+  //---------------------------------
+  // isInvalid
+  //---------------------------------
+
+  bool _isInvalid = false;
+
+  bool get isInvalid => _isInvalid;
   
   //---------------------------------
   // editable
@@ -401,7 +419,11 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     later > invalidateData;
   }
 
-  void invalidateData() {}
+  void invalidateData() {
+    _isInvalid = (_validationHandler != null) ? _validationHandler(data) : false;
+          
+    later > _rebuildCSS;
+  }
 
   void updateAfterInteraction() {}
   
@@ -461,6 +483,12 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   //
   //---------------------------------
   
+  void _rebuildCSS() {
+    final String mainClassName = className.split(' ').first;
+          
+    className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}${_isInvalid ? ' invalid' : ''}';
+  }
+  
   void _data_changesHandler(Iterable<dynamic> changes) {
     if (_fields != null) {
       if (_dataFieldsChangesListener != null) {
@@ -507,9 +535,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     
     _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
     
-    final String mainClassName = className.split(' ').first;
-    
-    className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}';
+    later > _rebuildCSS;
     
     later > invalidateData;
   }

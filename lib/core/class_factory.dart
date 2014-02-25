@@ -1,6 +1,12 @@
 part of dart_flex;
 
 class ClassFactory<T extends IUIWrapper> {
+  
+  //---------------------------------
+  //
+  // Public properties
+  //
+  //---------------------------------
 
   Function _constructorMethod;
 
@@ -17,6 +23,12 @@ class ClassFactory<T extends IUIWrapper> {
   String _className;
 
   String get className => _className;
+  
+  //---------------------------------
+  //
+  // Constructor
+  //
+  //---------------------------------
 
   ClassFactory({String library: null, String className: null, Function constructorMethod: null, List<dynamic> constructorArguments: const <dynamic>[]}) {
     _library = library;
@@ -39,14 +51,44 @@ class ClassFactory<T extends IUIWrapper> {
     }
   }*/
 
-  Future<T> _createFutureInstance() {
+  /*Future<T> _createFutureInstance() {
     Completer<T> completer = new Completer<T>();
 
     completer.complete(Function.apply(_constructorMethod, _constructorArguments));
 
     return completer.future;
-  }
+  }*/
 }
 
+class ItemRendererFactory<T extends IItemRenderer> extends ClassFactory {
+  
+  //---------------------------------
+  //
+  // Public properties
+  //
+  //---------------------------------
+  
+  InvalidHandler _validationHandler;
 
+  InvalidHandler get validationHandler => _validationHandler;
+  
+  InactiveHandler _inactiveHandler;
+
+  InactiveHandler get inactiveHandler => _inactiveHandler;
+  
+  //---------------------------------
+  //
+  // Constructor
+  //
+  //---------------------------------
+  
+  @override
+  T immediateInstance() => Function.apply(_constructorMethod, _constructorArguments);
+  
+  ItemRendererFactory({String library: null, String className: null, Function constructorMethod: null, List<dynamic> constructorArguments: const <dynamic>[], InvalidHandler validationHandler: null, InactiveHandler inactiveHandler: null}) : super(library: library, className: className, constructorMethod: constructorMethod, constructorArguments: constructorArguments) {
+    _validationHandler = validationHandler;
+    _inactiveHandler = inactiveHandler;
+  }
+  
+}
 

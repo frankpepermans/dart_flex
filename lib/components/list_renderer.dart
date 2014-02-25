@@ -182,10 +182,10 @@ class ListRenderer extends ListBase {
 
   static const EventHook<FrameworkEvent> onItemRendererFactoryChangedEvent = const EventHook<FrameworkEvent>('itemRendererFactoryChanged');
   Stream<FrameworkEvent> get onItemRendererFactoryChanged => ListRenderer.onItemRendererFactoryChangedEvent.forTarget(this);
-  ClassFactory _itemRendererFactory;
+  ItemRendererFactory _itemRendererFactory;
 
-  ClassFactory get itemRendererFactory => _itemRendererFactory;
-  set itemRendererFactory(ClassFactory value) {
+  ItemRendererFactory get itemRendererFactory => _itemRendererFactory;
+  set itemRendererFactory(ItemRendererFactory value) {
     if (value != _itemRendererFactory) {
       _itemRendererFactory = value;
 
@@ -540,7 +540,7 @@ class ListRenderer extends ListBase {
   void _createElement(dynamic item, int index) {
     if (_itemRenderers == null) _itemRenderers = new List<IItemRenderer>();
 
-    final IItemRenderer renderer = (_itemRendererFactory.immediateInstance() as IItemRenderer)
+    final IItemRenderer renderer = _itemRendererFactory.immediateInstance()
       ..index = index
       ..enableHighlight = true
       ..autoDrawBackground = _useSelectionEffects;

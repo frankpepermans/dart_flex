@@ -47,11 +47,11 @@ void init() {
   ..percentWidth = 100.0
   ..percentHeight = 100.0
   ..dataProvider = createAccordionDataProvider()
-  ..headerItemRendererFactory = new ClassFactory<AccordionHeaderItemRenderer>(constructorMethod: AccordionHeaderItemRenderer.construct)
+  ..headerItemRendererFactory = new ItemRendererFactory<AccordionHeaderItemRenderer>(constructorMethod: AccordionHeaderItemRenderer.construct)
   ..headerHeight = 30
   ..headerFields = const <Symbol>[taskSymbol]
   ..headerField = taskNameSymbol
-  ..contentItemRendererFactory = new ClassFactory<SpriteSheetItemRenderer>(constructorMethod: SpriteSheetItemRenderer.construct)
+  ..contentItemRendererFactory = new ItemRendererFactory<SpriteSheetItemRenderer>(constructorMethod: SpriteSheetItemRenderer.construct)
   ..contentFields = const <Symbol>[urgencySymbol]
   ..contentField = urgencyNameSymbol;
   
@@ -80,7 +80,7 @@ void init() {
   ..rowHeight = 34
   ..rowSpacing = 0
   ..field = taskNameSymbol
-  ..itemRendererFactory = new ClassFactory<EditableLabelItemRenderer>(constructorMethod: EditableLabelItemRenderer.construct)
+  ..itemRendererFactory = new ItemRendererFactory<EditableLabelItemRenderer>(constructorMethod: EditableLabelItemRenderer.construct)
   ..dataProvider = taskNames;
   
   // the urgencies master list
@@ -92,7 +92,7 @@ void init() {
   ..rowHeight = 34
   ..rowSpacing = 0
   ..field = urgencyNameSymbol
-  ..itemRendererFactory = new ClassFactory<EditableLabelItemRenderer>(constructorMethod: EditableLabelItemRenderer.construct)
+  ..itemRendererFactory = new ItemRendererFactory<EditableLabelItemRenderer>(constructorMethod: EditableLabelItemRenderer.construct)
   ..dataProvider = urgencyNames;
   
   // vertical layout, master tables and the editing images
@@ -223,8 +223,8 @@ ObservableList createColumns() {
       ..field = taskNameSymbol
       ..percentWidth = 100.0
       ..headerData = const HeaderData('', taskNameSymbol, 'task', 'Task name')
-      ..headerItemRendererFactory = new ClassFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
-      ..columnItemRendererFactory = new ClassFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct)   
+      ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
+      ..columnItemRendererFactory = new ItemRendererFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct)   
   );
   
   list.add(
@@ -233,8 +233,8 @@ ObservableList createColumns() {
       ..field = urgencyNameSymbol
       ..width = 130
       ..headerData = const HeaderData('', urgencyNameSymbol, 'urgency', 'Urgency name')
-      ..headerItemRendererFactory = new ClassFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
-      ..columnItemRendererFactory = new ClassFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct)   
+      ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
+      ..columnItemRendererFactory = new ItemRendererFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct)   
   );
   
   list.add(
@@ -242,8 +242,8 @@ ObservableList createColumns() {
       ..field = dueDateSymbol
       ..width = 130
       ..headerData = const HeaderData('', dueDateSymbol, 'due date', 'Due date')
-      ..headerItemRendererFactory = new ClassFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
-      ..columnItemRendererFactory = new ClassFactory<DateItemRenderer>(constructorMethod: DateItemRenderer.construct)   
+      ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
+      ..columnItemRendererFactory = new ItemRendererFactory<DateItemRenderer>(constructorMethod: DateItemRenderer.construct)   
   );
   
   list.add(
@@ -251,8 +251,8 @@ ObservableList createColumns() {
       ..field = statusSymbol
       ..width = 100
       ..headerData = const HeaderData('', statusSymbol, 'status', 'Status')
-      ..headerItemRendererFactory = new ClassFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
-      ..columnItemRendererFactory = new ClassFactory<StatusComboBoxItemRenderer>(constructorMethod: StatusComboBoxItemRenderer.construct)   
+      ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
+      ..columnItemRendererFactory = new ItemRendererFactory<StatusComboBoxItemRenderer>(constructorMethod: StatusComboBoxItemRenderer.construct)   
   );
   
   return list;

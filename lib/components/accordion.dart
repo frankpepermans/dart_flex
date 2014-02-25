@@ -1,6 +1,6 @@
 part of dart_flex;
 
-typedef ClassFactory<IItemRenderer> ClassFactoryHandler(dynamic data);
+typedef ItemRendererFactory<IItemRenderer> ItemRendererFactoryHandler(dynamic data);
 
 class Accordion extends Group {
   
@@ -139,10 +139,10 @@ class Accordion extends Group {
 
   static const EventHook<FrameworkEvent> onHeaderItemRendererFactoryChangedEvent = const EventHook<FrameworkEvent>('headerItemRendererFactoryChanged');
   Stream<FrameworkEvent> get onHeaderItemRendererFactoryChanged => Accordion.onHeaderItemRendererFactoryChangedEvent.forTarget(this);
-  ClassFactory<IAccordionHeaderItemRenderer> _headerItemRendererFactory;
+  ItemRendererFactory<IAccordionHeaderItemRenderer> _headerItemRendererFactory;
 
-  ClassFactory<IAccordionHeaderItemRenderer> get headerItemRendererFactory => _headerItemRendererFactory;
-  set headerItemRendererFactory(ClassFactory<IAccordionHeaderItemRenderer> value) {
+  ItemRendererFactory<IAccordionHeaderItemRenderer> get headerItemRendererFactory => _headerItemRendererFactory;
+  set headerItemRendererFactory(ItemRendererFactory<IAccordionHeaderItemRenderer> value) {
     if (value != _headerItemRendererFactory) {
       _headerItemRendererFactory = value;
 
@@ -217,10 +217,10 @@ class Accordion extends Group {
 
   static const EventHook<FrameworkEvent> onContentItemRendererFactoryHandlerChangedEvent = const EventHook<FrameworkEvent>('contentItemRendererFactoryHandlerChanged');
   Stream<FrameworkEvent> get onContentItemRendererFactoryHandlerChanged => Accordion.onContentItemRendererFactoryHandlerChangedEvent.forTarget(this);
-  ClassFactoryHandler _contentItemRendererFactoryHandler;
+  ItemRendererFactoryHandler _contentItemRendererFactoryHandler;
 
-  ClassFactoryHandler get contentItemRendererFactoryHandler => _contentItemRendererFactoryHandler;
-  set contentItemRendererFactoryHandler(ClassFactoryHandler value) {
+  ItemRendererFactoryHandler get contentItemRendererFactoryHandler => _contentItemRendererFactoryHandler;
+  set contentItemRendererFactoryHandler(ItemRendererFactoryHandler value) {
     if (value != _contentItemRendererFactoryHandler) {
       _contentItemRendererFactoryHandler = value;
 

@@ -1,6 +1,7 @@
 part of dart_flex;
 
 typedef bool InactiveHandler(dynamic data);
+typedef bool InvalidHandler(dynamic data);
 
 class ListBase extends Group {
 
