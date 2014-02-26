@@ -658,13 +658,9 @@ class ListRenderer extends ListBase {
         if (isVerticalLayout) {
           _scrollTarget.width = 1;
 
-          if (_rowHeight > 0) {
-            _scrollTarget.height = _dataProvider.length * _rowHeight;
-          }
+          if (_rowHeight > 0) _scrollTarget.height = _dataProvider.length * _rowHeight;
         } else {
-          if (_colWidth > 0) {
-            _scrollTarget.width = _dataProvider.length * _colWidth;
-          }
+          if (_colWidth > 0) _scrollTarget.width = _dataProvider.length * _colWidth;
 
           _scrollTarget.height = 1;
         }

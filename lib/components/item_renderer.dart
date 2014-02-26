@@ -57,6 +57,7 @@ abstract class IItemRenderer implements IUIWrapper {
   void invalidateDataChangesListener();
   void updateAfterInteraction();
   void highlight();
+  void flushDataPropertyChangesListener();
 
 }
 
@@ -71,8 +72,6 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   List<StreamSubscription> _rendererListeners = <StreamSubscription>[];
   
   List<StreamSubscription> get rendererListeners => _rendererListeners;
-  
-  StreamSubscription _dataPropertyChangesListener;
   
   Timer _highlightTimer;
 
@@ -114,33 +113,15 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   //---------------------------------
 
   dynamic _data;
-  StreamSubscription _dataChangesListener;
-  StreamSubscription _dataFieldsChangesListener;
+  StreamSubscription _dataPropertyChangesListener;
+  Map<dynamic, StreamSubscription> _dataBindings;
 
   dynamic get data => _data;
   set data(dynamic value) {
     if (value != _data) {
       _data = value;
       
-      if (_dataChangesListener != null) {
-        _dataChangesListener.cancel();
-        
-        _dataChangesListener = null;
-      }
-      
-      if (_dataFieldsChangesListener != null) {
-        _dataFieldsChangesListener.cancel();
-        
-        _dataFieldsChangesListener = null;
-      }
-      
-      dynamic dataToObserve = getDataToObserve();
-      
-      if (value is Observable) _dataChangesListener = value.changes.listen(_data_changesHandler);
-      else if (value is ObservableList) _dataChangesListener = value.listChanges.listen(_data_changesHandler);
-      
-      if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
-      else if (dataToObserve is ObservableList) _dataFieldsChangesListener = dataToObserve.listChanges.listen(_data_changesHandler);
+      getDataToObserve();
       
       _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
       
@@ -184,15 +165,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     if (value != _fields) {
       _fields = value;
       
-      if (_dataFieldsChangesListener != null) {
-        _dataFieldsChangesListener.cancel();
-        
-        _dataFieldsChangesListener = null;
-      }
-      
-      dynamic dataToObserve = getDataToObserve();
-      
-      if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
+      getDataToObserve();
       
       notify(
           new FrameworkEvent('fieldsChanged')    
@@ -452,18 +425,33 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     );
   }
   
-  dynamic getDataToObserve() {
+  dynamic getDataToObserve({dynamic dataOverride: null}) {
+    if (_dataBindings != null) _dataBindings.values.forEach(
+      (StreamSubscription subscription) => subscription.cancel()   
+    );
+    
+    _dataBindings = <dynamic, StreamSubscription>{};
+    
     if (_data == null) return null;
     
-    if (_fields == null) return data;
+    dynamic value = _data;
+              
+    if (value is Observable) _dataBindings[value] = value.changes.listen(_data_changesHandler);
+    else if (value is ObservableList) _dataBindings[value] = value.listChanges.listen(_data_changesHandler);
     
-    dynamic value;
+    if (dataOverride != null) {
+      value = dataOverride;
+      
+      if (value is Observable) _dataBindings[value] = value.changes.listen(_data_changesHandler);
+      else if (value is ObservableList) _dataBindings[value] = value.listChanges.listen(_data_changesHandler);
+    }
     
-    value = _data;
-    
-    _fields.forEach(
+    if (_fields != null) _fields.forEach(
         (Symbol subField) {
           if (value != null) value = value[subField];
+          
+          if (value is Observable) _dataBindings[value] = value.changes.listen(_data_changesHandler);
+          else if (value is ObservableList) _dataBindings[value] = value.listChanges.listen(_data_changesHandler);
         }
     );
     
@@ -475,8 +463,20 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     super.flushHandler();
     
     _rendererListeners.forEach(
-      (StreamSubscription listener) => listener.cancel()     
+      (StreamSubscription listener) => listener.cancel()
     );
+    
+    if (_dataBindings != null) _dataBindings.values.forEach(
+      (StreamSubscription subscription) => subscription.cancel()
+    );
+    
+    flushDataPropertyChangesListener();
+  }
+  
+  void flushDataPropertyChangesListener() {
+    if (_dataPropertyChangesListener != null) _dataPropertyChangesListener.cancel();
+    
+    _dataPropertyChangesListener = null;
   }
 
   //---------------------------------
@@ -492,19 +492,6 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   }
   
   void _data_changesHandler(Iterable<dynamic> changes) {
-    if (_fields != null) {
-      if (_dataFieldsChangesListener != null) {
-        _dataFieldsChangesListener.cancel();
-        
-        _dataFieldsChangesListener = null;
-      }
-      
-      dynamic dataToObserve = getDataToObserve();
-      
-      if (dataToObserve is Observable) _dataFieldsChangesListener = dataToObserve.changes.listen(_data_changesHandler);
-      else if (dataToObserve is ObservableList) _dataFieldsChangesListener = dataToObserve.listChanges.listen(_data_changesHandler);
-    }
-    
     if (_enableHighlight && (changes != null)) {
       final dynamic bindableRecord = changes.firstWhere(
           (dynamic changeRecord) => (

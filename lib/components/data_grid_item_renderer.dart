@@ -166,6 +166,21 @@ class DataGridItemRenderer extends ItemRenderer {
     return null;
   }
   
+  @override
+  void flushHandler() {
+    super.flushHandler();
+    
+    if (_columnsChangesListener != null) {
+      _columnsChangesListener.cancel();
+      
+      _columnsChangesListener = null;
+    }
+    
+    _columnChangesListeners.forEach(
+      (_, StreamSubscription listener) => listener.cancel()
+    );
+  }
+  
   //---------------------------------
   //
   // Protected methods
@@ -187,11 +202,7 @@ class DataGridItemRenderer extends ItemRenderer {
   void _updateItemRenderers() {
     if (_itemRendererInstances != null) {
       _itemRendererInstances.forEach(
-          (ItemRenderer renderer) {
-            renderer._dataPropertyChangesListener.cancel();
-            
-            removeComponent(renderer);
-          }
+          (ItemRenderer renderer) => removeComponent(renderer)
       );
     }
     
@@ -217,7 +228,8 @@ class DataGridItemRenderer extends ItemRenderer {
                 ..fields = column._fields
                 ..inactiveHandler = _inactiveHandler
                 ..labelHandler = column.labelHandler
-                ..height = _grid.rowHeight;
+                ..height = _grid.rowHeight
+                ..flushDataPropertyChangesListener();
             
             _columnChangesListeners[column] = renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
             

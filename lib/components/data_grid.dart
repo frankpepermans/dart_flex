@@ -614,11 +614,7 @@ class DataGrid extends ListBase {
       ..columns = _columns
       .._grid = this;
     
-    if (renderer._dataPropertyChangesListener != null) {
-      renderer._dataPropertyChangesListener.cancel();
-      
-      renderer._dataPropertyChangesListener = null;
-    }
+    renderer.flushDataPropertyChangesListener();
     
     renderer._dataPropertyChangesListener = renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
     
@@ -638,13 +634,8 @@ class DataGrid extends ListBase {
           ..columns = null
           ..data = null
           ..field = null
-          ..fields = null;
-      
-      if (renderer._dataPropertyChangesListener != null) {
-        renderer._dataPropertyChangesListener.cancel();
-        
-        renderer._dataPropertyChangesListener = null;
-      }
+          ..fields = null
+          ..flushDataPropertyChangesListener();
       
       notify(
           new FrameworkEvent<DataGridItemRenderer>(

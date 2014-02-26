@@ -437,7 +437,11 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     _childWrappers.remove(element);
     _addLaterElements.remove(element);
     
-    if (flush) element.removeAll();
+    if (flush) {
+      element.flushHandler();
+      
+      element.removeAll();
+    }
     
     invalidateLayout();
   }
