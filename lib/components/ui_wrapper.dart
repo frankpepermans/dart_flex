@@ -545,7 +545,9 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   //
   //---------------------------------
   
-  void _prependControl(Element controlToPrepend) => _control.children.insert(0, controlToPrepend);
+  void _prependControl(Element controlToPrepend) {
+    _control.insertBefore(controlToPrepend, _control.firstChild);
+  }
   
   Node _appendControl(Element controlToAppend) => _control.append(controlToAppend);
 

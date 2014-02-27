@@ -35,13 +35,6 @@ class DataGridItemRenderer extends ItemRenderer {
       _columns = value;
       _isColumnsChanged = true;
 
-      if (value != null) _streamSubscriptionManager.add(
-          'data_grid_item_renderer_columnsChange', 
-          value.changes.listen(_itemRenderers_collectionChangedHandler),
-          flushExisting: true
-      );
-      else _streamSubscriptionManager.flushIdent('data_grid_item_renderer_columnsChange');
-
       notify(
         new FrameworkEvent(
           'columnsChanged'
@@ -180,7 +173,7 @@ class DataGridItemRenderer extends ItemRenderer {
 
     invalidateProperties();
   }
-
+  
   void _updateItemRenderers() {
     if (_itemRendererInstances != null) {
       _itemRendererInstances.forEach(
@@ -246,8 +239,6 @@ class DataGridItemRenderer extends ItemRenderer {
       else return renderer.cssClasses;
     } else return column.cssClasses;
   }
-
-  void _itemRenderers_collectionChangedHandler(List<ChangeRecord> changes) => _updateItemRenderers();
   
   void _renderer_dataPropertyChangedHandler(FrameworkEvent event) {
     IItemRenderer itemRenderer = event.currentTarget as IItemRenderer;
