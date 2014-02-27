@@ -28,22 +28,19 @@ class DataGridItemRenderer extends ItemRenderer {
 
   ObservableList<DataGridColumn> _columns;
   bool _isColumnsChanged = false;
-  StreamSubscription _columnsChangesListener;
-  Map<DataGridColumn, StreamSubscription> _columnChangesListeners = <DataGridColumn, StreamSubscription>{};
 
   ObservableList<DataGridColumn> get columns => _columns;
   set columns(ObservableList<DataGridColumn> value) {
     if (value != _columns) {
       _columns = value;
       _isColumnsChanged = true;
-      
-      if (_columnsChangesListener != null) {
-        _columnsChangesListener.cancel();
-        
-        _columnsChangesListener = null;
-      }
 
-      if (value != null) _columnsChangesListener = value.changes.listen(_itemRenderers_collectionChangedHandler);
+      if (value != null) _streamSubscriptionManager.add(
+          'data_grid_item_renderer_columnsChange', 
+          value.changes.listen(_itemRenderers_collectionChangedHandler),
+          flushExisting: true
+      );
+      else _streamSubscriptionManager.flushIdent('data_grid_item_renderer_columnsChange');
 
       notify(
         new FrameworkEvent(
@@ -166,21 +163,6 @@ class DataGridItemRenderer extends ItemRenderer {
     return null;
   }
   
-  @override
-  void flushHandler() {
-    super.flushHandler();
-    
-    if (_columnsChangesListener != null) {
-      _columnsChangesListener.cancel();
-      
-      _columnsChangesListener = null;
-    }
-    
-    _columnChangesListeners.forEach(
-      (_, StreamSubscription listener) => listener.cancel()
-    );
-  }
-  
   //---------------------------------
   //
   // Protected methods
@@ -211,11 +193,8 @@ class DataGridItemRenderer extends ItemRenderer {
     if (_columns != null) {
       int rendererIndex = 0;
       
-      _columnChangesListeners.forEach(
-        (_, StreamSubscription listener) => listener.cancel()
-      );
-      
-      _columnChangesListeners = <DataGridColumn, StreamSubscription>{};
+      _streamSubscriptionManager.flushIdent('rendererColumnChanges');
+      _streamSubscriptionManager.flushIdent('rendererDataPropertyChanged');
       
       _columns.forEach(
         (DataGridColumn column) {
@@ -228,14 +207,19 @@ class DataGridItemRenderer extends ItemRenderer {
                 ..fields = column._fields
                 ..inactiveHandler = _inactiveHandler
                 ..labelHandler = column.labelHandler
-                ..height = _grid.rowHeight
-                ..flushDataPropertyChangesListener();
+                ..height = _grid.rowHeight;
             
-            _columnChangesListeners[column] = renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
+            _streamSubscriptionManager.add(
+                'data_grid_item_renderer_rendererColumnChanges', 
+                renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler)
+            );
             
             renderer.cssClasses = _concat_css(column, renderer);
             
-            renderer._dataPropertyChangesListener = renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
+            _streamSubscriptionManager.add(
+                'data_grid_item_renderer_rendererDataPropertyChanged', 
+                renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler)
+            );
 
             if (column.percentWidth > .0) renderer.percentWidth = column.percentWidth;
             else renderer.width = column.width;

@@ -52,6 +52,7 @@ part "core/layout.dart";
 part "core/function_equality_util.dart";
 part "core/reflow_manager.dart";
 part "core/scroll_policy.dart";
+part "core/stream_subscription_manager.dart";
 part "core/update_manager.dart";
 
 part "events/collection_event.dart";

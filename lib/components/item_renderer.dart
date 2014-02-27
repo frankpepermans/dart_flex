@@ -57,7 +57,6 @@ abstract class IItemRenderer implements IUIWrapper {
   void invalidateDataChangesListener();
   void updateAfterInteraction();
   void highlight();
-  void flushDataPropertyChangesListener();
 
 }
 
@@ -69,11 +68,8 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   //
   //---------------------------------
   
-  List<StreamSubscription> _rendererListeners = <StreamSubscription>[];
-  
-  List<StreamSubscription> get rendererListeners => _rendererListeners;
-  
   Timer _highlightTimer;
+  bool _isHighlightActivated = false;
 
   //---------------------------------
   //
@@ -113,8 +109,6 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   //---------------------------------
 
   dynamic _data;
-  StreamSubscription _dataPropertyChangesListener;
-  Map<dynamic, StreamSubscription> _dataBindings;
 
   dynamic get data => _data;
   set data(dynamic value) {
@@ -361,34 +355,37 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     
     _setControl(container);
     
-    _rendererListeners.add(
-      container.onClick.listen(
-          (MouseEvent event) => notify(
-              new FrameworkEvent(
-                  'click'
-              )
-          )
-      )
+    _streamSubscriptionManager.add(
+        'item_renderer_containerClick', 
+        container.onClick.listen(
+            (MouseEvent event) => notify(
+                new FrameworkEvent(
+                    'click'
+                )
+            )
+        )
     );
     
-    _rendererListeners.add(
-      container.onMouseOver.listen(
-          (MouseEvent event) => notify(
-              new FrameworkEvent(
-                  'mouseOver'
-              )
-          )
-      )
+    _streamSubscriptionManager.add(
+        'item_renderer_containerMouseOver', 
+        container.onMouseOver.listen(
+            (MouseEvent event) => notify(
+                new FrameworkEvent(
+                    'mouseOver'
+                )
+            )
+        )
     );
     
-    _rendererListeners.add(
-      container.onMouseOut.listen(
-          (MouseEvent event) => notify(
-              new FrameworkEvent(
-                  'mouseOut'
-              )
-          )
-      )
+    _streamSubscriptionManager.add(
+        'item_renderer_containerMouseOut', 
+        container.onMouseOut.listen(
+            (MouseEvent event) => notify(
+                new FrameworkEvent(
+                    'mouseOut'
+                )
+            )
+        )
     );
 
     later > invalidateData;
@@ -409,74 +406,79 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   void highlight() {
     if (
         (_control == null) ||
-        (
-          (_highlightTimer != null) &&
-          _highlightTimer.isActive
-        )
+        _isHighlightActivated
     ) return;
     
     final String oldValue = _control.style.getPropertyValue('background-color');
     
-    _control.style.setProperty('background-color', '#ccffcc', 'important');
+    _reflowManager.invalidateCSS(_control, 'background-color', '#ccffcc');
     
-    _highlightTimer = new Timer(
-        new Duration(milliseconds: 350), 
-        () => _control.style.setProperty('background-color', oldValue)
+    _isHighlightActivated = true;
+    
+    _reflowManager.layoutFrame.whenComplete(
+      () => _highlightTimer = new Timer(
+          new Duration(milliseconds: 350), 
+          () {
+            _control.style.setProperty('background-color', oldValue, 'important');
+            
+            _isHighlightActivated = false;
+          }
+      )     
     );
   }
   
   dynamic getDataToObserve({dynamic dataOverride: null}) {
-    if (_dataBindings != null) _dataBindings.values.forEach(
-      (StreamSubscription subscription) => subscription.cancel()   
-    );
+    _streamSubscriptionManager.flushIdent('item_renderer_dataChanges');
+    _streamSubscriptionManager.flushIdent('item_renderer_dataListChanges');
     
-    _dataBindings = <dynamic, StreamSubscription>{};
+    _streamSubscriptionManager.flushIdent('item_renderer_dataOverrideChanges');
+    _streamSubscriptionManager.flushIdent('item_renderer_dataOverrideListChanges');
+        
+    _streamSubscriptionManager.flushIdent('item_renderer_chainDataChanges');
+    _streamSubscriptionManager.flushIdent('item_renderer_chainDataListChanges');
     
     if (_data == null) return null;
     
     dynamic value = _data;
               
-    if (value is Observable) _dataBindings[value] = value.changes.listen(_data_changesHandler);
-    else if (value is ObservableList) _dataBindings[value] = value.listChanges.listen(_data_changesHandler);
+    if (value is Observable) _streamSubscriptionManager.add(
+        'item_renderer_dataChanges', 
+        value.changes.listen(_data_changesHandler)
+    );
+    else if (value is ObservableList) _streamSubscriptionManager.add(
+        'item_renderer_dataListChanges', 
+        value.listChanges.listen(_data_changesHandler)
+    );
     
     if (dataOverride != null) {
       value = dataOverride;
       
-      if (value is Observable) _dataBindings[value] = value.changes.listen(_data_changesHandler);
-      else if (value is ObservableList) _dataBindings[value] = value.listChanges.listen(_data_changesHandler);
+      if (value is Observable) _streamSubscriptionManager.add(
+          'item_renderer_dataOverrideChanges', 
+          value.changes.listen(_data_changesHandler)
+      );
+      else if (value is ObservableList) _streamSubscriptionManager.add(
+          'item_renderer_dataOverrideListChanges', 
+          value.listChanges.listen(_data_changesHandler)
+      );
     }
     
     if (_fields != null) _fields.forEach(
         (Symbol subField) {
           if (value != null) value = value[subField];
           
-          if (value is Observable) _dataBindings[value] = value.changes.listen(_data_changesHandler);
-          else if (value is ObservableList) _dataBindings[value] = value.listChanges.listen(_data_changesHandler);
+          if (value is Observable) _streamSubscriptionManager.add(
+              'item_renderer_chainDataChanges', 
+              value.changes.listen(_data_changesHandler)
+          );
+          else if (value is ObservableList) _streamSubscriptionManager.add(
+              'item_renderer_chainDataListChanges', 
+              value.listChanges.listen(_data_changesHandler)
+          );
         }
     );
     
     return value;
-  }
-  
-  @override
-  void flushHandler() {
-    super.flushHandler();
-    
-    _rendererListeners.forEach(
-      (StreamSubscription listener) => listener.cancel()
-    );
-    
-    if (_dataBindings != null) _dataBindings.values.forEach(
-      (StreamSubscription subscription) => subscription.cancel()
-    );
-    
-    flushDataPropertyChangesListener();
-  }
-  
-  void flushDataPropertyChangesListener() {
-    if (_dataPropertyChangesListener != null) _dataPropertyChangesListener.cancel();
-    
-    _dataPropertyChangesListener = null;
   }
 
   //---------------------------------

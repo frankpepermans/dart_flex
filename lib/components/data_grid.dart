@@ -39,21 +39,18 @@ class DataGrid extends ListBase {
   
   ObservableList<DataGridColumn> _columns;
   bool _isColumnsChanged = false;
-  StreamSubscription _columnsChangesListener;
 
   ObservableList<DataGridColumn> get columns => _columns;
   set columns(ObservableList<DataGridColumn> value) {
     if (value != _columns) {
       _columns = value;
       _isColumnsChanged = true;
-      
-      if (_columnsChangesListener != null) {
-        _columnsChangesListener.cancel();
-        
-        _columnsChangesListener = null;
-      }
 
-      if (value != null) _columnsChangesListener = value.listChanges.listen(_columns_collectionChangedHandler);
+      if (value != null) _streamSubscriptionManager.add(
+          'data_grid_columnsChange', 
+          value.listChanges.listen(_columns_collectionChangedHandler),
+          flushExisting: true
+      );
 
       notify(
         new FrameworkEvent(
@@ -319,7 +316,7 @@ class DataGrid extends ListBase {
   // autoScrollSelectionIntoView
   //---------------------------------
 
-  bool _autoScrollSelectionIntoView = false;
+  bool _autoScrollSelectionIntoView = true;
 
   bool get autoScrollSelectionIntoView => _autoScrollSelectionIntoView;
   set autoScrollSelectionIntoView(bool value) {
@@ -439,13 +436,17 @@ class DataGrid extends ListBase {
     ..dataProvider = _dataProvider
     ..itemRendererFactory = new ItemRendererFactory(constructorMethod: DataGridItemRenderer.construct)
     ..useSelectionEffects = _useSelectionEffects
-    ..autoManageScrollBars = _autoManageScrollBars
-    ..onListScrollPositionChanged.listen(
-      (FrameworkEvent event) => notify(
-        new FrameworkEvent(
-          'listScrollPositionChanged'
+    ..autoManageScrollBars = _autoManageScrollBars;
+    
+    _list._streamSubscriptionManager.add(
+        'data_grid_listScrollPositionChange', 
+        _list.onListScrollPositionChanged.listen(
+          (FrameworkEvent event) => notify(
+            new FrameworkEvent(
+              'listScrollPositionChanged'
+            )
+          )
         )
-      )
     );
 
     _gridContainer.addComponent(_headerContainer);
@@ -454,11 +455,26 @@ class DataGrid extends ListBase {
     addComponent(_gridContainer);
 
     _setControl(container);
-
-    _list.onRendererAdded.listen(_list_rendererAddedHandler);
-    _list.onRendererRemoved.listen(_list_rendererRemovedHandler);
-    _list.onHeaderScrollPositionChanged.listen(_list_headerScrollChangedHandler);
-    _list.onSelectedItemChanged.listen(_list_selectedItemChangedHandler);
+    
+    _list._streamSubscriptionManager.add(
+        'data_grid_listRendererAdded', 
+        _list.onRendererAdded.listen(_list_rendererAddedHandler)
+    );
+    
+    _list._streamSubscriptionManager.add(
+        'data_grid_listRendererRemoved', 
+        _list.onRendererRemoved.listen(_list_rendererRemovedHandler)
+    );
+    
+    _list._streamSubscriptionManager.add(
+        'data_grid_listHeaderScrollPositionChanged', 
+        _list.onHeaderScrollPositionChanged.listen(_list_headerScrollChangedHandler)
+    );
+    
+    _list._streamSubscriptionManager.add(
+        'data_grid_listSelectedItemChanged', 
+        _list.onSelectedItemChanged.listen(_list_selectedItemChangedHandler)
+    );
     
     _updateScrollPolicy();
 
@@ -506,8 +522,12 @@ class DataGrid extends ListBase {
             ..visible = !_headless
             ..includeInLayout = !_headless
             ..height = _headerHeight
-            ..data =  column.headerData
-            ..onButtonClick.listen(_header_clickHandler);
+            ..data =  column.headerData;
+          
+          header.streamSubscriptionManager.add(
+              'data_grid_headerButtonClick', 
+              header.onButtonClick.listen(_header_clickHandler)
+          );
 
           if (column.width > 0) header.width = column.width;
           else header.percentWidth = column.percentWidth;
@@ -526,11 +546,8 @@ class DataGrid extends ListBase {
           (DataGridItemRenderer renderer) {
             renderer.gap = _columnSpacing;
             
-            if (renderer.columns != _columns) {
-              renderer.columns = _columns;
-            } else {
-              renderer._refreshColumns();
-            }
+            if (renderer.columns != _columns) renderer.columns = _columns;
+            else renderer._refreshColumns();
           }
         );
       }
@@ -614,9 +631,11 @@ class DataGrid extends ListBase {
       ..columns = _columns
       .._grid = this;
     
-    renderer.flushDataPropertyChangesListener();
-    
-    renderer._dataPropertyChangesListener = renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler);
+    renderer._streamSubscriptionManager.add(
+        'data_grid_rendererDataPropertyChanged', 
+        renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler),
+        flushExisting: true
+    );
     
     invalidateProperties();
     
@@ -634,8 +653,7 @@ class DataGrid extends ListBase {
           ..columns = null
           ..data = null
           ..field = null
-          ..fields = null
-          ..flushDataPropertyChangesListener();
+          ..fields = null;
       
       notify(
           new FrameworkEvent<DataGridItemRenderer>(
@@ -717,17 +735,23 @@ class DataGrid extends ListBase {
     if (_headerItemRenderers != null) {
       _headerItemRenderers.forEach(
         (IHeaderItemRenderer header) {
-          if (_headerMouseOutHandler != null) {
-            header.onMouseOut.listen(
-                (FrameworkEvent event) => _headerMouseOutHandler(event.currentTarget as IHeaderItemRenderer)
-            );
-          }
+          if (_headerMouseOutHandler != null) header.streamSubscriptionManager.add(
+              'data_grid_headerMouseOut', 
+              header.onMouseOut.listen(
+                  (FrameworkEvent event) => _headerMouseOutHandler(event.currentTarget as IHeaderItemRenderer)
+              ),
+              flushExisting: true
+          );
+          else header.streamSubscriptionManager.flushIdent('data_grid_headerMouseOut');
           
-          if (_headerMouseOverHandler != null) {
-            header.onMouseOver.listen(
-                (FrameworkEvent event) => _headerMouseOverHandler(event.currentTarget as IHeaderItemRenderer)    
-            );
-          }
+          if (_headerMouseOverHandler != null) header.streamSubscriptionManager.add(
+              'data_grid_headerMouseOver', 
+              header.onMouseOver.listen(
+                  (FrameworkEvent event) => _headerMouseOverHandler(event.currentTarget as IHeaderItemRenderer)    
+              ),
+              flushExisting: true
+          );
+          else header.streamSubscriptionManager.flushIdent('data_grid_headerMouseOver');
         }
       );
     }

@@ -23,6 +23,8 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   //---------------------------------
   
   ReflowManager get reflowManager;
+  
+  StreamSubscriptionManager get streamSubscriptionManager;
 
   bool get visible;
   set visible(bool value);
@@ -70,8 +72,6 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   // Protected properties
   //
   //---------------------------------
-  
-  StreamSubscription _windowResizeListener;
 
   bool _isLayoutUpdateRequired = false;
   
@@ -95,6 +95,14 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   ReflowManager _reflowManager;
 
   ReflowManager get reflowManager => _reflowManager;
+  
+  //---------------------------------
+  // streamSubscriptionManager
+  //---------------------------------
+
+  StreamSubscriptionManager _streamSubscriptionManager = new StreamSubscriptionManager();
+
+  StreamSubscriptionManager get streamSubscriptionManager => _streamSubscriptionManager;
   
   //---------------------------------
   // stylePrefix
@@ -454,9 +462,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     _childWrappers = <IUIWrapper>[];
   }
   
-  void flushHandler() {
-    if (_windowResizeListener != null) _windowResizeListener.cancel();
-  }
+  void flushHandler() => _streamSubscriptionManager.flushAll();
   
   void forceInvalidateSize() => invalidateSize(null);
   
@@ -619,8 +625,8 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       _control = target;
       
       _reflowManager = new ReflowManager();
-
-      _windowResizeListener = window.onResize.listen(invalidateSize);
+      
+      _streamSubscriptionManager.add('windowResize', window.onResize.listen(invalidateSize), flushExisting: true);
       
       notify(
           new FrameworkEvent<Element>(

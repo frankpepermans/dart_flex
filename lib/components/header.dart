@@ -67,7 +67,6 @@ class Header extends HGroup {
 
   ObservableList _leftSideItems;
   bool _isLeftSideItemsChanged = false;
-  StreamSubscription _leftSideItemChangeSubscription;
 
   ObservableList get leftSideItems => _leftSideItems;
   set leftSideItems(ObservableList value) {
@@ -75,13 +74,12 @@ class Header extends HGroup {
       _leftSideItems = value;
       _isLeftSideItemsChanged = true;
       
-      if (_leftSideItemChangeSubscription != null) {
-        _leftSideItemChangeSubscription.cancel();
-        
-        _leftSideItemChangeSubscription = null;
-      }
-      
-      if (value != null) _leftSideItemChangeSubscription = value.listChanges.listen(_leftSideItems_collectionChangedHandler);
+      if (value != null) _streamSubscriptionManager.add(
+          'header_leftListChanges', 
+          value.listChanges.listen(_leftSideItems_collectionChangedHandler),
+          flushExisting: true
+      );
+      else _streamSubscriptionManager.flushIdent('header_leftListChanges');
 
       notify(
         new FrameworkEvent(
@@ -102,7 +100,6 @@ class Header extends HGroup {
 
   ObservableList _rightSideItems;
   bool _isRightSideItemsChanged = false;
-  StreamSubscription _rightSideItemChangeSubscription;
 
   ObservableList get rightSideItems => _rightSideItems;
   set rightSideItems(ObservableList value) {
@@ -110,13 +107,12 @@ class Header extends HGroup {
       _rightSideItems = value;
       _isRightSideItemsChanged = true;
       
-      if (_rightSideItemChangeSubscription != null) {
-        _rightSideItemChangeSubscription.cancel();
-        
-        _rightSideItemChangeSubscription = null;
-      }
-      
-      if (value != null) _rightSideItemChangeSubscription = value.listChanges.listen(_rightSideItems_collectionChangedHandler);
+      if (value != null) _streamSubscriptionManager.add(
+          'header_rightListChanges', 
+          value.listChanges.listen(_rightSideItems_collectionChangedHandler),
+          flushExisting: true
+      );
+      else _streamSubscriptionManager.flushIdent('header_rightListChanges');
 
       notify(
         new FrameworkEvent(

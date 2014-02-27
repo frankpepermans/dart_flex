@@ -55,19 +55,25 @@ class Button extends UIWrapper {
     if (_control == null) {
       ButtonElement element = new ButtonElement()
       ..type = 'button';
-
-      element.onClick.listen(
-        (Event event) => notify(
-          new FrameworkEvent(
-            'buttonClick'
+      
+      _streamSubscriptionManager.add(
+          'button_elementClick', 
+          element.onClick.listen(
+            (Event event) => notify(
+              new FrameworkEvent(
+                'buttonClick'
+              )
+            )
           )
-        )
       );
       
-      element.onTouchLeave.listen(
-          (Event event) => notify(
-              new FrameworkEvent(
-                  'buttonClick'
+      _streamSubscriptionManager.add(
+          'button_elementClick', 
+          element.onTouchLeave.listen(
+              (Event event) => notify(
+                  new FrameworkEvent(
+                      'buttonClick'
+                  )
               )
           )
       );

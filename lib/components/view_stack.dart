@@ -88,13 +88,17 @@ class ViewStack extends UIWrapper {
     _container = new Group()
     ..inheritsDefaultCSS = false
     ..cssClasses = const <String>['_ViewStackSlider']
-    .._layout = new AbsoluteLayout()
-    ..onControlChanged.listen(
-      (FrameworkEvent<Element> event) => _reflowManager.invalidateCSS(
-          event.relatedObject,
-          'position',
-          'absolute'
-      )    
+    .._layout = new AbsoluteLayout();
+    
+    _streamSubscriptionManager.add(
+        'view_stack_containerControlChanged', 
+        _container.onControlChanged.listen(
+          (FrameworkEvent<Element> event) => _reflowManager.invalidateCSS(
+              event.relatedObject,
+              'position',
+              'absolute'
+          )    
+        )
     );
     
     super.addComponent(_container);
@@ -138,7 +142,10 @@ class ViewStack extends UIWrapper {
     if (viewStackElement == null) {
       viewStackElement = new ViewStackElementData(element, uniqueId);
       
-      element.onRequestViewChange.listen(_viewStackElement_requestViewChangeHandler);
+      element.streamSubscriptionManager.add(
+          'view_stack_elementRequestViewChange', 
+          element.onRequestViewChange.listen(_viewStackElement_requestViewChangeHandler)
+      );
       
       _registeredViews.add(viewStackElement);  
     }
@@ -146,8 +153,11 @@ class ViewStack extends UIWrapper {
   
   bool show(String uniqueId) {
     if (_container == null) {
-      onControlChanged.listen(
-          (FrameworkEvent event) => show(uniqueId)
+      _streamSubscriptionManager.add(
+          'view_stack_containerControlChanged', 
+          onControlChanged.listen(
+              (FrameworkEvent event) => show(uniqueId)
+          )
       );
     } else {
       ViewStackElementData viewStackElement;

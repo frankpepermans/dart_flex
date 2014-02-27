@@ -365,7 +365,7 @@ class ListRenderer extends ListBase {
   // autoScrollSelectionIntoView
   //---------------------------------
 
-  bool _autoScrollSelectionIntoView = false;
+  bool _autoScrollSelectionIntoView = true;
 
   bool get autoScrollSelectionIntoView => _autoScrollSelectionIntoView;
   set autoScrollSelectionIntoView(bool value) {
@@ -416,8 +416,12 @@ class ListRenderer extends ListBase {
   
   @override
   void createChildren() {
-    final SpanElement container = new SpanElement()
-    ..onScroll.listen(_container_scrollHandler);
+    final SpanElement container = new SpanElement();
+    
+    _streamSubscriptionManager.add(
+        'list_base_containerScroll', 
+        container.onScroll.listen(_container_scrollHandler)
+    );
 
     _scrollTarget = new Group();
 
@@ -544,19 +548,25 @@ class ListRenderer extends ListBase {
       ..index = index
       ..enableHighlight = true
       ..autoDrawBackground = _useSelectionEffects;
-    
-    StreamSubscription subscription;
 
     _updateRenderer(renderer);
 
     _itemRenderers.add(renderer);
-
-    subscription = renderer.onControlChanged.listen(
-      (FrameworkEvent event) {
-        subscription.cancel();
-        
-        event.relatedObject.onMouseDown.listen(_handleMouseInteraction);
-      }
+    
+    renderer.streamSubscriptionManager.add(
+        'list_base_rendererControlChanged', 
+        renderer.onControlChanged.listen(
+          (FrameworkEvent event) {
+            final target = event.currentTarget as IItemRenderer;
+            
+            target.streamSubscriptionManager.flushIdent('list_base_rendererControlChanged');
+            
+            target.streamSubscriptionManager.add(
+                'list_base_rendererMouseDown', 
+                event.relatedObject.onMouseDown.listen(_handleMouseInteraction)
+            );
+          }
+        )
     );
 
     addComponent(renderer);

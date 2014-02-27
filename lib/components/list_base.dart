@@ -34,7 +34,6 @@ class ListBase extends Group {
   static const EventHook<FrameworkEvent> onDataProviderChangedEvent = const EventHook<FrameworkEvent>('dataProviderChanged');
   Stream<FrameworkEvent> get onDataProviderChanged => ListBase.onDataProviderChangedEvent.forTarget(this);
   ObservableList<dynamic> _dataProvider;
-  StreamSubscription _dataProviderChangesListener;
 
   ObservableList<dynamic> get dataProvider => _dataProvider;
   set dataProvider(ObservableList<dynamic> value) {
@@ -42,9 +41,12 @@ class ListBase extends Group {
       _dataProvider = value;
       _isElementUpdateRequired = true;
       
-      if (_dataProviderChangesListener != null) _dataProviderChangesListener.cancel();
-
-      if (value != null) _dataProviderChangesListener = value.listChanges.listen(_dataProvider_collectionChangedHandler);
+      if (value != null) _streamSubscriptionManager.add(
+          'list_base_dataProviderChanges', 
+          value.listChanges.listen(_dataProvider_collectionChangedHandler),
+          flushExisting: true
+      );
+      else _streamSubscriptionManager.flushIdent('list_base_dataProviderChanges');
       
       notify(
           new FrameworkEvent(

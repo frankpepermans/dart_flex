@@ -58,7 +58,6 @@ class Accordion extends Group {
   Stream<FrameworkEvent> get onDataProviderChanged => Accordion.onDataProviderChangedEvent.forTarget(this);
   
   ObservableList<dynamic> _dataProvider;
-  StreamSubscription _dataProviderChangesListener;
   
   bool _isPanelsUpdateRequired = false;
 
@@ -70,9 +69,12 @@ class Accordion extends Group {
       
       selectedIndex = 0;
       
-      if (_dataProviderChangesListener != null) _dataProviderChangesListener.cancel();
-
-      if (value != null) _dataProviderChangesListener = value.listChanges.listen(_dataProvider_collectionChangedHandler);
+      if (value != null) _streamSubscriptionManager.add(
+          'accordion_dataProviderChange', 
+          value.listChanges.listen(_dataProvider_collectionChangedHandler),
+          flushExisting: true
+      );
+      else _streamSubscriptionManager.flushIdent('accordion_dataProviderChange');
       
       notify(
           new FrameworkEvent(
@@ -336,6 +338,13 @@ class Accordion extends Group {
     }
     
     super.updateLayout();
+  }
+  
+  @override
+  void flushHandler() {
+    super.flushHandler();
+    
+    _removeAllPanels();
   }
   
   //---------------------------------

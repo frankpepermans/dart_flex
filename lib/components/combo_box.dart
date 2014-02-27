@@ -52,8 +52,11 @@ class ComboBox extends ListBase {
     super.createChildren();
 
     _setControl(new SelectElement());
-
-    _control.onChange.listen(_control_changeHandler);
+    
+    _streamSubscriptionManager.add(
+        'combo_box_controlChange', 
+        _control.onChange.listen(_control_changeHandler)
+    );
     
     _updateSelection();
   }
