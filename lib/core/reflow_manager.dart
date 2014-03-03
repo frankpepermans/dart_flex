@@ -198,7 +198,6 @@ class _ElementCSSMap {
 
   static const String _PRIORITY = '';
   
-  final ReflowManager reflowManager = new ReflowManager();
   final Element _element;
   final List<String> _dirtyProperties = <String>[];
   final List<String> _dirtyValues = <String>[];
@@ -206,9 +205,9 @@ class _ElementCSSMap {
   CssStyleDeclaration _detachedElement;
   
   _ElementCSSMap(this._element) {
-    final CssStyleDeclaration matchCSS = reflowManager._cssStyles[_element];
+    final CssStyleDeclaration matchCSS = ReflowManager._reflowManager._cssStyles[_element];
     
-    if (matchCSS == null) _detachedElement = reflowManager._cssStyles[_element] = new CssStyleDeclaration()..cssText = _element.style.cssText;
+    if (matchCSS == null) _detachedElement = ReflowManager._reflowManager._cssStyles[_element] = new CssStyleDeclaration()..cssText = _element.style.cssText;
     else _detachedElement = matchCSS..cssText = _element.style.cssText;
   }
   
@@ -239,4 +238,6 @@ class _ElementCSSMap {
     
     _detachedElement.setProperty(propertyName, value, _PRIORITY);
   }
+  
+  String toString() => '$_element $_dirtyProperties $_dirtyValues';
 }

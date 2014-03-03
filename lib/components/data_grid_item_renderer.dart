@@ -175,19 +175,17 @@ class DataGridItemRenderer extends ItemRenderer {
   }
   
   void _updateItemRenderers() {
-    if (_itemRendererInstances != null) {
-      _itemRendererInstances.forEach(
-          (ItemRenderer renderer) => removeComponent(renderer)
-      );
-    }
-    
-    _itemRendererInstances = new List<IItemRenderer>();
-
     if (_columns != null) {
       int rendererIndex = 0;
       
-      _streamSubscriptionManager.flushIdent('rendererColumnChanges');
-      _streamSubscriptionManager.flushIdent('rendererDataPropertyChanged');
+      if (_itemRendererInstances != null) {
+        _itemRendererInstances.forEach(
+            (ItemRenderer renderer) => removeComponent(renderer)
+        );
+      } else _itemRendererInstances = new List<IItemRenderer>();
+      
+      _streamSubscriptionManager.flushIdent('data_grid_item_renderer_rendererColumnChanges');
+      _streamSubscriptionManager.flushIdent('data_grid_item_renderer_rendererDataPropertyChanged');
       
       _columns.forEach(
         (DataGridColumn column) {
@@ -202,20 +200,20 @@ class DataGridItemRenderer extends ItemRenderer {
                 ..labelHandler = column.labelHandler
                 ..height = _grid.rowHeight;
             
+            renderer.cssClasses = _concat_css(column, renderer);
+            
+            if (column.percentWidth > .0) renderer.percentWidth = column.percentWidth;
+            else renderer.width = column.width;
+            
             _streamSubscriptionManager.add(
                 'data_grid_item_renderer_rendererColumnChanges', 
                 renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler)
             );
             
-            renderer.cssClasses = _concat_css(column, renderer);
-            
             _streamSubscriptionManager.add(
                 'data_grid_item_renderer_rendererDataPropertyChanged', 
                 renderer.onDataPropertyChanged.listen(_renderer_dataPropertyChangedHandler)
             );
-
-            if (column.percentWidth > .0) renderer.percentWidth = column.percentWidth;
-            else renderer.width = column.width;
 
             _itemRendererInstances.add(renderer);
 
