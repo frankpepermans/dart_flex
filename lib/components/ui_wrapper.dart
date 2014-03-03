@@ -421,7 +421,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       elementCast.initialize();
       
       if (_elementId != null) {
-        prepend ? _control.children.insert(0, element.control) : _control.append(element.control);
+        prepend ? _prependControl(element.control) : _appendControl(element.control);
       } else {
         prepend ? 
           _reflowManager.scheduleMethod(this, _prependControl, [element.control]) :
@@ -545,9 +545,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   //
   //---------------------------------
   
-  void _prependControl(Element controlToPrepend) {
-    _control.insertBefore(controlToPrepend, _control.firstChild);
-  }
+  Node _prependControl(Element controlToPrepend) => _appendControl(controlToPrepend);
   
   Node _appendControl(Element controlToAppend) => _control.append(controlToAppend);
 

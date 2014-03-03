@@ -43,7 +43,7 @@ class ListRenderer extends ListBase {
   // itemRenderers
   //---------------------------------
   
-  List<IItemRenderer> _itemRenderers;
+  List<IItemRenderer> _itemRenderers, _removedItemRenderers;
   
   List<IItemRenderer> get itemRenderers => _itemRenderers;
 
@@ -544,30 +544,37 @@ class ListRenderer extends ListBase {
   void _createElement(dynamic item, int index) {
     if (_itemRenderers == null) _itemRenderers = new List<IItemRenderer>();
 
-    final IItemRenderer renderer = _itemRendererFactory.immediateInstance()
-      ..index = index
-      ..enableHighlight = true
-      ..autoDrawBackground = _useSelectionEffects;
+    IItemRenderer renderer;
+    
+    if (_removedItemRenderers.length > 0) renderer = _removedItemRenderers.removeLast()
+        ..index = index
+        ..autoDrawBackground = _useSelectionEffects;
+    else {
+      renderer = _itemRendererFactory.immediateInstance()
+        ..index = index
+        ..enableHighlight = true
+        ..autoDrawBackground = _useSelectionEffects;
+      
+      renderer.streamSubscriptionManager.add(
+          'list_base_rendererControlChanged', 
+          renderer.onControlChanged.listen(
+            (FrameworkEvent event) {
+              final target = event.currentTarget as IItemRenderer;
+              
+              target.streamSubscriptionManager.flushIdent('list_base_rendererControlChanged');
+              
+              target.streamSubscriptionManager.add(
+                  'list_base_rendererMouseDown', 
+                  event.relatedObject.onMouseDown.listen(_handleMouseInteraction)
+              );
+            }
+          )
+      );
+    }
 
     _updateRenderer(renderer);
 
     _itemRenderers.add(renderer);
-    
-    renderer.streamSubscriptionManager.add(
-        'list_base_rendererControlChanged', 
-        renderer.onControlChanged.listen(
-          (FrameworkEvent event) {
-            final target = event.currentTarget as IItemRenderer;
-            
-            target.streamSubscriptionManager.flushIdent('list_base_rendererControlChanged');
-            
-            target.streamSubscriptionManager.add(
-                'list_base_rendererMouseDown', 
-                event.relatedObject.onMouseDown.listen(_handleMouseInteraction)
-            );
-          }
-        )
-    );
 
     addComponent(renderer);
 
@@ -618,6 +625,8 @@ class ListRenderer extends ListBase {
   bool _updateElements() {
     if (_dataProvider == null) return false;
     
+    if (_removedItemRenderers == null) _removedItemRenderers = <IItemRenderer>[];
+    
     final bool hasWidth = ((_colWidth > 0) || (_colPercentWidth > .0));
     final bool hasHeight = ((_rowHeight > 0) || (_rowPercentHeight > .0));
 
@@ -660,7 +669,13 @@ class ListRenderer extends ListBase {
       final int len = elementsRequired - existingLen;
       int i;
 
-      for (i=len; i<0; i++) removeComponent(_itemRenderers.removeLast());
+      for (i=len; i<0; i++) {
+        IItemRenderer renderer = _itemRenderers.removeLast();
+        
+        removeComponent(renderer, flush: false);
+        
+        _removedItemRenderers.add(renderer);
+      }
       
       for (i=0; i<len; i++) _createElement(null, i);
       
