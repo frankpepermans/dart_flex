@@ -10,7 +10,6 @@ class ReflowManager {
   
   final Map<dynamic, List<_MethodInvokationMap>> _scheduledHandlers = new Map<dynamic, List<_MethodInvokationMap>>();
   final Map<Element, _ElementCSSMap> _elements = <Element, _ElementCSSMap>{};
-  final Map<Element, CssStyleDeclaration> _cssStyles = <Element, CssStyleDeclaration>{};
   
   double _currentPeformance = .0;
   
@@ -25,22 +24,22 @@ class ReflowManager {
   //---------------------------------
   
   Completer _invocationFrameCompleter;
+  Timer _invocationTimer;
+  Future _invocationFuture;
   
   Future get invocationFrame {
-    if (_invocationFrameCompleter != null) return _invocationFrameCompleter.future;
+    if (_invocationTimer == null || !_invocationTimer.isActive) {
+      _invocationFrameCompleter = new Completer();
+      
+      _invocationTimer = new Timer(
+        new Duration(milliseconds: (_currentPeformance > 120.0) ? 120 : _currentPeformance.ceil()),
+        _invocationFrameCompleter.complete
+      );
+      
+      _invocationFuture = _invocationFrameCompleter.future;
+    }
     
-    _invocationFrameCompleter = new Completer();
-    
-    new Timer(
-      new Duration(milliseconds: (_currentPeformance < 40.0) ? 40 : (_currentPeformance > 120.0) ? 120 : _currentPeformance.toInt()),
-      _invocationFrameCompleter.complete
-    );
-    
-    final Future result = _invocationFrameCompleter.future;
-    
-    result.whenComplete(() => _invocationFrameCompleter = null);
-    
-    return result;
+    return _invocationFuture;
   }
   
   //---------------------------------
@@ -48,9 +47,10 @@ class ReflowManager {
   //---------------------------------
   
   Completer _animationFrameCompleter;
+  Future _animationFrameFuture;
   
   Future get animationFrame {
-    if (_animationFrameCompleter != null) return _animationFrameCompleter.future;
+    if (_animationFrameCompleter != null) return _animationFrameFuture;
     
     _animationFrameCompleter = new Completer();
     
@@ -58,17 +58,17 @@ class ReflowManager {
     
     window.requestAnimationFrame(
         (_) {
-          _currentPeformance = perf - getPerformanceNow();
+          _currentPeformance = getPerformanceNow() - perf;
           
           _animationFrameCompleter.complete();
+          
+          _animationFrameCompleter = null;
         }
     );
     
-    final Future result = _animationFrameCompleter.future;
+    _animationFrameFuture = _animationFrameCompleter.future;
     
-    result.whenComplete(() => _animationFrameCompleter = null);
-    
-    return result;
+    return _animationFrameFuture;
   }
   
   //---------------------------------
@@ -76,9 +76,10 @@ class ReflowManager {
   //---------------------------------
   
   Completer _layoutFrameCompleter;
+  Future _layoutFuture;
   
   Future get layoutFrame {
-    if (_layoutFrameCompleter != null) return _layoutFrameCompleter.future;
+    if (_layoutFrameCompleter != null) return _layoutFuture;
     
     _layoutFrameCompleter = new Completer();
     
@@ -87,13 +88,17 @@ class ReflowManager {
             invocationFrame,
             animationFrame
         ]
-    ).whenComplete(_layoutFrameCompleter.complete);
+    ).whenComplete(
+      () {
+        _layoutFrameCompleter.complete();
+        
+        _layoutFrameCompleter = null;
+      }
+    );
     
-    final Future result = _layoutFrameCompleter.future;
+    _layoutFuture = _layoutFrameCompleter.future;
     
-    result.whenComplete(() => _layoutFrameCompleter = null);
-    
-    return result;
+    return _layoutFuture;
   }
   
   //---------------------------------
@@ -125,7 +130,7 @@ class ReflowManager {
       (window.performance != null) &&
       (window.performance.now != null)
     ) return window.performance.now();
-    return .0;
+    return 10.0;
   }
   
   void scheduleMethod(dynamic owner, Function method, List arguments, {bool forceSingleExecution: false}) {
@@ -146,7 +151,7 @@ class ReflowManager {
 
       ownerMap.add(invokation);
       
-      animationFrame.then(
+      invocationFrame.then(
           (_) {
             ownerMap.remove(invokation);
             
@@ -199,45 +204,24 @@ class _ElementCSSMap {
   static const String _PRIORITY = '';
   
   final Element _element;
-  final List<String> _dirtyProperties = <String>[];
-  final List<String> _dirtyValues = <String>[];
   
-  CssStyleDeclaration _detachedElement;
+  Map<String, String> _dirtyProperties;
   
   _ElementCSSMap(this._element) {
-    final CssStyleDeclaration matchCSS = ReflowManager._reflowManager._cssStyles[_element];
-    
-    if (matchCSS == null) _detachedElement = ReflowManager._reflowManager._cssStyles[_element] = new CssStyleDeclaration()..cssText = _element.style.cssText;
-    else _detachedElement = matchCSS..cssText = _element.style.cssText;
+    _dirtyProperties = <String, String>{};
   }
   
   void finalize() {
-    if (_element.style.cssText != _detachedElement.cssText) {
-      int i = _dirtyProperties.length;
-      String propertyName, leftValue, rightValue;
-      String oldDisplayStyle = _element.style.display;
-      
-      while (i > 0) {
-        propertyName = _dirtyProperties[--i];
-        
-        leftValue = _element.style.getPropertyValue(propertyName);
-        rightValue = _dirtyValues[i];
-        
-        if (leftValue != rightValue) _element.style.setProperty(propertyName, rightValue, _PRIORITY);
-      }
-    }
+    _dirtyProperties.forEach(
+      (String propertyName, String propertyValue) => _element.style.setProperty(propertyName, propertyValue, _PRIORITY)
+    );
+    
+    _dirtyProperties = <String, String>{};
   }
   
   void setProperty(String propertyName, String value) {
-    int index = _dirtyProperties.indexOf(propertyName);
-    
-    if (index == -1) {
-      _dirtyProperties.add(propertyName);
-      _dirtyValues.add(value);
-    } else _dirtyValues[index] = value;
-    
-    _detachedElement.setProperty(propertyName, value, _PRIORITY);
+    _dirtyProperties[propertyName] = value;
   }
   
-  String toString() => '$_element $_dirtyProperties $_dirtyValues';
+  String toString() => '$_element $_dirtyProperties';
 }
