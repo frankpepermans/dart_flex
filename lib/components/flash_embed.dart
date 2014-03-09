@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class Image extends UIWrapper {
+class FlashEmbed extends UIWrapper {
 
   //---------------------------------
   //
@@ -13,7 +13,7 @@ class Image extends UIWrapper {
   //---------------------------------
 
   static const EventHook<FrameworkEvent> onSourceChangedEvent = const EventHook<FrameworkEvent>('sourceChanged');
-  Stream<FrameworkEvent> get onSourceChanged => Image.onSourceChangedEvent.forTarget(this);
+  Stream<FrameworkEvent> get onSourceChanged => FlashEmbed.onSourceChangedEvent.forTarget(this);
   String _source;
 
   String get source => _source;
@@ -25,7 +25,7 @@ class Image extends UIWrapper {
           new FrameworkEvent('sourceChanged')
       );
 
-      _commitSource();
+      later > _commitSource;
     }
   }
 
@@ -41,8 +41,8 @@ class Image extends UIWrapper {
   //
   //---------------------------------
 
-  Image({String elementId: null}) : super(elementId: elementId) {
-  	_className = 'Image';
+  FlashEmbed({String elementId: null}) : super(elementId: elementId) {
+    _className = 'FlashEmbed';
   }
 
   //---------------------------------
@@ -54,10 +54,9 @@ class Image extends UIWrapper {
   @override
   void createChildren() {
     if (_control == null) {
-      SpanElement controlCast = new SpanElement();
-
-      _reflowManager.invalidateCSS(controlCast, 'overflow', 'hidden');
-      _reflowManager.invalidateCSS(controlCast, 'background', 'url($_source) no-repeat center');
+      EmbedElement controlCast = new EmbedElement()
+        ..type = 'application/x-shockwave-flash'
+        ..src = _source;
 
       _setControl(controlCast);
     }
@@ -75,9 +74,9 @@ class Image extends UIWrapper {
     super.commitProperties();
 
     if (_control != null) {
-      SpanElement controlCast = _control as SpanElement;
+      EmbedElement controlCast = _control as EmbedElement;
 
-      _reflowManager.invalidateCSS(controlCast, 'background-image', 'url($_source)');
+      controlCast.src = _source;
     }
   }
 }

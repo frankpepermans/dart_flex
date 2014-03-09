@@ -125,7 +125,9 @@ class Slider extends UIWrapper {
   //---------------------------------
   
   @override
-  void _createChildren() {
+  void createChildren() {
+    super.createChildren();
+    
     _handle = new RangeInputElement()
     ..value = _value.toString()
     ..min = _min.toString()
@@ -135,8 +137,6 @@ class Slider extends UIWrapper {
     _handle.onChange.listen(_handle_changeHandler);
     
     _setControl(_handle);
-
-    super.createChildren();
   }
 
   //---------------------------------

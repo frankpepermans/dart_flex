@@ -114,6 +114,11 @@ class ListRenderer extends ListBase {
     if (value != _orientation) {
       _orientation = value;
       _isOrientationChanged = true;
+      _firstIndex = -1;
+      
+      scrollPosition = 0;
+      
+      if (_control != null) _control.scrollLeft = _control.scrollTop = 0;
 
       notify(
         new FrameworkEvent(
@@ -122,6 +127,8 @@ class ListRenderer extends ListBase {
       );
 
       invalidateProperties();
+      
+      later > _updateAfterScrollPositionChanged;
     }
   }
   
@@ -188,6 +195,8 @@ class ListRenderer extends ListBase {
   set itemRendererFactory(ItemRendererFactory value) {
     if (value != _itemRendererFactory) {
       _itemRendererFactory = value;
+      
+      _removeAllElements();
 
       notify(
         new FrameworkEvent(
@@ -196,6 +205,8 @@ class ListRenderer extends ListBase {
       );
 
       invalidateProperties();
+      
+      later > _updateAfterScrollPositionChanged;
     }
   }
 
@@ -437,45 +448,7 @@ class ListRenderer extends ListBase {
   
   @override
   void commitProperties() {
-    ILayout defaultLayout;
-
-    if (_isOrientationChanged) {
-      _isOrientationChanged = false;
-      
-      if (orientation == 'horizontal') {
-        defaultLayout = new HorizontalLayout();
-
-        _rowHeight = 0;
-        _rowPercentHeight = 100.0;
-        
-        if (_autoManageScrollBars) {
-          horizontalScrollPolicy = ScrollPolicy.AUTO;
-          verticalScrollPolicy = ScrollPolicy.NONE;
-        }
-      } else if (orientation == 'vertical') {
-        defaultLayout = new VerticalLayout();
-
-        _colWidth = 0;
-        _colPercentWidth = 100.0;
-        
-        if (_autoManageScrollBars) {
-          horizontalScrollPolicy = ScrollPolicy.NONE;
-          verticalScrollPolicy = ScrollPolicy.AUTO;
-        }
-      } else if (orientation == 'grid') {
-        defaultLayout = new VerticalLayout(constrainToBounds: false);
-
-        _colWidth = 0;
-        _colPercentWidth = 100.0;
-        
-        if (_autoManageScrollBars) verticalScrollPolicy = ScrollPolicy.AUTO;
-      }
-
-      defaultLayout.useVirtualLayout = true;
-      defaultLayout.gap = _rowSpacing;
-
-      layout = defaultLayout;
-    }
+    _updateOrientationIfNeeded();
 
     if (_layout != null) _layout.gap = _rowSpacing;
     
@@ -523,8 +496,10 @@ class ListRenderer extends ListBase {
     if (_itemRenderers != null) _itemRenderers = <IItemRenderer>[];
 
     removeAll();
+    
+    _removedItemRenderers = <IItemRenderer>[];
 
-    addComponent(_scrollTarget);
+    if (_scrollTarget != null) addComponent(_scrollTarget);
   }
 
   void _updateRenderer(IItemRenderer renderer) {
@@ -809,6 +784,48 @@ class ListRenderer extends ListBase {
     _updateVisibleItemRenderers(ignorePreviousIndex: true);
     
     if (_autoScrollSelectionIntoView) later > scrollSelectionIntoView;
+  }
+  
+  void _updateOrientationIfNeeded() {
+    if (_isOrientationChanged) {
+      ILayout defaultLayout;
+      
+      _isOrientationChanged = false;
+      
+      if (orientation == 'horizontal') {
+        defaultLayout = new HorizontalLayout();
+
+        _rowHeight = 0;
+        _rowPercentHeight = 100.0;
+        
+        if (_autoManageScrollBars) {
+          horizontalScrollPolicy = ScrollPolicy.AUTO;
+          verticalScrollPolicy = ScrollPolicy.NONE;
+        }
+      } else if (orientation == 'vertical') {
+        defaultLayout = new VerticalLayout();
+
+        _colWidth = 0;
+        _colPercentWidth = 100.0;
+        
+        if (_autoManageScrollBars) {
+          horizontalScrollPolicy = ScrollPolicy.NONE;
+          verticalScrollPolicy = ScrollPolicy.AUTO;
+        }
+      } else if (orientation == 'grid') {
+        defaultLayout = new VerticalLayout(constrainToBounds: false);
+
+        _colWidth = 0;
+        _colPercentWidth = 100.0;
+        
+        if (_autoManageScrollBars) verticalScrollPolicy = ScrollPolicy.AUTO;
+      }
+
+      defaultLayout.useVirtualLayout = true;
+      defaultLayout.gap = _rowSpacing;
+
+      layout = defaultLayout;
+    }
   }
   
   @override

@@ -25,6 +25,7 @@ part "components/editable_text_area.dart";
 part "components/editable_time.dart";
 part "components/editable_time_extended.dart";
 part "components/file_upload_button.dart";
+part "components/flash_embed.dart";
 part "components/footer.dart";
 part "components/form.dart";
 part "components/graphics.dart";
