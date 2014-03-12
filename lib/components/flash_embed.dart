@@ -1,6 +1,10 @@
 part of dart_flex;
 
 class FlashEmbed extends UIWrapper {
+  
+  static final Random _RND = new Random(new DateTime.now().millisecondsSinceEpoch);
+  
+  String _currentId;
 
   //---------------------------------
   //
@@ -34,6 +38,8 @@ class FlashEmbed extends UIWrapper {
   // Private properties
   //
   //---------------------------------
+  
+  ParamElement _movieParam;
 
   //---------------------------------
   //
@@ -42,6 +48,7 @@ class FlashEmbed extends UIWrapper {
   //---------------------------------
 
   FlashEmbed({String elementId: null}) : super(elementId: elementId) {
+    _currentId = _RND.nextInt(0xffffffff).toString();
     _className = 'FlashEmbed';
   }
 
@@ -54,14 +61,60 @@ class FlashEmbed extends UIWrapper {
   @override
   void createChildren() {
     if (_control == null) {
-      EmbedElement controlCast = new EmbedElement()
+      ObjectElement controlCast = new ObjectElement()
         ..type = 'application/x-shockwave-flash'
-        ..src = _source;
+        ..name = '_iop_${_currentId}_embed'
+        ..id = '_iop_${_currentId}_embed'
+        ..append(
+            new ParamElement()
+              ..name = 'FlashVars'
+              ..value = 'iop=$_currentId'
+        )
+        ..append(
+            new ParamElement()
+              ..name = 'quality'
+              ..value = 'high'
+        )
+        ..append(
+            new ParamElement()
+              ..name = 'allowscriptaccess'
+              ..value = 'always'
+        )
+        ..append(
+            new ParamElement()
+              ..name = 'wmode'
+              ..value = 'transparent'
+        );
+      
+      ScriptElement interopScript = new ScriptElement()
+        ..type = 'text/javascript'
+        ..innerHtml = _createScriptSource();
 
       _setControl(controlCast);
+      
+      document.head.append(interopScript);
+      
+      later > _commitSource;
     }
 
     super.createChildren();
+  }
+  
+  void addCallback(String callbackMethod, void callbackHandler(String jsonData)) {
+    _injectScript(callbackMethod);
+    
+    if (isInitialized) context['_iop_${_currentId}_$callbackMethod'] = (String value) => callbackHandler(value);
+    else onInitializationComplete.listen(
+      (_) => context['_iop_${_currentId}_$callbackMethod'] = (String value) => callbackHandler(value)  
+    );
+  }
+  
+  void send(String exposedFlashMethod, String value) {
+    try {
+      context.callMethod('_iop_${_currentId}_writeExternal', [exposedFlashMethod, value]);
+    } catch (error) {
+      reflowManager.scheduleMethod(this, send, [exposedFlashMethod, value], forceSingleExecution: true);
+    }
   }
 
   //---------------------------------
@@ -69,14 +122,34 @@ class FlashEmbed extends UIWrapper {
   // Protected methods
   //
   //---------------------------------
+  
+  void _injectScript(String callbackMethod) {
+    ScriptElement interopScript = new ScriptElement()
+      ..type = 'text/javascript'
+      ..innerHtml = '_iop_${_currentId}_$callbackMethod = function(value) { return value; }';
+      
+    document.head.append(interopScript);
+  }
+  
+  String _createScriptSource() {
+    return '_iop_${_currentId}_writeExternal = function(methodName, value) { document.getElementById("_iop_${_currentId}_embed")[methodName](value); }';
+  }
 
   void _commitSource() {
     super.commitProperties();
-
+    
     if (_control != null) {
-      EmbedElement controlCast = _control as EmbedElement;
-
-      controlCast.src = _source;
+      ObjectElement controlCast = _control as ObjectElement;
+    
+      if (_source != null) {
+        if (_movieParam == null) {
+          _movieParam = new ParamElement()..name = 'movie';
+          
+          controlCast.append(_movieParam);
+        }
+        
+        _movieParam.value = _source;
+      }
     }
   }
 }
