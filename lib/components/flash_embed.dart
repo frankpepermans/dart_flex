@@ -83,7 +83,7 @@ class FlashEmbed extends UIWrapper {
         ..append(
             new ParamElement()
               ..name = 'wmode'
-              ..value = 'transparent'
+              ..value = 'opaque'
         );
       
       ScriptElement interopScript = new ScriptElement()
