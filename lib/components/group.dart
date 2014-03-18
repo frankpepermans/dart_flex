@@ -84,7 +84,7 @@ class Group extends UIWrapper {
   
   @override
   void createChildren() {
-    if (_control == null) _setControl(new SpanElement());
+    if (_control == null) _setControl(new DivElement());
 
     super.createChildren();
   }

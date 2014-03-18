@@ -435,7 +435,7 @@ class ListRenderer extends ListBase {
     );
 
     _scrollTarget = new Group();
-
+    
     _scrollTarget.autoSize = false;
     _scrollTarget.includeInLayout = false;
 

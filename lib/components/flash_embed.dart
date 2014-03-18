@@ -5,6 +5,7 @@ class FlashEmbed extends UIWrapper {
   static final Random _RND = new Random(new DateTime.now().millisecondsSinceEpoch);
   
   String _currentId;
+  Map<String, Function> _pendingCallbacks;
 
   //---------------------------------
   //
@@ -59,6 +60,15 @@ class FlashEmbed extends UIWrapper {
   //---------------------------------
   
   @override
+  void initialize() {
+    super.initialize();
+    
+    if (_pendingCallbacks != null) _pendingCallbacks.forEach(
+      (String callbackMethod, Function callbackHandler) => addCallback(callbackMethod, callbackHandler)    
+    );
+  }
+  
+  @override
   void createChildren() {
     if (_control == null) {
       ObjectElement controlCast = new ObjectElement()
@@ -104,16 +114,18 @@ class FlashEmbed extends UIWrapper {
     _injectScript(callbackMethod);
     
     if (isInitialized) context['_iop_${_currentId}_$callbackMethod'] = (String value) => callbackHandler(value);
-    else onInitializationComplete.listen(
-      (_) => context['_iop_${_currentId}_$callbackMethod'] = (String value) => callbackHandler(value)  
-    );
+    else {
+      if (_pendingCallbacks == null) _pendingCallbacks = <String, Function>{};
+      
+      _pendingCallbacks[callbackMethod] = callbackHandler;
+    }
   }
   
   void send(String exposedFlashMethod, String value) {
     try {
       context.callMethod('_iop_${_currentId}_writeExternal', [exposedFlashMethod, value]);
     } catch (error) {
-      reflowManager.scheduleMethod(this, send, [exposedFlashMethod, value], forceSingleExecution: true);
+      final Timer timer = new Timer(const Duration(seconds: 2), () => send(exposedFlashMethod, value));
     }
   }
 

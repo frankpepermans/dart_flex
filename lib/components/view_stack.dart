@@ -184,14 +184,14 @@ class ViewStack extends UIWrapper {
           (newIndex == -1)
       ) return false;
       
-      viewStackElement.element.visible = false;
+      viewStackElement.element.includeInLayout = false;
       
       viewStackElement.element.preInitialize(this);
       
       if (currentIndex >= 0) {
         _inactiveViewStackElement = _activeViewStackElement;
         
-        _inactiveViewStackElement.element.visible = false;
+        _inactiveViewStackElement.element.includeInLayout = false;
         
         if (newIndex > currentIndex) {
           --_xOffset;
@@ -206,7 +206,7 @@ class ViewStack extends UIWrapper {
       
       updateLayout();
       
-      _activeViewStackElement.element.visible = true;
+      _activeViewStackElement.element.includeInLayout = true;
       
       notify(
         new FrameworkEvent<ViewStackElementData>('viewChanged', relatedObject: viewStackElement)    
@@ -225,8 +225,7 @@ class ViewStack extends UIWrapper {
     );
     
     if (viewStackElementData != null) {
-      viewStackElementData.element.visible = false;
-      //_container.removeComponent(viewStackElementData.element, flush: false);
+      _container.removeComponent(viewStackElementData.element, flush: false);
       
       return _registeredViews.remove(viewStackElementData);
     }
