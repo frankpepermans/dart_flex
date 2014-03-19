@@ -6,6 +6,8 @@ class FlashEmbed extends UIWrapper {
   
   String _currentId;
   Map<String, Function> _pendingCallbacks;
+  
+  final List<String> _callbacks = <String>[];
 
   //---------------------------------
   //
@@ -111,9 +113,15 @@ class FlashEmbed extends UIWrapper {
   }
   
   void addCallback(String callbackMethod, void callbackHandler(String jsonData)) {
-    _injectScript(callbackMethod);
-    
-    if (isInitialized) context['_iop_${_currentId}_$callbackMethod'] = (String value) => callbackHandler(value);
+    if (_isInitialized) {
+      if (!_callbacks.contains(callbackMethod)) {
+        _callbacks.add(callbackMethod);
+        
+        _injectScript(callbackMethod);
+              
+        context['_iop_${_currentId}_$callbackMethod'] = (String value) => callbackHandler(value);
+      }
+    }
     else {
       if (_pendingCallbacks == null) _pendingCallbacks = <String, Function>{};
       
@@ -121,7 +129,14 @@ class FlashEmbed extends UIWrapper {
     }
   }
   
-  void send(String exposedFlashMethod, String value) {
+  void send(String exposedFlashMethod, String value, {String callbackMethod, void callbackHandler(String jsonData)}) {
+    final bool expectsCallback = ((callbackMethod != null) && (callbackHandler != null));
+    
+    if (expectsCallback) addCallback(
+        callbackMethod,
+        callbackHandler
+    );
+    
     try {
       context.callMethod('_iop_${_currentId}_writeExternal', [exposedFlashMethod, value]);
     } catch (error) {
