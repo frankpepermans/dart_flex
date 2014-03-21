@@ -54,7 +54,7 @@ class ColorBox extends UIWrapper {
   @override
   void createChildren() {
     if (_control == null) {
-      SpanElement controlCast = new SpanElement();
+      DivElement controlCast = new DivElement();
       
       _reflowManager.invalidateCSS(controlCast, 'background-color', _color);
 
@@ -74,7 +74,7 @@ class ColorBox extends UIWrapper {
     super.commitProperties();
 
     if (_control != null) {
-      SpanElement controlCast = _control as SpanElement;
+      DivElement controlCast = _control as DivElement;
 
       _reflowManager.invalidateCSS(controlCast, 'background-color', _color);
     }

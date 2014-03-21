@@ -409,7 +409,7 @@ class DataGrid extends ListBase {
   
   @override
   void createChildren() {
-    final SpanElement container = new SpanElement();
+    final DivElement container = new DivElement();
 
     _gridContainer = new VGroup(gap: 0)
     ..percentWidth = 100.0

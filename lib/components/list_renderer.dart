@@ -427,7 +427,7 @@ class ListRenderer extends ListBase {
   
   @override
   void createChildren() {
-    final SpanElement container = new SpanElement();
+    final DivElement container = new DivElement();
     
     _streamSubscriptionManager.add(
         'list_base_containerScroll', 

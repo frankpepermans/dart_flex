@@ -81,7 +81,7 @@ class ViewStack extends UIWrapper {
   
   @override
   void createChildren() {
-    if (_control == null) _setControl(new SpanElement());
+    if (_control == null) _setControl(new DivElement());
     
     _layout = new AbsoluteLayout();
     

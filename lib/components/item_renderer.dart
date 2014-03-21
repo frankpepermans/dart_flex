@@ -351,7 +351,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   void createChildren() {
     super.createChildren();
 
-    SpanElement container = new SpanElement();
+    final DivElement container = new DivElement();
     
     _setControl(container);
     

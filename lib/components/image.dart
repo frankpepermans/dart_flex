@@ -54,7 +54,7 @@ class Image extends UIWrapper {
   @override
   void createChildren() {
     if (_control == null) {
-      SpanElement controlCast = new SpanElement();
+      final DivElement controlCast = new DivElement();
 
       _reflowManager.invalidateCSS(controlCast, 'overflow', 'hidden');
       _reflowManager.invalidateCSS(controlCast, 'background', 'url($_source) no-repeat center');
@@ -75,7 +75,7 @@ class Image extends UIWrapper {
     super.commitProperties();
 
     if (_control != null) {
-      SpanElement controlCast = _control as SpanElement;
+      final DivElement controlCast = _control as DivElement;
 
       _reflowManager.invalidateCSS(controlCast, 'background-image', 'url($_source)');
     }
