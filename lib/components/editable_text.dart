@@ -361,7 +361,7 @@ class EditableTextMask<T extends DateTime> extends EditableText {
     }
     
     if (event is KeyboardEvent) {
-      _allowKeyStroke = false;
+      _allowKeyStroke = const <int>[KeyCode.SHIFT, KeyCode.CTRL, KeyCode.ALT].contains(event.keyCode);
       
       if (input.selectionEnd - input.selectionStart > 2) {
         event.preventDefault();

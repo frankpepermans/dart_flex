@@ -70,6 +70,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   
   Timer _highlightTimer;
   bool _isHighlightActivated = false;
+  List<String> _dynamicListenerIdents;
 
   //---------------------------------
   //
@@ -428,55 +429,35 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   }
   
   dynamic getDataToObserve({dynamic dataOverride: null}) {
-    _streamSubscriptionManager.flushIdent('item_renderer_dataChanges');
-    _streamSubscriptionManager.flushIdent('item_renderer_dataListChanges');
+    if (_dynamicListenerIdents != null) _dynamicListenerIdents.forEach(
+      (String listenerIdent) => _streamSubscriptionManager.flushIdent(listenerIdent)
+    );
     
-    _streamSubscriptionManager.flushIdent('item_renderer_dataOverrideChanges');
-    _streamSubscriptionManager.flushIdent('item_renderer_dataOverrideListChanges');
-        
-    _streamSubscriptionManager.flushIdent('item_renderer_chainDataChanges');
-    _streamSubscriptionManager.flushIdent('item_renderer_chainDataListChanges');
+    _dynamicListenerIdents = <String>[];
     
     if (_data == null) return null;
     
     dynamic value = _data;
-              
-    if (value is Observable) _streamSubscriptionManager.add(
-        'item_renderer_dataChanges', 
-        value.changes.listen(_data_changesHandler)
-    );
-    else if (value is ObservableList) _streamSubscriptionManager.add(
-        'item_renderer_dataListChanges', 
-        value.listChanges.listen(_data_changesHandler)
-    );
+    
+    _addListeners(_data, 'item_renderer_dataChanges');
     
     if (dataOverride != null) {
       value = dataOverride;
       
-      if (value is Observable) _streamSubscriptionManager.add(
-          'item_renderer_dataOverrideChanges', 
-          value.changes.listen(_data_changesHandler)
-      );
-      else if (value is ObservableList) _streamSubscriptionManager.add(
-          'item_renderer_dataOverrideListChanges', 
-          value.listChanges.listen(_data_changesHandler)
-      );
+      _addListeners(dataOverride, 'item_renderer_dataOverrideChanges');
     }
     
-    if (_fields != null) _fields.forEach(
-        (Symbol subField) {
-          if (value != null) value = value[subField];
-          
-          if (value is Observable) _streamSubscriptionManager.add(
-              'item_renderer_chainDataChanges', 
-              value.changes.listen(_data_changesHandler)
-          );
-          else if (value is ObservableList) _streamSubscriptionManager.add(
-              'item_renderer_chainDataListChanges', 
-              value.listChanges.listen(_data_changesHandler)
-          );
-        }
-    );
+    if (_fields != null) {
+      int cnt = 0;
+      
+      _fields.forEach(
+          (Symbol subField) {
+            if (value != null) value = value[subField];
+            
+            _addListeners(value, 'item_renderer_chainDataChanges_${cnt++}');
+          }
+      );
+    }
     
     return value;
   }
@@ -486,6 +467,23 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   // Protected methods
   //
   //---------------------------------
+  
+  void _addListeners(dynamic value, String ident) {
+    final String singleIdent = '${ident}_single';
+    final String listIdent = '${ident}_list';
+    
+    _dynamicListenerIdents.add(singleIdent);
+    _dynamicListenerIdents.add(listIdent);
+    
+    if (value is Observable) _streamSubscriptionManager.add(
+        singleIdent, 
+        value.changes.listen(_data_changesHandler)
+    );
+    else if (value is ObservableList) _streamSubscriptionManager.add(
+        listIdent, 
+        value.listChanges.listen(_data_changesHandler)
+    );
+  }
   
   void _rebuildCSS() {
     final String mainClassName = className.split(' ').first;
@@ -529,6 +527,8 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     later > _rebuildCSS;
     
     later > invalidateData;
+    
+    getDataToObserve();
   }
 }
 
