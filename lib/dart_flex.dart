@@ -1,9 +1,9 @@
 library dart_flex;
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:core';
 import 'dart:html';
+import 'dart:html_common';
 import 'dart:js';
 import 'dart:math';
 

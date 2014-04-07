@@ -461,6 +461,13 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
     
     return value;
   }
+  
+  @override
+  void addComponent(IUIWrapper element, {bool prepend: false}) {
+    element.useMatrixTransformations = true;
+    
+    super.addComponent(element, prepend: prepend);
+  }
 
   //---------------------------------
   //

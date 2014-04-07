@@ -438,6 +438,8 @@ class ListRenderer extends ListBase {
     
     _scrollTarget.autoSize = false;
     _scrollTarget.includeInLayout = false;
+    
+    _scrollTarget.className = 'ListScrollTarget';
 
     addComponent(_scrollTarget);
 
@@ -526,6 +528,7 @@ class ListRenderer extends ListBase {
         ..autoDrawBackground = _useSelectionEffects;
     else {
       renderer = _itemRendererFactory.immediateInstance()
+        ..useMatrixTransformations = true
         ..index = index
         ..enableHighlight = true
         ..autoDrawBackground = _useSelectionEffects;
