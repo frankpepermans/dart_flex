@@ -73,7 +73,7 @@ class ColorBox extends UIWrapper {
   void _commitColor() {
     super.commitProperties();
 
-    if (_control != null) {
+    if (_control != null && _reflowManager != null) {
       DivElement controlCast = _control as DivElement;
 
       _reflowManager.invalidateCSS(controlCast, 'background-color', _color);

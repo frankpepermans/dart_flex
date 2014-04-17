@@ -63,6 +63,7 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   void removeComponent(IUIWrapper element);
   void removeAll();
   void flushHandler();
+  void transportComponents(IUIWrapper target);
 
   void operator []=(String type, Function eventHandler) => observeEventType(type, eventHandler);
 
@@ -138,8 +139,10 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   
   bool get useMatrixTransformations => _useMatrixTransformations;
   set useMatrixTransformations(bool value) {
-    if (value != _useMatrixTransformations) {
-      _useMatrixTransformations = (window.css.supports('${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)')) ? value : false;
+    final bool newValue = (window.css.supports('${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)')) ? value : false;
+    
+    if (newValue != _useMatrixTransformations) {
+      _useMatrixTransformations = newValue;
       
       _updateControl(1);
       _updateControl(2);
@@ -558,6 +561,21 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   
   void updateEnabledStatus() {
     if (_control != null) reflowManager.invalidateCSS(_control, 'pointer-events', (_enabled ? 'auto' : 'none'));
+  }
+  
+  void transportComponents(IUIWrapper target) {
+    if (_childWrappers != null) {
+      IUIWrapper element;
+      int i = _childWrappers.length;
+      
+      while (i > 0) {
+        element = _childWrappers[--i];
+        
+        removeComponent(element, flush: false);
+        
+        target.addComponent(element);
+      }
+    }
   }
 
   //---------------------------------

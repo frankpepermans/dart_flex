@@ -528,7 +528,7 @@ class ListRenderer extends ListBase {
         ..autoDrawBackground = _useSelectionEffects;
     else {
       renderer = _itemRendererFactory.immediateInstance()
-        ..useMatrixTransformations = true
+        //..useMatrixTransformations = true
         ..index = index
         ..enableHighlight = true
         ..autoDrawBackground = _useSelectionEffects;
