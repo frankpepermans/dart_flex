@@ -29,6 +29,9 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   bool get visible;
   set visible(bool value);
   
+  bool get disableRemoveComponents;
+  set disableRemoveComponents(bool value);
+  
   bool get useMatrixTransformations;
   set useMatrixTransformations(bool value);
   
@@ -163,6 +166,19 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       _isEnabledChanged = true;
       
       invalidateProperties();
+    }
+  }
+  
+  //---------------------------------
+  // disableRemoveComponents
+  //---------------------------------
+  
+  bool _disableRemoveComponents = false;
+  
+  bool get disableRemoveComponents => _disableRemoveComponents;
+  set disableRemoveComponents(bool value) {
+    if (value != _disableRemoveComponents) {
+      _disableRemoveComponents = value;
     }
   }
   
@@ -457,6 +473,8 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   }
 
   void removeComponent(IUIWrapper element, {bool flush: true}) {
+    if (_disableRemoveComponents) return;
+    
     if (
         (_control != null) &&
         (element != null) &&
@@ -477,6 +495,8 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   }
 
   void removeAll() {
+    if (_disableRemoveComponents) return;
+    
     int i = _childWrappers.length;
     
     while (i > 0) removeComponent(_childWrappers[--i]);
@@ -565,16 +585,23 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   
   void transportComponents(IUIWrapper target) {
     if (_childWrappers != null) {
+      final List<IUIWrapper> list = <IUIWrapper>[];
       IUIWrapper element;
       int i = _childWrappers.length;
+      
+      _disableRemoveComponents = false;
       
       while (i > 0) {
         element = _childWrappers[--i];
         
         removeComponent(element, flush: false);
         
-        target.addComponent(element);
+        list.insert(0, element);
       }
+      
+      list.forEach(
+        (IUIWrapper wrapper) => target.addComponent(wrapper) 
+      );
     }
   }
 
