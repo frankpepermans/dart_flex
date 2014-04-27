@@ -220,7 +220,7 @@ class _ElementCSSMap {
   }
   
   void setProperty(String propertyName, String value) {
-    _dirtyProperties[propertyName] = value;
+    if (_element.style.getPropertyValue(propertyName) != value) _dirtyProperties[propertyName] = value;
   }
   
   String toString() => '$_element $_dirtyProperties';
