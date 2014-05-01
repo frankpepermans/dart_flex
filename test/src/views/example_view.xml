@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<Skin>
+  <VGroup id="verticalContainer" width="100%" height="100%">
+    <Group height="100"/>
+    <HGroup id="horizontalContainer" width="100%" height="100%">
+      <Group width="100"/>
+      <HGroup id="centerContainer" cssClasses="['main-panel']" paddingBottom="15" width="100%" height="100%">
+        <DataGrid 
+          id="dataGrid"
+          cssClasses="[]"
+          width="100%" height="100%"
+          headerHeight="30"
+          rowHeight="34"
+          columnSpacing="0" rowSpacing="0"
+          columns="createColumns()"
+          dataProvider="createDataProvider()"
+          sortHandler="dataGrid_sortHandler" />
+        <Accordion 
+          id="accordion"
+          width="100%" height="100%"
+          dataProvider="createAccordionDataProvider()"
+          headerItemRendererFactory="new ItemRendererFactory(constructorMethod: AccordionHeaderItemRenderer.construct)"
+          headerHeight="30"
+          headerFields="[taskSymbol]"
+          headerField="taskNameSymbol"
+          contentItemRendererFactory="new ItemRendererFactory(constructorMethod: SpriteSheetItemRenderer.construct)"
+          contentFields="[urgencySymbol]"
+          contentField="urgencyNameSymbol" />
+        <VGroup id="masterTables" width="200" height="100%">
+          <Image 
+            id="editTasksImage"
+            width="200" height="50"
+            source="'images/edit_tasks.jpg'" />
+          <ListRenderer
+            id="tasksGrid"
+            width="100%" height="100%"
+            rowHeight="34"
+            rowSpacing="0"
+            field="taskNameSymbol"
+            itemRendererFactory="new ItemRendererFactory(constructorMethod: EditableLabelItemRenderer.construct)"
+            dataProvider="taskNames" />
+          <Image 
+            id="editUrgenciesImage"
+            width="200" height="50"
+            source="'images/edit_urgencies.jpg'" />
+          <ListRenderer
+            id="urgenciesGrid"
+            paddingBottom="30"
+            cssClasses="[]"
+            width="100%" height="100%"
+            rowHeight="34"
+            rowSpacing="0"
+            field="urgencyNameSymbol"
+            itemRendererFactory="new ItemRendererFactory(constructorMethod: EditableLabelItemRenderer.construct)"
+            dataProvider="urgencyNames" />
+        </VGroup>
+        <Group width="8"/>
+      </HGroup>
+      <Group width="100"/>
+    </HGroup>
+    <Group height="100"/>
+  </VGroup>
+</Skin>

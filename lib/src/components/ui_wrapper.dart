@@ -94,6 +94,9 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   
   static const EventHook<FrameworkEvent> onInitializationCompleteEvent = const EventHook<FrameworkEvent>('initializationComplete');
   Stream<FrameworkEvent> get onInitializationComplete => UIWrapper.onInitializationCompleteEvent.forTarget(this);
+  
+  static const EventHook<FrameworkEvent<IUIWrapper>> onSkinPartAddedEvent = const EventHook<FrameworkEvent<IUIWrapper>>('skinPartAdded');
+  Stream<FrameworkEvent<IUIWrapper>> get onSkinPartAdded => UIWrapper.onSkinPartAddedEvent.forTarget(this);
 
   //---------------------------------
   // reflowManager

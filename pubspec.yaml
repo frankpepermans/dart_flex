@@ -4,5 +4,9 @@ author: Frank Pepermans <frank@igindo.com>
 description: Flex-like components in Dart
 homepage: https://github.com/frankpepermans/dart_flex
 dependencies:
+  barback: any
   browser: any
   observe: any
+  xml: any
+transformers:
+- dart_flex/src/build/xml_parser
