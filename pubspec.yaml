@@ -9,4 +9,4 @@ dependencies:
   observe: any
   xml: any
 transformers:
-- dart_flex/src/build/xml_parser
+- dart_flex/src/transformers/uiml_transformer
