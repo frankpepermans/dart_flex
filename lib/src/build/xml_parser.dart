@@ -110,7 +110,7 @@ class XmlParser extends Transformer {
   }
   
   String _nodeToComponent(XmlElement node, String idValue, String parentComponent, bool isLocalVar) {
-    final String className = node.name.toString();
+    final String className = node.name.toString().split(':').last;
     final List<String> properties = <String>[];
     
     node.attributes.forEach(
