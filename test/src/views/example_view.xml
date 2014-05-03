@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<fx:Skin xmlns:fx="dart_flex://lib/src/components">
+<fx:Skin xmlns:fx="library://dart_flex">
   <fx:VGroup id="verticalContainer" width="100%" height="100%">
     <fx:Group height="100"/>
     <fx:HGroup id="horizontalContainer" width="100%" height="100%">

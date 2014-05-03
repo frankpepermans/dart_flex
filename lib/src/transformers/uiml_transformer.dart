@@ -8,9 +8,9 @@ import 'package:xml/xml.dart';
 
 class UIMLTransformer extends Transformer {
   
-  static String SKIN_CREATE_BLOCK = '#SKIN_CREATE_BLOCK#';
+  static const String SKIN_CREATE_BLOCK = '#SKIN_CREATE_BLOCK#';
   
-  static String TEMPLATE = '''@override
+  static const String TEMPLATE = '''@override
   void createChildren() {
     super.createChildren();
     
@@ -200,15 +200,15 @@ class UIMLSkin {
 
 class UIMLSkinLibraryItem {
   
-  final String ns, lib, path;
+  final String ns, lib;
   final TransformLogger logger;
   
-  UIMLSkinLibraryItem(this.logger, this.ns, this.lib, this.path);
+  UIMLSkinLibraryItem(this.logger, this.ns, this.lib);
   
   factory UIMLSkinLibraryItem.fromUri(TransformLogger logger, String ns, String uri) {
     final List<String> parts = uri.split('://');
     
-    return new UIMLSkinLibraryItem(logger, ns, parts.first, parts.last);
+    return new UIMLSkinLibraryItem(logger, ns, parts.last);
   }
   
   ClassMirror getClassMirror(String className) {
