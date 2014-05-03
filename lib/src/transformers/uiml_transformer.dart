@@ -34,12 +34,15 @@ class UIMLTransformer extends Transformer {
         if ((matches != null) && (matches.length > 0)) {
           final AssetId skinAssetId = new AssetId.parse(codeBody.substring(matches.first.start + 7, matches.first.end - 2));
           
-          _processXmlAsset(transform, skinAssetId, TEMPLATE).then(
-            (String skinPart) {
+          transform.readInputAsString(skinAssetId).then(
+            (String content) {
+              final XmlDocument incoming = parse(content);
+              final UIMLSkin skin = new UIMLSkin(incoming.lastChild as XmlElement, transform.logger);
+              
               transform.addOutput(
                 new Asset.fromString(
                     transform.primaryInput.id, 
-                    codeBody.replaceAll(exp, skinPart)
+                    codeBody.replaceAll(exp, TEMPLATE.replaceAll(SKIN_CREATE_BLOCK, skin.toString()))
                 )
               );
               
@@ -47,23 +50,6 @@ class UIMLTransformer extends Transformer {
             }
           );
         } else completer.complete(null);
-      }
-    );
-    
-    return completer.future;
-  }
-  
-  Future<String> _processXmlAsset(Transform transform, AssetId skinAssetId, String templateBody) {
-    final Completer<String> completer = new Completer<String>();
-    
-    transform.readInputAsString(skinAssetId).then(
-      (String content) {
-        final XmlDocument incoming = parse(content);
-        final UIMLSkin skin = new UIMLSkin(incoming.lastChild as XmlElement, transform.logger);
-        
-        completer.complete(
-            templateBody.replaceAll(SKIN_CREATE_BLOCK, skin.toString())
-        );
       }
     );
     
@@ -176,17 +162,17 @@ class UIMLSkin {
   String toString() => _elements.join('\r\t\t');
   
   UIMLSkinLibraryItem getLibraryItem(String ns) => _libraryItems.firstWhere(
-    (UIMLSkinLibraryItem item) => (item.ns == ns)
+    (UIMLSkinLibraryItem I) => (I.ns == ns)
   );
   
   List<UIMLSkinLibraryItem> _getLibraryItems() {
     final List<UIMLSkinLibraryItem> items = <UIMLSkinLibraryItem>[];
     
     element.attributes.forEach(
-      (XmlAttribute attr) {
-        final List<String> nsDecl = attr.name.toString().split(':');
+      (XmlAttribute A) {
+        final List<String> nsDecl = A.name.toString().split(':');
         
-        if (nsDecl.length == 2 && nsDecl.first == 'xmlns') items.add(new UIMLSkinLibraryItem.fromUri(logger, nsDecl.last, attr.value));
+        if (nsDecl.length == 2 && nsDecl.first == 'xmlns') items.add(new UIMLSkinLibraryItem.fromUri(logger, nsDecl.last, A.value));
       }
     );
     
