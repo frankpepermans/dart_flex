@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<fx:Skin xmlns:fx="library://dart_flex">
+  <fx:EditableText 
+    id="text01" 
+    width="200" 
+    height="50" />
+  <fx:EditableText 
+    id="text02" 
+    text="{text01.text}"
+    width="200" 
+    height="50" />
+</fx:Skin>

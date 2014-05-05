@@ -348,6 +348,9 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   //---------------------------------
 
   void operator []=(String type, Function eventHandler) => observeEventType(type, eventHandler);
+  
+  @override
+  noSuchMethod(Invocation invocation) => null;
 
   //---------------------------------
   //
