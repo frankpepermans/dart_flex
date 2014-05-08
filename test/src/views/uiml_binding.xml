@@ -6,7 +6,7 @@
     height="50" />
   <fx:EditableText 
     id="text02" 
-    text="{text01.text}"
+    text="{invert(text01.text) + ' test ' + text01.text}"
     width="200" 
     height="50" />
 </fx:Skin>
