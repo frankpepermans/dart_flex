@@ -1,41 +1,25 @@
 part of dart_flex.build.uiml_transformer;
 
-class UIMLElement {
+class UIMLElement extends UIMLPart {
   
   static int _locallyScopedCount = 0, _streamIndex = 0, _bindingIndex = 0;
   
-  final UIMLSkin skin;
-  final UIMLElement parent;
-  final XmlElement element;
-  
-  String _ns, _className, _id, _properties;
+  String _id, _properties;
   ClassMirror _classMirror;
   bool _isLocallyScoped;
   List<String> _declarations = <String>[];
   List<String> _methods = <String>[];
   
-  String get ns => _ns;
-  String get className => _className;
   String get id => _id;
   String get properties => _properties;
   
-  UIMLElement(this.skin, this.parent, this.element) {
-    final List<String> nsAndName = element.name.toString().split(':');
-    
-    _ns = nsAndName.first;
-    _className = nsAndName.last;
+  UIMLElement(UIMLSkin skin, UIMLPart parent, XmlElement element) : super(skin, parent, element) {
     _id = _getId();
     _properties = _getProperties();
-    _classMirror = skin.getLibraryItem(_ns).getClassMirror(_className);
+    //_classMirror = skin.getLibraryItem(_ns).getClassMirror(_className);
   }
   
-  String toString() {
-    String ctr = '';
-    
-    if (_isLocallyScoped) ctr = 'final $_className';
-    
-    return '$ctr $_id = new ${_className}();${_properties}${_getInclusionStatement()}${_getCreationEvent()}';
-  }
+  String toString() => '$_id = new ${_className}();${_properties}${_getInclusionStatement()}${_getCreationEvent()}';
   
   String _getId() {
     final XmlAttribute idAttr = element.attributes.firstWhere(
@@ -57,16 +41,33 @@ class UIMLElement {
       (XmlAttribute A) {
         final RegExp exp = new RegExp(r"{[^}]+}");
         
-        String value = A.value;
+        bool isEvent = false;
+        String value = A.value, property = A.name.local;
         Map<String, String> bindingObj;
         
+        if (property.contains('-')) {
+          final List<String> eventParts = property.split('-');
+          String eventName = '';
+          
+          isEvent = true;
+          
+          eventParts.forEach(
+            (String part) {
+              if (eventName == '') eventName = part;
+              else eventName += part[0].toUpperCase() + part.substring(1);
+            }
+          );
+          
+          property = eventName;
+        }
+        
         if (exp.hasMatch(value)) {
-          bindingObj = _getBindingStatement(value, A.name.local);
+          bindingObj = _getBindingStatement(value, property);
           
           _methods.add(bindingObj['declaration']);
           
           properties.add(bindingObj['invocation']);
-        } else switch (A.name.local) {
+        } else switch (property) {
           case 'id': break;
           case 'width':
             if (A.value.contains('%')) properties.add('${_id}.percentWidth=${A.value.substring(0, A.value.length - 1)}.0;');
@@ -79,7 +80,8 @@ class UIMLElement {
             
             break;
           default:
-            properties.add('${_id}.${A.name.local}=${A.value};');
+            if (isEvent) properties.add('${_id}.${property}.listen(${A.value});');
+            else properties.add('${_id}.${property}=${A.value};');
         }
       }
     );
@@ -133,7 +135,7 @@ class UIMLElement {
             final String listenerTarget = '${target}$listener';
             final String srcTarget = (singular.length > 0) ? singular : 'this';
             
-            final String stream = '$streamName = (($srcTarget is ObservableList) ? ${target}listChanges.listen(${bindName}) : ($srcTarget is Observable) ? ${target}changes.listen(${bindName}) : $listenerTarget.listen(${bindName}));';
+            final String stream = '$streamName = (($srcTarget is ObservableList) ? ${target}listChanges.listen(${bindName}) : ($srcTarget is Observable) ? ${target}changes.listen(${bindName}) : ($srcTarget is IUIWrapper) ? $listenerTarget.listen(${bindName}) : null);';
             
             if (currentPath.length > 0) existsStatement.add('(${currentPath.join('.')}.$node != null)');
             else existsStatement.add('($node != null)');
@@ -143,7 +145,7 @@ class UIMLElement {
             streams.add(streamName);
             
             streamMethods.add(
-              'if ($streamName != null) { ${streamName}.cancel(); } ${_getExistsStatement(existsStatement2)} if ($listenerTarget != null) ${stream}'    
+              'try { if ($streamName != null) { ${streamName}.cancel(); } ${_getExistsStatement(existsStatement2)} ${stream} } catch(error) {}'    
             );
             
             if (currentPath2.length > 0) existsStatement2.add('(${currentPath2.join('.')}.$node != null)');
@@ -173,7 +175,8 @@ class UIMLElement {
   }
   
   String _getInclusionStatement() {
-    if (parent != null) return '\r\t\t${parent.id}.addComponent(${_id});';
+    if (parent is UIMLElement) return '\r\t\t${(parent as UIMLElement).id}.addComponent(${_id});';
+    else if (parent is UIMLProperty) return '\r\t\t${(parent.parent as UIMLElement).id}.${parent.className} = ${_id};';
     
     return '\r\t\taddComponent(${_id});';
   }

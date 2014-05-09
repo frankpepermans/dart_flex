@@ -6,10 +6,11 @@ class UIMLSkin {
   final TransformLogger logger;
   
   List<UIMLSkinLibraryItem> _libraryItems;
-  List<UIMLElement> _elements;
+  List<UIMLPart> _elements;
+  List<String> _declarations = <String>[];
   
   List<UIMLSkinLibraryItem> get libraryItems => _libraryItems;
-  List<UIMLElement> get elements => _elements;
+  List<UIMLPart> get elements => _elements;
   
   UIMLSkin(this.element, this.logger) {
     _libraryItems = _getLibraryItems();
@@ -20,21 +21,25 @@ class UIMLSkin {
     List<String> declarations = <String>[];
     
     _elements.forEach(
-      (UIMLElement element) {
-        if (element._isLocallyScoped) declarations.add('${element.className} ${element._id};');
-        
-        declarations.add(element._declarations.join('\r\t'));
+      (UIMLPart part) {
+        if (part is UIMLElement) {
+          if (part._isLocallyScoped) declarations.add('${part.className} ${part._id};');
+          
+          declarations.add(part._declarations.join('\r\t'));
+        }
       }
     );
     
-    return declarations.join('\r\t');
+    return _declarations.join('\r\t') + '\r\t' + declarations.join('\r\t');
   }
   
   String getBindingMethods() {
     List<String> methods = <String>[];
     
     _elements.forEach(
-      (UIMLElement element) => methods.add(element._methods.join('\r\t'))
+      (UIMLPart part) {
+        if (part is UIMLElement) methods.add(part._methods.join('\r\t'));
+      }
     );
     
     return methods.join('\r\t');
@@ -60,17 +65,37 @@ class UIMLSkin {
     return items;
   }
   
-  List<UIMLElement> _toElements(XmlElement target, {UIMLElement parent}) {
-    final List<UIMLElement> elements = <UIMLElement>[];
+  List<UIMLPart> _toElements(XmlElement target, {UIMLPart parent}) {
+    final List<UIMLPart> elements = <UIMLPart>[];
     
     target.children.forEach(
       (XmlNode N) {
         if (N is XmlElement) {
-          final UIMLElement uimlElm = new UIMLElement(this, parent, N);
+          final List<String> nsAndName = N.name.toString().split(':');
           
-          elements.add(uimlElm);
-          
-          elements.addAll(_toElements(N, parent: uimlElm));
+          if (nsAndName.last == 'declarations') {
+            N.children.forEach(
+              (XmlNode O) {
+                if (O is XmlElement) {
+                  final String declName = O.name.toString();
+                  
+                  XmlAttribute idAttr = O.attributes.firstWhere(
+                    (XmlAttribute A) => (A.name.local == 'id'),
+                    orElse: () => null
+                  );
+                  
+                  _declarations.add('@observable ${declName} ${idAttr.value} = ${O.text};');
+                }
+              }
+            );
+          } else {
+            final String casing = nsAndName.last[0];
+            final UIMLPart uimlElm = (casing == casing.toLowerCase()) ? new UIMLProperty(this, parent, N) : new UIMLElement(this, parent, N);
+            
+            elements.add(uimlElm);
+            
+            elements.addAll(_toElements(N, parent: uimlElm));
+          }
         }
       }     
     );

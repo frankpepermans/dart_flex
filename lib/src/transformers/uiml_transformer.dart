@@ -6,6 +6,8 @@ import 'dart:mirrors';
 import 'package:barback/barback.dart';
 import 'package:xml/xml.dart';
 
+part "uiml_parts/uiml_part.dart";
+part "uiml_parts/uiml_property.dart";
 part "uiml_parts/uiml_element.dart";
 part "uiml_parts/uiml_skin.dart";
 part "uiml_parts/uiml_skin_library_item.dart";
