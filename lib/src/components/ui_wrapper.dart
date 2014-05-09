@@ -381,7 +381,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   }
 
   void invalidateProperties() {
-    if (_isLayoutUpdateRequired) invalidateLayout();
+    if (!_isLayoutUpdateRequired) invalidateLayout();
   }
   
   void invalidateSize(Event event) => later > updateSize;
