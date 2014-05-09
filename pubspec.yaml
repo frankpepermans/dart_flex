@@ -8,5 +8,3 @@ dependencies:
   browser: any
   observe: any
   xml: any
-transformers:
-- dart_flex/src/build/xml_parser
