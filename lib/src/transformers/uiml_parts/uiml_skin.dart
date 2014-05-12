@@ -75,18 +75,7 @@ class UIMLSkin {
           
           if (nsAndName.last == 'declarations') {
             N.children.forEach(
-              (XmlNode O) {
-                if (O is XmlElement) {
-                  final String declName = O.name.toString();
-                  
-                  XmlAttribute idAttr = O.attributes.firstWhere(
-                    (XmlAttribute A) => (A.name.local == 'id'),
-                    orElse: () => null
-                  );
-                  
-                  _declarations.add('@observable ${declName} ${idAttr.value} = ${O.text};');
-                }
-              }
+              (XmlNode O) => _declarations.add(_toObservable(O))
             );
           } else {
             final String casing = nsAndName.last[0];
@@ -101,5 +90,27 @@ class UIMLSkin {
     );
     
     return elements;
+  }
+  
+  String _toObservable(XmlNode node) {
+    if (node is XmlElement) {
+      final List<String> nsAndName = node.name.toString().split(':');
+      final String declName = nsAndName.last;
+      final XmlAttribute idAttr = node.attributes.firstWhere(
+        (XmlAttribute A) => (A.name.local == 'id'),
+        orElse: () => null
+      );
+      
+      if (idAttr == null) return '';
+      
+      if (const <String>['num', 'int', 'double', 'bool', 'String'].contains(declName)) {
+        if (declName == 'String') return '@observable ${declName} ${idAttr.value} = \'${node.text}\';';
+        
+        return '@observable ${declName} ${idAttr.value} = ${node.text};';
+      }
+      else return '@observable ${declName} ${idAttr.value} = new ${declName}(${node.text});';
+    }
+    
+    return '';
   }
 }

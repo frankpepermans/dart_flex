@@ -1,15 +1,16 @@
 <?xml version="1.0"?>
 <fx:Skin xmlns:fx="library://dart_flex">
   <fx:declarations>
-    <int id="count">0</int>
+    <fx:int id="count">0</fx:int>
+    <fx:String id="buttonLabel">Click me</fx:String>
   </fx:declarations>
   
   <fx:Button 
     width="160" height="40"
-    label="'Click me'"
+    label="{buttonLabel}"
     on-button-click="(_) => count++" />
   <fx:RichText 
     width="160" height="40"
-    text="{'(Click count: ' + count.toString() + ')'}" />
+    text="{'(' + buttonLabel + ': ' + count.toString() + ')'}" />
   
 </fx:Skin>
