@@ -396,6 +396,16 @@ class ListRenderer extends ListBase {
     
     _forceRefresh();
   }
+  
+  //---------------------------------
+  // selectedIndices
+  //---------------------------------
+  
+  set selectedIndices(ObservableList<int> value) {
+    super.selectedIndices = value;
+    
+    _forceRefresh();
+  }
 
   //---------------------------------
   // selectedItem
@@ -403,6 +413,16 @@ class ListRenderer extends ListBase {
   
   set selectedItem(dynamic value) {
     super.selectedItem = value;
+    
+    _forceRefresh();
+  }
+  
+  //---------------------------------
+  // selectedItems
+  //---------------------------------
+  
+  set selectedItems(ObservableList<dynamic> value) {
+    super.selectedItems = value;
     
     _forceRefresh();
   }
@@ -734,7 +754,13 @@ class ListRenderer extends ListBase {
             ..index = i
             ..includeInLayout = isRendererShown
             ..visible = isRendererShown
-            ..selected = (_useSelectionEffects && (i == _selectedIndex))
+            ..selected = (
+                _useSelectionEffects && 
+                (
+                    (i == _selectedIndex) ||
+                    (_selectedIndices.contains(i))
+                )
+            )
             ..data = data
             ..inactiveHandler = _inactiveHandler
             ..field = _field

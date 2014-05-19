@@ -139,7 +139,7 @@ class ViewStack extends UIWrapper {
       orElse: () => null
     );
     
-    if (viewStackElement == null) {
+    if (viewStackElement == null && element != null) {
       viewStackElement = new ViewStackElementData(element, uniqueId);
       
       element.streamSubscriptionManager.add(

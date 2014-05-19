@@ -464,6 +464,8 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       
       elementCast.initialize();
       
+      if (element.control.id == null || element.control.id.length == 0) element.control.id = getNextGUID();
+      
       if (_elementId != null) {
         prepend ? _prependControl(element.control) : _appendControl(element.control);
       } else {
