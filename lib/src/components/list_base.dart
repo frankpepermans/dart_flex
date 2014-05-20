@@ -117,6 +117,28 @@ class ListBase extends Group {
       );
     }
   }
+  
+  //---------------------------------
+  // allowMultipleSelection
+  //---------------------------------
+  
+  static const EventHook<FrameworkEvent<bool>> onAllowMultipleSelectionChangedEvent = const EventHook<FrameworkEvent<bool>>('allowMultipleSelectionChanged');
+  Stream<FrameworkEvent<bool>> get onAllowMultipleSelectionChanged => ListBase.onAllowMultipleSelectionChangedEvent.forTarget(this);
+  bool _allowMultipleSelection = false;
+  
+  bool get allowMultipleSelection => _allowMultipleSelection;
+  set allowMultipleSelection(bool value) {
+    if (value != _allowMultipleSelection) {
+      _allowMultipleSelection = value;
+      
+      notify(
+          new FrameworkEvent<bool>(
+            'allowMultipleSelectionChanged',
+            relatedObject: value
+          )
+      );
+    }
+  }
 
   //---------------------------------
   // selectedIndex
@@ -240,8 +262,8 @@ class ListBase extends Group {
   Stream<FrameworkEvent<ObservableList<dynamic>>> get onSelectedItemsChanged => ListBase.onSelectedItemsChangedEvent.forTarget(this);
   ObservableList<dynamic> _selectedItems = new ObservableList<dynamic>();
   
-  Iterable<dynamic> get selectedItems => _selectedItems;
-  set selectedItems(Iterable<dynamic> value) {
+  ObservableList<dynamic> get selectedItems => _selectedItems;
+  set selectedItems(ObservableList<dynamic> value) {
     if (value != _selectedItems) {
       _selectedItems = value;
       _selectedIndices.clear();
