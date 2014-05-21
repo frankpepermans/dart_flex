@@ -8,6 +8,8 @@ class Button extends UIWrapper {
   //
   //---------------------------------
   
+  bool _allowClick = true;
+  
   static const EventHook<FrameworkEvent> onButtonClickEvent = const EventHook<FrameworkEvent>('buttonClick');
   Stream<FrameworkEvent> get onButtonClick => Button.onButtonClickEvent.forTarget(this);
 
@@ -58,24 +60,12 @@ class Button extends UIWrapper {
       
       _streamSubscriptionManager.add(
           'button_elementClick', 
-          element.onClick.listen(
-            (Event event) => notify(
-              new FrameworkEvent(
-                'buttonClick'
-              )
-            )
-          )
+          element.onClick.listen(_propagateClick)
       );
       
       _streamSubscriptionManager.add(
           'button_elementClick', 
-          element.onTouchLeave.listen(
-              (Event event) => notify(
-                  new FrameworkEvent(
-                      'buttonClick'
-                  )
-              )
-          )
+          element.onTouchLeave.listen(_propagateClick)
       );
 
       _setControl(element);
@@ -99,7 +89,21 @@ class Button extends UIWrapper {
   }
   
   void _updateElementText(String label) => _control.setInnerHtml(label);
+  
+  void _propagateClick(Event event) {
+    if (_allowClick) {
+      _allowClick = false;
+      
+      notify(
+          new FrameworkEvent(
+              'buttonClick'
+          )
+      );
+      
+      new Timer(
+        const Duration(milliseconds: 50),
+        () => _allowClick = true
+      );
+    }
+  }
 }
-
-
-
