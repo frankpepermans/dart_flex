@@ -175,7 +175,7 @@ class DataGridItemRenderer extends ItemRenderer {
   }
   
   void _updateItemRenderers() {
-    if (_columns != null) {
+    if (_grid != null && _columns != null) {
       int rendererIndex = 0;
       
       if (_itemRendererInstances != null) {
