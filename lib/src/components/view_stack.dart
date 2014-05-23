@@ -119,7 +119,7 @@ class ViewStack extends UIWrapper {
     
     if (_container != null) {
       _container.x = _xOffset * _width;
-      _container.width = _registeredViews.length * _width;
+      _container.width = max(_registeredViews.length, 1) * _width;
       _container.height = _height;
     }
 
