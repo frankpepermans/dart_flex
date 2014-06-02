@@ -48,7 +48,7 @@ class EditableDateTime<T extends DateTime> extends EditableTextMask {
   set data(T value) {
     super.data = value;
     
-    if (value == null) text = DATE_TIME_MASK;
+    if (!_hasFocus && value == null) text = DATE_TIME_MASK;
   }
   
   //---------------------------------

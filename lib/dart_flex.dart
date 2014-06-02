@@ -84,3 +84,7 @@ class Skin {
   const Skin(this.src);
   
 }
+
+int _NEXT_GUID = 1;
+
+String getNextGUID() => 'uid_${_NEXT_GUID++}';

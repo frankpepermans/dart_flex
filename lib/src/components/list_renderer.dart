@@ -396,6 +396,16 @@ class ListRenderer extends ListBase {
     
     _forceRefresh();
   }
+  
+  //---------------------------------
+  // selectedIndices
+  //---------------------------------
+  
+  set selectedIndices(ObservableList<int> value) {
+    super.selectedIndices = value;
+    
+    _forceRefresh();
+  }
 
   //---------------------------------
   // selectedItem
@@ -403,6 +413,16 @@ class ListRenderer extends ListBase {
   
   set selectedItem(dynamic value) {
     super.selectedItem = value;
+    
+    _forceRefresh();
+  }
+  
+  //---------------------------------
+  // selectedItems
+  //---------------------------------
+  
+  set selectedItems(ObservableList<dynamic> value) {
+    super.selectedItems = value;
     
     _forceRefresh();
   }
@@ -734,7 +754,13 @@ class ListRenderer extends ListBase {
             ..index = i
             ..includeInLayout = isRendererShown
             ..visible = isRendererShown
-            ..selected = (_useSelectionEffects && (i == _selectedIndex))
+            ..selected = (
+                _useSelectionEffects && 
+                (
+                    (i == _selectedIndex) ||
+                    (_selectedIndices.contains(i))
+                )
+            )
             ..data = data
             ..inactiveHandler = _inactiveHandler
             ..field = _field
@@ -762,9 +788,44 @@ class ListRenderer extends ListBase {
       );
       
       if (itemRenderer != null) {
-        selectedIndex = (_scrollPosition ~/ _getPageItemSize()) + _itemRenderers.indexOf(itemRenderer);
-
-        selectedItem = _dataProvider[selectedIndex];
+        final int index = (_scrollPosition ~/ _getPageItemSize()) + _itemRenderers.indexOf(itemRenderer);
+        
+        if (_allowMultipleSelection) {
+          selectedIndex = -1;
+          selectedItem = null;
+          
+          if (selectedIndices.contains(index)) {
+            selectedIndices.remove(index);
+            selectedItems.remove(_dataProvider[index]);
+          } else {
+            selectedIndices.add(index);
+            selectedItems.add(_dataProvider[index]);
+          }
+          
+          notify(
+              new FrameworkEvent<Iterable<int>>(
+                  'selectedIndicesChanged',
+                  relatedObject: _selectedIndices
+              )
+          );
+      
+          notify(
+              new FrameworkEvent<Iterable<dynamic>>(
+                'selectedItemsChanged',
+                relatedObject: _selectedItems
+              )
+          );
+          
+          later > _updateSelection;
+          
+          _forceRefresh();
+        } else {
+          selectedIndex = index;
+          selectedItem = _dataProvider[index];
+          
+          selectedIndices.clear();
+          selectedItems.clear();
+        }
       }
     }
   }

@@ -117,6 +117,28 @@ class ListBase extends Group {
       );
     }
   }
+  
+  //---------------------------------
+  // allowMultipleSelection
+  //---------------------------------
+  
+  static const EventHook<FrameworkEvent<bool>> onAllowMultipleSelectionChangedEvent = const EventHook<FrameworkEvent<bool>>('allowMultipleSelectionChanged');
+  Stream<FrameworkEvent<bool>> get onAllowMultipleSelectionChanged => ListBase.onAllowMultipleSelectionChangedEvent.forTarget(this);
+  bool _allowMultipleSelection = false;
+  
+  bool get allowMultipleSelection => _allowMultipleSelection;
+  set allowMultipleSelection(bool value) {
+    if (value != _allowMultipleSelection) {
+      _allowMultipleSelection = value;
+      
+      notify(
+          new FrameworkEvent<bool>(
+            'allowMultipleSelectionChanged',
+            relatedObject: value
+          )
+      );
+    }
+  }
 
   //---------------------------------
   // selectedIndex
@@ -156,6 +178,46 @@ class ListBase extends Group {
       later > _updateSelection;
     }
   }
+  
+  //---------------------------------
+  // selectedIndices
+  //---------------------------------
+
+  static const EventHook<FrameworkEvent<ObservableList<int>>> onSelectedIndicesChangedEvent = const EventHook<FrameworkEvent<ObservableList<int>>>('selectedIndicesChanged');
+  Stream<FrameworkEvent<ObservableList<int>>> get onSelectedIndicesChanged => ListBase.onSelectedIndicesChangedEvent.forTarget(this);
+  ObservableList<int> _selectedIndices = new ObservableList<int>();
+
+  ObservableList<int> get selectedIndices => _selectedIndices;
+  set selectedIndices(ObservableList<int> value) {
+    if (value != _selectedIndices) {
+      _selectedIndices = value;
+      _selectedItems.clear();
+      
+      if (_dataProvider != null && value != null) {
+        int len = _dataProvider.length, i;
+        
+        for (i=0; i<len; i++) {
+          if (value.contains(i)) _selectedItems.add(_dataProvider[i]);
+        }
+      }
+      
+      notify(
+          new FrameworkEvent<Iterable<dynamic>>(
+              'selectedItemsChanged',
+              relatedObject: _selectedItems
+          )
+      );
+
+      notify(
+          new FrameworkEvent<Iterable<int>>(
+            'selectedIndicesChanged',
+            relatedObject: value
+          )
+      );
+
+      later > _updateSelection;
+    }
+  }
 
   //---------------------------------
   // selectedItem
@@ -188,6 +250,46 @@ class ListBase extends Group {
           )
       );
 
+      later > _updateSelection;
+    }
+  }
+  
+  //---------------------------------
+  // selectedItems
+  //---------------------------------
+  
+  static const EventHook<FrameworkEvent<ObservableList<dynamic>>> onSelectedItemsChangedEvent = const EventHook<FrameworkEvent<ObservableList<dynamic>>>('selectedItemsChanged');
+  Stream<FrameworkEvent<ObservableList<dynamic>>> get onSelectedItemsChanged => ListBase.onSelectedItemsChangedEvent.forTarget(this);
+  ObservableList<dynamic> _selectedItems = new ObservableList<dynamic>();
+  
+  ObservableList<dynamic> get selectedItems => _selectedItems;
+  set selectedItems(ObservableList<dynamic> value) {
+    if (value != _selectedItems) {
+      _selectedItems = value;
+      _selectedIndices.clear();
+      
+      if (_dataProvider != null && value != null) {
+        int len = _dataProvider.length, i;
+        
+        for (i=0; i<len; i++) {
+          if (value.contains(_dataProvider[i])) _selectedIndices.add(i);
+        }
+      }
+      
+      notify(
+          new FrameworkEvent<Iterable<int>>(
+              'selectedIndicesChanged',
+              relatedObject: _selectedIndices
+          )
+      );
+  
+      notify(
+          new FrameworkEvent<Iterable<dynamic>>(
+            'selectedItemsChanged',
+            relatedObject: value
+          )
+      );
+  
       later > _updateSelection;
     }
   }
