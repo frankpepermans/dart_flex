@@ -1,6 +1,6 @@
 part of dart_flex;
 
-abstract class IItemRenderer implements IUIWrapper {
+abstract class IItemRenderer<D extends dynamic> implements IUIWrapper {
   
   Stream<FrameworkEvent> get onDataChanged;
   Stream<FrameworkEvent> get onFieldChanged;
@@ -33,8 +33,8 @@ abstract class IItemRenderer implements IUIWrapper {
   bool get enableHighlight;
   set enableHighlight(bool value);
 
-  dynamic get data;
-  set data(dynamic value);
+  D get data;
+  set data(D value);
   
   Symbol get field;
   set field(Symbol value);
@@ -60,7 +60,7 @@ abstract class IItemRenderer implements IUIWrapper {
 
 }
 
-class ItemRenderer extends UIWrapper implements IItemRenderer {
+class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer {
 
   //---------------------------------
   //
@@ -109,10 +109,10 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
   // data
   //---------------------------------
 
-  dynamic _data;
+  D _data;
 
-  dynamic get data => _data;
-  set data(dynamic value) {
+  D get data => _data;
+  set data(D value) {
     if (value != _data) {
       _data = value;
       
@@ -123,7 +123,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       _rebuildCSS();
       
       notify(
-        new FrameworkEvent<dynamic>('dataChanged', relatedObject: value)
+        new FrameworkEvent<D>('dataChanged', relatedObject: value)
       );
 
       later > invalidateData;
@@ -512,7 +512,7 @@ class ItemRenderer extends UIWrapper implements IItemRenderer {
       
       if (bindableRecord != null) {
         notify(
-            new FrameworkEvent<dynamic>(
+            new FrameworkEvent<D>(
                 'dataPropertyChanged',
                 relatedObject: _data
             )

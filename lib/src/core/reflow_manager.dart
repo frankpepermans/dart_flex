@@ -11,8 +11,6 @@ class ReflowManager {
   final Map<dynamic, List<_MethodInvokationMap>> _scheduledHandlers = new Map<dynamic, List<_MethodInvokationMap>>();
   final Map<Element, _ElementCSSMap> _elements = <Element, _ElementCSSMap>{};
   
-  double _currentPeformance = .0;
-  
   //---------------------------------
   //
   // Public properties
@@ -23,21 +21,15 @@ class ReflowManager {
   // invocationFrame
   //---------------------------------
   
-  Completer _invocationFrameCompleter;
-  Timer _invocationTimer;
   Future _invocationFuture;
   
   Future get invocationFrame {
-    if (_invocationTimer == null || !_invocationTimer.isActive) {
-      _invocationFrameCompleter = new Completer();
-      
-      _invocationTimer = new Timer(
-        new Duration(milliseconds: (_currentPeformance > 120.0) ? 120 : _currentPeformance.ceil()),
-        _invocationFrameCompleter.complete
+    if (_invocationFuture != null) return _invocationFuture;
+    // 60fps => 1000 / 60 = 16
+    _invocationFuture = new Future.delayed(const Duration(milliseconds: 16))
+      ..whenComplete(
+        () => _invocationFuture = null 
       );
-      
-      _invocationFuture = _invocationFrameCompleter.future;
-    }
     
     return _invocationFuture;
   }
@@ -46,27 +38,22 @@ class ReflowManager {
   // animationFrame
   //---------------------------------
   
-  Completer _animationFrameCompleter;
   Future _animationFrameFuture;
   
   Future get animationFrame {
-    if (_animationFrameCompleter != null) return _animationFrameFuture;
+    if (_animationFrameFuture != null) return _animationFrameFuture;
     
-    _animationFrameCompleter = new Completer();
+    final Completer animationFrameCompleter = new Completer.sync();
     
-    final double perf = getPerformanceNow();
+    _animationFrameFuture = animationFrameCompleter.future;
     
     window.requestAnimationFrame(
         (_) {
-          _currentPeformance = getPerformanceNow() - perf;
-          
-          _animationFrameCompleter.complete();
-          
-          _animationFrameCompleter = null;
+          _animationFrameFuture = null;
+      
+          animationFrameCompleter.complete();
         }
     );
-    
-    _animationFrameFuture = _animationFrameCompleter.future;
     
     return _animationFrameFuture;
   }
@@ -75,31 +62,21 @@ class ReflowManager {
   // layoutFrame
   //---------------------------------
   
-  Completer _layoutFrameCompleter;
   Future _layoutFuture;
   
   Future get layoutFrame {
-    if (_layoutFrameCompleter != null) return _layoutFuture;
+    if (_layoutFuture != null) return _layoutFuture;
     
-    _layoutFrameCompleter = new Completer();
-    
-    Future.wait(
+    _layoutFuture = Future.wait(
         <Future>[
             invocationFrame,
             animationFrame
         ]
-    ).whenComplete(
-      () {
-        _layoutFrameCompleter.complete();
-        
-        _layoutFrameCompleter = null;
-      }
-    );
-    
-    _layoutFuture = _layoutFrameCompleter.future;
+    ).whenComplete(_resetLayoutFuture);
     
     return _layoutFuture;
   }
+  void _resetLayoutFuture() => _layoutFuture = null;
   
   //---------------------------------
   //
@@ -125,42 +102,32 @@ class ReflowManager {
   //
   //-----------------------------------
   
-  double getPerformanceNow() {
-    if (
-      (window.performance != null) &&
-      (window.performance.now != null)
-    ) return window.performance.now();
-    return 10.0;
-  }
-  
   void scheduleMethod(dynamic owner, Function method, List arguments, {bool forceSingleExecution: false}) {
     List<_MethodInvokationMap> ownerMap = _scheduledHandlers[owner];
     
     if (ownerMap == null) ownerMap = _scheduledHandlers[owner] = <_MethodInvokationMap>[];
     
-    _MethodInvokationMap invokation;
+    _MethodInvokationMap invocation;
     
-    if (forceSingleExecution) invokation = ownerMap.firstWhere(
-        (_MethodInvokationMap tmpInvokation) => FunctionEqualityUtil.equals(tmpInvokation._method, method),
+    if (forceSingleExecution) invocation = ownerMap.firstWhere(
+        (_MethodInvokationMap I) => FunctionEqualityUtil.equals(I._method, method),
         orElse: () => null
     );
     
-    if (invokation == null) {
-      invokation = new _MethodInvokationMap(owner, method)
+    if (invocation == null) {
+      invocation = new _MethodInvokationMap(owner, method)
         .._arguments = arguments;
 
-      ownerMap.add(invokation);
+      ownerMap.add(invocation);
       
       invocationFrame.then(
           (_) {
-            ownerMap.remove(invokation);
+            if (ownerMap.remove(invocation) && (ownerMap.length == 0)) _scheduledHandlers.remove(owner);
             
-            if (ownerMap.length == 0) _scheduledHandlers.remove(owner);
-            
-            invokation.invoke();
+            invocation.invoke();
           }
       );
-    } else invokation._arguments = arguments;
+    } else invocation._arguments = arguments;
   }
 
   void invalidateCSS(Element element, String property, String value) {
@@ -168,20 +135,20 @@ class ReflowManager {
     
     _ElementCSSMap elementCSSMap = _elements[element];
 
-    if (elementCSSMap == null) {
-      elementCSSMap = new _ElementCSSMap(element)
-      ..setProperty(property, value);
+    if (elementCSSMap == null) _elements[element] = elementCSSMap = new _ElementCSSMap(element);
+    
+    elementCSSMap.asyncUpdateCss(layoutFrame, property, value);
+  }
+  
+  void batchInvalidateCSS(Element element, List<dynamic> list) {
+    final int len = list.length;
+    int i;
+    
+    _ElementCSSMap elementCSSMap = _elements[element];
 
-      _elements[element] = elementCSSMap;
-      
-      layoutFrame.then(
-          (_) {
-            _elements.remove(element);
-            
-            elementCSSMap.finalize();
-          }
-      );
-    } else elementCSSMap.setProperty(property, value);
+    if (elementCSSMap == null) _elements[element] = elementCSSMap = new _ElementCSSMap(element);
+    
+    for (i=0; i<len; i+=2) elementCSSMap.asyncUpdateCss(layoutFrame, list[i], list[i+1]);
   }
 }
 
@@ -205,22 +172,32 @@ class _ElementCSSMap {
   
   final Element _element;
   
+  Future _currentWait;
   Map<String, String> _dirtyProperties;
+  bool _isDirty = false;
   
-  _ElementCSSMap(this._element) {
-    _dirtyProperties = <String, String>{};
+  _ElementCSSMap(this._element);
+  
+  void asyncUpdateCss(Future await, String propertyName, String value) {
+    if (await != _currentWait) _currentWait = await..then(_finalize);
+    
+    if (_element.style.getPropertyValue(propertyName) != value) {
+      if (_dirtyProperties == null) _dirtyProperties = <String, String>{};
+      
+      _isDirty = true;
+      _dirtyProperties[propertyName] = value;
+    }
   }
   
-  void finalize() {
+  void _finalize(_) {
+    if (!_isDirty) return;
+    
     _dirtyProperties.forEach(
-      (String propertyName, String propertyValue) => _element.style.setProperty(propertyName, propertyValue, _PRIORITY)
+      (String N, String V) => _element.style.setProperty(N, V, _PRIORITY)
     );
     
-    _dirtyProperties = <String, String>{};
-  }
-  
-  void setProperty(String propertyName, String value) {
-    if (_element.style.getPropertyValue(propertyName) != value) _dirtyProperties[propertyName] = value;
+    _isDirty = false;
+    _dirtyProperties = null;
   }
   
   String toString() => '$_element $_dirtyProperties';

@@ -2,7 +2,7 @@ part of dart_flex;
 
 class StreamSubscriptionManager {
   
-  final Map<String, StreamSubscriptionEntry> _entries = <String, StreamSubscriptionEntry>{};
+  Map<String, StreamSubscriptionEntry> _entries = <String, StreamSubscriptionEntry>{};
   
   StreamSubscriptionManager();
   
@@ -18,13 +18,19 @@ class StreamSubscriptionManager {
   void flushIdent(String ident) {
     StreamSubscriptionEntry entry = _entries[ident];
     
-    if (entry != null) entry.flush();
+    if (entry != null) {
+      entry.flush();
+      
+      _entries.remove(entry);
+    }
   }
   
   void flushAll() {
     _entries.forEach(
-      (_, StreamSubscriptionEntry entry) => entry.flush()    
+      (_, StreamSubscriptionEntry E) => E.flush()
     );
+    
+    _entries = <String, StreamSubscriptionEntry>{};
   }
 }
 
@@ -38,7 +44,7 @@ class StreamSubscriptionEntry {
   
   void flush() {
     _list.forEach(
-        (StreamSubscription subscription) => subscription.cancel()
+        (StreamSubscription S) => S.cancel()
     );
     
     _list = <StreamSubscription>[];

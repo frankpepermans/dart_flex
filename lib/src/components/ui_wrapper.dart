@@ -671,53 +671,40 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
         (_control != null) &&  
         (_elementId == null)
     ) {
-      final _ElementCSSMap cssMap = _reflowManager._elements[_control];
-      
+      final Function I = _reflowManager.invalidateCSS;
       if (_useMatrixTransformations) {
-        if (cssMap != null) switch (type) {
-          case 1 : case 2 : cssMap.setProperty('${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ${_x}, ${_y}, 0, 1)');  break;
-          case 3 : cssMap.setProperty('width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));    break;
-          case 4 : cssMap.setProperty('height', ((_height == 0) ? 'auto' : (_height.toString() + 'px'))); break;
+        switch (type) {
+          case 1 : case 2 : I(_control, '${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ${_x}, ${_y}, 0, 1)');  break;
+          case 3 : I(_control, 'width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));    break;
+          case 4 : I(_control, 'height', ((_height == 0) ? 'auto' : (_height.toString() + 'px'))); break;
           case 5 :
-            cssMap.setProperty('${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ${_x}, ${_y}, 0, 1)');
-            cssMap.setProperty('width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));
-            cssMap.setProperty('height', ((_height == 0) ? 'auto' : (_height.toString() + 'px')));
-
-            break;
-        } else switch (type) {
-          case 1 : case 2 : _reflowManager.invalidateCSS(_control, '${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ${_x}, ${_y}, 0, 1)');  break;
-          case 3 : _reflowManager.invalidateCSS(_control, 'width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));    break;
-          case 4 : _reflowManager.invalidateCSS(_control, 'height', ((_height == 0) ? 'auto' : (_height.toString() + 'px'))); break;
-          case 5 :
-            _reflowManager.invalidateCSS(_control, '${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ${_x}, ${_y}, 0, 1)');
-            _reflowManager.invalidateCSS(_control, 'width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));
-            _reflowManager.invalidateCSS(_control, 'height', ((_height == 0) ? 'auto' : (_height.toString() + 'px')));
-
+            _reflowManager.batchInvalidateCSS(
+                _control,
+                [
+                  '${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ${_x}, ${_y}, 0, 1)',
+                  'width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')),
+                  'height', ((_height == 0) ? 'auto' : (_height.toString() + 'px'))
+                ]
+            );
+            
             break;
         }
       } else {
-        if (cssMap != null) switch (type) {
-          case 1 : cssMap.setProperty('left', (_x.toString() + 'px'));                                    break;
-          case 2 : cssMap.setProperty('top', (_y.toString() + 'px'));                                     break;
-          case 3 : cssMap.setProperty('width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));    break;
-          case 4 : cssMap.setProperty('height', ((_height == 0) ? 'auto' : (_height.toString() + 'px'))); break;
+        switch (type) {
+          case 1 : I(_control, 'left', (_x.toString() + 'px'));                                    break;
+          case 2 : I(_control, 'top', (_y.toString() + 'px'));                                     break;
+          case 3 : I(_control, 'width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));    break;
+          case 4 : I(_control, 'height', ((_height == 0) ? 'auto' : (_height.toString() + 'px'))); break;
           case 5 :
-            cssMap.setProperty('left', (_x.toString() + 'px'));
-            cssMap.setProperty('top', (_y.toString() + 'px'));
-            cssMap.setProperty('width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));
-            cssMap.setProperty('height', ((_height == 0) ? 'auto' : (_height.toString() + 'px')));
-
-            break;
-        } else switch (type) {
-          case 1 : _reflowManager.invalidateCSS(_control, 'left', (_x.toString() + 'px'));                                    break;
-          case 2 : _reflowManager.invalidateCSS(_control, 'top', (_y.toString() + 'px'));                                     break;
-          case 3 : _reflowManager.invalidateCSS(_control, 'width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));    break;
-          case 4 : _reflowManager.invalidateCSS(_control, 'height', ((_height == 0) ? 'auto' : (_height.toString() + 'px'))); break;
-          case 5 :
-            _reflowManager.invalidateCSS(_control, 'left', (_x.toString() + 'px'));
-            _reflowManager.invalidateCSS(_control, 'top', (_y.toString() + 'px'));
-            _reflowManager.invalidateCSS(_control, 'width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')));
-            _reflowManager.invalidateCSS(_control, 'height', ((_height == 0) ? 'auto' : (_height.toString() + 'px')));
+            _reflowManager.batchInvalidateCSS(
+                _control,
+                [
+                  'left', (_x.toString() + 'px'),
+                  'top', (_y.toString() + 'px'),
+                  'width', ((_width == 0) ? 'auto' : (_width.toString() + 'px')),
+                  'height', ((_height == 0) ? 'auto' : (_height.toString() + 'px'))
+                ]
+            );
 
             break;
         }

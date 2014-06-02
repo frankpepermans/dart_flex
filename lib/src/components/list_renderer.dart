@@ -495,13 +495,13 @@ class ListRenderer extends ListBase {
   //---------------------------------
 
   void _removeAllElements() {
-    if (_itemRenderers != null) _itemRenderers = <IItemRenderer>[];
-
-    removeAll();
+    if (_itemRenderers != null) {
+      int i = _itemRenderers.length;
+      
+      while (i > 0) removeComponent(_itemRenderers[--i]);
+    }
     
     _removedItemRenderers = <IItemRenderer>[];
-
-    if (_scrollTarget != null) addComponent(_scrollTarget);
   }
 
   void _updateRenderer(IItemRenderer renderer) {
