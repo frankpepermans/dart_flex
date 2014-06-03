@@ -12,7 +12,7 @@ abstract class IViewStackElement implements IUIWrapper {
 
 }
 
-class ViewStack extends UIWrapper {
+class ViewStack extends Group {
 
   //---------------------------------
   //
@@ -21,7 +21,7 @@ class ViewStack extends UIWrapper {
   //---------------------------------
 
   bool _isScrollPolicyInvalid = false;
-  int _xOffset = 0;
+  int _previousIndex = -1, _currentIndex = -1;
 
   //---------------------------------
   //
@@ -33,35 +33,12 @@ class ViewStack extends UIWrapper {
   Stream<FrameworkEvent<ViewStackElementData>> get onViewChanged => ViewStack.onViewChangedEvent.forTarget(this);
   
   //---------------------------------
-  // container
-  //---------------------------------
-  
-  Group _container;
-  
-  Group get container => _container;
-  
-  //---------------------------------
   // registeredViews
   //---------------------------------
   
   List<ViewStackElementData> _registeredViews = new List<ViewStackElementData>();
   
   List<ViewStackElementData> get registeredViews => _registeredViews;
-  
-  //---------------------------------
-  // activeView
-  //---------------------------------
-  
-  String get activeView => (_activeViewStackElement != null) ? _activeViewStackElement.uniqueId : null;
-  
-  //---------------------------------
-  // activeViewStackElement
-  //---------------------------------
-  
-  ViewStackElementData _activeViewStackElement;
-  ViewStackElementData _inactiveViewStackElement;
-  
-  ViewStackElementData get activeViewStackElement => _activeViewStackElement;
 
   //---------------------------------
   //
@@ -71,6 +48,8 @@ class ViewStack extends UIWrapper {
 
   ViewStack({String elementId: null}) : super(elementId: elementId) {
   	_className = 'ViewStack';
+  	
+  	layout = new AbsoluteLayout();
   }
 
   //---------------------------------
@@ -80,58 +59,23 @@ class ViewStack extends UIWrapper {
   //---------------------------------
   
   @override
-  void createChildren() {
-    if (_control == null) _setControl(new DivElement());
-    
-    _layout = new AbsoluteLayout();
-    
-    _container = new Group()
-    ..inheritsDefaultCSS = false
-    ..cssClasses = const <String>['_ViewStackSlider']
-    .._layout = new AbsoluteLayout();
-    
-    _streamSubscriptionManager.add(
-        'view_stack_containerControlChanged', 
-        _container.onControlChanged.listen(
-          (FrameworkEvent<Element> event) => _reflowManager.invalidateCSS(
-              event.relatedObject,
-              'position',
-              'absolute'
-          )    
-        )
-    );
-    
-    super.addComponent(_container);
-    
-    super.createChildren();
-    
-    notify(
-        new FrameworkEvent(
-            'controlChanged',
-            relatedObject: _control
-        )
-    );
-  }
-  
-  @override
   void updateLayout() {
     super.updateLayout();
     
-    if (_container != null) {
-      _container.x = _xOffset * _width;
-      _container.width = max(_registeredViews.length, 1) * _width;
-      _container.height = _height;
+    if (_currentIndex >= 0) {
+      final ViewStackElementData currentData = _registeredViews[_currentIndex];
+      
+      currentData.element.width = width;
+      currentData.element.height = height;
     }
-
-    if (_activeViewStackElement != null) {
-      _activeViewStackElement.element.x = _xOffset * -_width;
-      _activeViewStackElement.element.width = _width;
-      _activeViewStackElement.element.height = _height;
+    
+    if (_previousIndex >= 0) {
+      final ViewStackElementData previousData = _registeredViews[_previousIndex];
+      
+      previousData.element.width = width;
+      previousData.element.height = height;
     }
   }
-  
-  @override
-  void addComponent(IUIWrapper element, {bool prepend: false}) => throw new ArgumentError('Please use addView() instead');
   
   void addView(String uniqueId, IViewStackElement element) {
     ViewStackElementData viewStackElement = _registeredViews.firstWhere(
@@ -147,75 +91,58 @@ class ViewStack extends UIWrapper {
           element.onRequestViewChange.listen(_viewStackElement_requestViewChangeHandler)
       );
       
-      _registeredViews.add(viewStackElement);  
+      _registeredViews.add(viewStackElement);
     }
   }
   
   bool show(String uniqueId) {
-    if (_container == null) {
-      _streamSubscriptionManager.add(
-          'view_stack_containerControlChanged', 
-          onControlChanged.listen(
-              (FrameworkEvent event) => show(uniqueId)
-          )
-      );
-    } else {
-      ViewStackElementData viewStackElement;
-      final int currentIndex = (_activeViewStackElement != null) ? _registeredViews.indexOf(_activeViewStackElement) : -1;
-      int newIndex = -1;
-      int i = _registeredViews.length;
+    final ViewStackElementData currentData = _registeredViews.firstWhere(
+      (ViewStackElementData D) => (D.uniqueId == uniqueId),
+      orElse: () => null
+    );
+    
+    _previousIndex = _currentIndex;
+    _currentIndex = _registeredViews.indexOf(currentData);
+    
+    if (_currentIndex == _previousIndex) return false;
+    
+    final ViewStackElementData previousData = (_previousIndex >= 0) ? _registeredViews[_previousIndex] : null;
+    final int animationDirection = _getAnimationDirection();
+    
+    if (animationDirection == 0) return false;
+    
+    if (currentData.element.x == 0) currentData.element.x = -width * animationDirection;
+    currentData.element.y = 0;
+    
+    new Timer(const Duration(milliseconds: 100), () => currentData.element.x = 0);
+    
+    addComponent(currentData.element);
+    
+    if (previousData != null) {
+      previousData.element.y = 0;
       
-      if (currentIndex == -1) _xOffset = 0;
+      addComponent(previousData.element);
       
-      _reflowManager.invalidateCSS(_container._control, 'transition', 'left 0.5s ease-out');
-      
-      while (i > 0) {
-        viewStackElement = _registeredViews[--i];
-        
-        if (viewStackElement.uniqueId == uniqueId) {
-          newIndex = i;
-          
-          break;
-        }
-      }
-      
-      if (
-          (currentIndex == newIndex) ||
-          (newIndex == -1)
-      ) return false;
-      
-      viewStackElement.element.includeInLayout = false;
-      
-      viewStackElement.element.preInitialize(this);
-      
-      if (currentIndex >= 0) {
-        _inactiveViewStackElement = _activeViewStackElement;
-        
-        _inactiveViewStackElement.element.includeInLayout = false;
-        
-        if (newIndex > currentIndex) {
-          --_xOffset;
-        } else {
-          ++_xOffset;
-        }
-      }
-      
-      _activeViewStackElement = viewStackElement;
-      
-      _container.addComponent(viewStackElement.element);
-      
-      updateLayout();
-      
-      _activeViewStackElement.element.includeInLayout = true;
-      
-      notify(
-        new FrameworkEvent<ViewStackElementData>('viewChanged', relatedObject: viewStackElement)    
-      );
-      
-      return true;
+      new Timer(const Duration(milliseconds: 100), () => previousData.element.x = width * animationDirection);
     }
     
-    return false;
+    int i = 0;
+    
+    _registeredViews.forEach(
+      (ViewStackElementData D) {
+        D.element.visible = (i == _previousIndex || i == _currentIndex);
+        
+        i++;
+      }
+    );
+    
+    invalidateLayout();
+    
+    notify(
+      new FrameworkEvent<ViewStackElementData>('viewChanged', relatedObject: currentData)    
+    );
+    
+    return true;
   }
   
   bool removeView(String uniqueId) {
@@ -225,7 +152,9 @@ class ViewStack extends UIWrapper {
     );
     
     if (viewStackElementData != null) {
-      _container.removeComponent(viewStackElementData.element, flush: false);
+      removeComponent(viewStackElementData.element, flush: false);
+      
+      _currentIndex = -1;
       
       return _registeredViews.remove(viewStackElementData);
     }
@@ -238,7 +167,7 @@ class ViewStack extends UIWrapper {
     
     while (i > 0) removeView(_registeredViews[--i].uniqueId);
     
-    _xOffset = 0;
+    _currentIndex = _previousIndex = -1;
     
     updateLayout();
   }
@@ -249,20 +178,25 @@ class ViewStack extends UIWrapper {
   //
   //---------------------------------
   
+  int _getAnimationDirection() {
+    if ((_currentIndex == -1) || (_currentIndex == _previousIndex)) return 0;
+    
+    return (_currentIndex < _previousIndex) ? 1 : -1;
+  }
+  
   void _viewStackElement_requestViewChangeHandler(ViewStackEvent event) {
     if (event.namedView != null) {
       show(event.namedView);
     } else if (event.sequentialView > 0) {
       final int len = _registeredViews.length;
-      final int index = _registeredViews.indexOf(_activeViewStackElement);
       ViewStackElementData requestedElement;
       int requestedIndex;
       
       switch (event.sequentialView) {
-        case ViewStackEvent.REQUEST_PREVIOUS_VIEW : requestedIndex = index - 1;   break;
-        case ViewStackEvent.REQUEST_NEXT_VIEW :     requestedIndex = index + 1;   break;
-        case ViewStackEvent.REQUEST_FIRST_VIEW :    requestedIndex = 0;           break;
-        case ViewStackEvent.REQUEST_LAST_VIEW :     requestedIndex = len - 1;     break;
+        case ViewStackEvent.REQUEST_PREVIOUS_VIEW : requestedIndex = _currentIndex - 1;   break;
+        case ViewStackEvent.REQUEST_NEXT_VIEW :     requestedIndex = _currentIndex + 1;   break;
+        case ViewStackEvent.REQUEST_FIRST_VIEW :    requestedIndex = 0;                   break;
+        case ViewStackEvent.REQUEST_LAST_VIEW :     requestedIndex = len - 1;             break;
       }
       
       requestedIndex = (requestedIndex < 0) ? (len - 1) : (requestedIndex >= len) ? 0 : requestedIndex;

@@ -788,6 +788,10 @@ class ListRenderer extends ListBase {
       );
       
       if (itemRenderer != null) {
+        final int pageItemSize = _getPageItemSize();
+        
+        if (pageItemSize is int && pageItemSize <= 0) return;
+        
         final int index = (_scrollPosition ~/ _getPageItemSize()) + _itemRenderers.indexOf(itemRenderer);
         
         if (_allowMultipleSelection) {

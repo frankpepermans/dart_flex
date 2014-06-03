@@ -165,7 +165,7 @@ class EditableText extends UIWrapper {
   }
   
   void _commitTextPattern() {
-    if (input != null) input.pattern = _pattern;
+    if (input != null) input.pattern = (_pattern != null) ? _pattern : '';
   }
   
   void _commitTextVerticalAlign() {
@@ -304,7 +304,10 @@ class EditableTextMask<T extends DateTime> extends EditableText {
   String failSafeSubstring(String value, int startIndex, int endIndex) {
     if (
         (value == null) ||
+        (startIndex == null) ||
+        (endIndex == null) ||
         (startIndex >= endIndex) ||
+        (endIndex > value.length) ||
         (startIndex < 0) ||
         (endIndex < 0)
     ) return null;

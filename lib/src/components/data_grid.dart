@@ -17,6 +17,8 @@ class DataGrid extends ListBase {
   VGroup _gridContainer;
   HGroup _headerContainer;
   ListRenderer _list;
+  
+  ListRenderer get list => _list;
 
   //---------------------------------
   //

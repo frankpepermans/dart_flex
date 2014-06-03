@@ -87,14 +87,14 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
   static const EventHook<FrameworkEvent> onFieldsChangedEvent = const EventHook<FrameworkEvent>('fieldsChanged');
   Stream<FrameworkEvent> get onFieldsChanged => ItemRenderer.onFieldsChangedEvent.forTarget(this);
   
-  static const EventHook<FrameworkEvent> onClickEvent = const EventHook<FrameworkEvent>('click');
-  Stream<FrameworkEvent> get onClick => ItemRenderer.onClickEvent.forTarget(this);
+  static const EventHook<FrameworkEvent<MouseEvent>> onClickEvent = const EventHook<FrameworkEvent<MouseEvent>>('click');
+  Stream<FrameworkEvent<MouseEvent>> get onClick => ItemRenderer.onClickEvent.forTarget(this);
   
-  static const EventHook<FrameworkEvent> onMouseOverEvent = const EventHook<FrameworkEvent>('mouseOver');
-  Stream<FrameworkEvent> get onMouseOver => ItemRenderer.onMouseOverEvent.forTarget(this);
+  static const EventHook<FrameworkEvent<MouseEvent>> onMouseOverEvent = const EventHook<FrameworkEvent<MouseEvent>>('mouseOver');
+  Stream<FrameworkEvent<MouseEvent>> get onMouseOver => ItemRenderer.onMouseOverEvent.forTarget(this);
   
-  static const EventHook<FrameworkEvent> onMouseOutEvent = const EventHook<FrameworkEvent>('mouseOut');
-  Stream<FrameworkEvent> get onMouseOut => ItemRenderer.onMouseOutEvent.forTarget(this);
+  static const EventHook<FrameworkEvent<MouseEvent>> onMouseOutEvent = const EventHook<FrameworkEvent<MouseEvent>>('mouseOut');
+  Stream<FrameworkEvent<MouseEvent>> get onMouseOut => ItemRenderer.onMouseOutEvent.forTarget(this);
   
   static const EventHook<FrameworkEvent<dynamic>> onDataPropertyChangedEvent = const EventHook<FrameworkEvent<dynamic>>('dataPropertyChanged');
   Stream<FrameworkEvent> get onDataPropertyChanged => ItemRenderer.onDataPropertyChangedEvent.forTarget(this);
@@ -360,8 +360,9 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
         'item_renderer_containerClick', 
         container.onClick.listen(
             (MouseEvent event) => notify(
-                new FrameworkEvent(
-                    'click'
+                new FrameworkEvent<MouseEvent>(
+                    'click',
+                    relatedObject: event
                 )
             )
         )
@@ -371,8 +372,9 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
         'item_renderer_containerMouseOver', 
         container.onMouseOver.listen(
             (MouseEvent event) => notify(
-                new FrameworkEvent(
-                    'mouseOver'
+                new FrameworkEvent<MouseEvent>(
+                    'mouseOver',
+                    relatedObject: event
                 )
             )
         )
@@ -382,8 +384,9 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
         'item_renderer_containerMouseOut', 
         container.onMouseOut.listen(
             (MouseEvent event) => notify(
-                new FrameworkEvent(
-                    'mouseOut'
+                new FrameworkEvent<MouseEvent>(
+                    'mouseOut',
+                    relatedObject: event
                 )
             )
         )

@@ -8,6 +8,3 @@ dependencies:
   browser: any
   observe: any
   xml: any
-transformers:
-- dart_flex/src/transformers/uiml_transformer
-- observe/transformer
