@@ -65,6 +65,7 @@ part "src/events/view_stack_event.dart";
 part "src/layout/absolute_layout.dart";
 part "src/layout/base_layout.dart";
 part "src/layout/horizontal_layout.dart";
+part "src/layout/scroll_binder.dart";
 part "src/layout/tile_layout.dart";
 part "src/layout/vertical_layout.dart";
 
