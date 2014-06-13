@@ -616,7 +616,9 @@ class DataGrid extends ListBase {
       
       _list.rowHeight = _rowHeight;
       _list.colWidth = w;
-      _list.horizontalScrollPolicy = (tw > _width) ? ScrollPolicy.AUTO : ScrollPolicy.NONE;
+      
+      if (_autoManageScrollBars) _list.horizontalScrollPolicy = (tw > _width) ? ScrollPolicy.AUTO : ScrollPolicy.NONE;
+      else _list.horizontalScrollPolicy = _horizontalScrollPolicy;
 
       if (_headerContainer != null) {
         _headerContainer.width = w;

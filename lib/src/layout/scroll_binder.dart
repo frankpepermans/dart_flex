@@ -2,29 +2,42 @@ part of dart_flex;
 
 class ScrollBinder {
   
-  void bind(ListBase scrollViewA, ListBase scrollViewB, {bool bindHorizontally: false, bool bindVertically: false}) {
-    Future.wait([_getScrollTarget(scrollViewA), _getScrollTarget(scrollViewB)]).then(
-      (List<ListRenderer> scrollTargets) {
-        final ListRenderer scrollTargetA = scrollTargets.first;
-        final ListRenderer scrollTargetB = scrollTargets.last;
-        
-        if (bindVertically) {
-          scrollTargetA.onListScrollPositionChanged.listen(
-            (_) => scrollTargetB.scrollPosition = scrollTargetA.scrollPosition
-          );
-          
-          scrollTargetB.onListScrollPositionChanged.listen(
-            (_) => scrollTargetA.scrollPosition = scrollTargetB.scrollPosition
+  final Map<ListBase, Completer<ListRenderer>> _completers = <ListBase, Completer<ListRenderer>>{};
+  
+  void bind(List<ListBase> scrollViews, {bool bindHorizontally: false, bool bindVertically: false}) {
+    final List<Future<ListRenderer>> waits = <Future<ListRenderer>>[];
+    
+    scrollViews.forEach(
+      (ListBase L) => waits.add(_getScrollTarget(L))
+    );
+    
+    Future.wait(waits).then(
+      (List<ListRenderer> scrollTargets) {print('GO');
+        if (bindHorizontally) {
+          scrollTargets.forEach(
+            (ListRenderer R) {
+              R.onHeaderScrollPositionChanged.listen(
+                (_) => scrollTargets.forEach(
+                  (ListRenderer S) {
+                    if (S != R) S.setScrollPosition(horizontalScrollValue: R.headerScrollPosition);
+                  }
+                )
+              );
+            }
           );
         }
         
-        if (bindHorizontally) {
-          scrollTargetA.onHeaderScrollPositionChanged.listen(
-            (_) => scrollTargetB.headerScrollPosition = scrollTargetA.headerScrollPosition
-          );
-          
-          scrollTargetB.onHeaderScrollPositionChanged.listen(
-            (_) => scrollTargetA.headerScrollPosition = scrollTargetB.headerScrollPosition
+        if (bindVertically) {
+          scrollTargets.forEach(
+            (ListRenderer R) {
+              R.onListScrollPositionChanged.listen(
+                (_) => scrollTargets.forEach(
+                  (ListRenderer S) {
+                    if (S != R) S.setScrollPosition(verticalScrollValue: R.scrollPosition);
+                  }
+                )
+              );
+            }
           );
         }
       }
@@ -34,12 +47,18 @@ class ScrollBinder {
   Future<ListRenderer> _getScrollTarget(ListBase view) {
     if (view is DataGrid) {
       if (view.list == null) {
-        final Completer<ListRenderer> completer = new Completer<ListRenderer>();
+        if (_completers.containsKey(view)) return _completers[view].future;
         
-        view.onControlChanged.listen(
-          (_) => completer.complete(view.list)
+        _completers[view] = new Completer<ListRenderer>();
+        
+        view.onInitializationComplete.listen(
+          (_) => _completers[view].complete(view.list)
         );
-      } else return new Future<ListRenderer>.value(view.list);
+        
+        return _completers[view].future;
+      }
+      
+      return new Future<ListRenderer>.value(view.list);
     }
     
     return new Future<ListRenderer>.value(view);

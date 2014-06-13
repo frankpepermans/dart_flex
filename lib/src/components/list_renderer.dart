@@ -325,7 +325,7 @@ class ListRenderer extends ListBase {
   set scrollPosition(int value) {
     if (value != _scrollPosition) {
       _scrollPosition = value;
-
+      
       notify(
         new FrameworkEvent(
           'listScrollPositionChanged'
@@ -506,6 +506,13 @@ class ListRenderer extends ListBase {
         else _control.scrollLeft = _selectedIndex * _colWidth;
       }
     }
+  }
+  
+  void setScrollPosition({int horizontalScrollValue: null, int verticalScrollValue: null}) {
+    if (_control == null) return;
+    print('$horizontalScrollValue $verticalScrollValue');
+    if (horizontalScrollValue != null)  _control.scrollLeft = horizontalScrollValue;
+    if (verticalScrollValue != null)    _control.scrollTop = verticalScrollValue;
   }
 
   //---------------------------------
