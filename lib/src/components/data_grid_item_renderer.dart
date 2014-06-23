@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class DataGridItemRenderer extends ItemRenderer {
+class DataGridItemRenderer<D extends dynamic> extends ItemRenderer {
 
   //---------------------------------
   //
@@ -156,13 +156,21 @@ class DataGridItemRenderer extends ItemRenderer {
     return null;
   }
   
-  //---------------------------------
-  //
-  // Protected methods
-  //
-  //---------------------------------
+  IItemRenderer createItemRenderer(DataGridColumn column, int index) {
+    final IItemRenderer renderer = column.columnItemRendererFactory.immediateInstance()
+      ..index = index
+      ..data = _data
+      ..enableHighlight = true
+      ..field = column._field
+      ..fields = column._fields
+      ..inactiveHandler = _inactiveHandler
+      ..labelHandler = column.labelHandler
+      ..height = _grid.rowHeight;
+    
+    return renderer;
+  }
   
-  void _refreshColumns() {
+  void refreshColumns() {
     _isColumnsChanged = true;
 
     notify(
@@ -173,6 +181,12 @@ class DataGridItemRenderer extends ItemRenderer {
 
     invalidateProperties();
   }
+  
+  //---------------------------------
+  //
+  // Protected methods
+  //
+  //---------------------------------
   
   void _updateItemRenderers() {
     if (_grid != null && _columns != null) {
@@ -190,15 +204,7 @@ class DataGridItemRenderer extends ItemRenderer {
       _columns.forEach(
         (DataGridColumn column) {
           if (column._isActive) {
-            ItemRenderer renderer = column.columnItemRendererFactory.immediateInstance()
-                ..index = rendererIndex++
-                ..data = _data
-                ..enableHighlight = true
-                ..field = column._field
-                ..fields = column._fields
-                ..inactiveHandler = _inactiveHandler
-                ..labelHandler = column.labelHandler
-                ..height = _grid.rowHeight;
+            ItemRenderer renderer = createItemRenderer(column, rendererIndex++);
             
             renderer.cssClasses = _concat_css(column, renderer);
             

@@ -3,6 +3,7 @@ part of dart_flex;
 typedef String SortHandler(dynamic data, Symbol propertySymbol);
 typedef int CompareHandler(dynamic dataA, dynamic dataB);
 typedef void HeaderMouseHandler(IItemRenderer header);
+typedef IItemRenderer ItemRendererHandler(DataGridItemRenderer rowRenderer, DataGridColumn column, int index, Function defaultHandler);
 
 class DataGrid extends ListBase {
 
@@ -65,6 +66,23 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
+  // dataGridItemRendererFactory
+  //---------------------------------
+
+  static const EventHook<FrameworkEvent> onDataGridItemRendererFactoryChangedEvent = const EventHook<FrameworkEvent>('dataGridItemRendererFactoryChanged');
+  Stream<FrameworkEvent> get onDataGridItemRendererFactoryChanged => DataGrid.onDataGridItemRendererFactoryChangedEvent.forTarget(this);
+  ItemRendererFactory _dataGridItemRendererFactory = new ItemRendererFactory<DataGridItemRenderer>(constructorMethod: DataGridItemRenderer.construct);
+
+  ItemRendererFactory get dataGridItemRendererFactory => _dataGridItemRendererFactory;
+  set dataGridItemRendererFactory(ItemRendererFactory value) {
+    if (value != _dataGridItemRendererFactory) {
+      _dataGridItemRendererFactory = value;
+      
+      if (_list != null) _list.itemRendererFactory = value;
+    }
+  }
+  
+  //---------------------------------
   // listClasses
   //---------------------------------
 
@@ -104,6 +122,23 @@ class DataGrid extends ListBase {
           (IHeaderItemRenderer headerRenderer) => headerRenderer.visible = headerRenderer.includeInLayout = !value
         );
       }
+    }
+  }
+  
+  //---------------------------------
+  // itemRendererHandler
+  //---------------------------------
+
+  ItemRendererHandler _itemRendererHandler;
+
+  ItemRendererHandler get itemRendererHandler => _itemRendererHandler;
+  set itemRendererHandler(ItemRendererHandler value) {
+    if (value != _itemRendererHandler) {
+      _itemRendererHandler = value;
+      
+      if (_list != null) _list._itemRenderers.forEach(
+        (DataGridItemRenderer R) => R.refreshColumns()    
+      );
     }
   }
   
@@ -436,7 +471,7 @@ class DataGrid extends ListBase {
     ..rowSpacing = _rowSpacing
     ..rowHeight = _rowHeight
     ..dataProvider = _dataProvider
-    ..itemRendererFactory = new ItemRendererFactory(constructorMethod: DataGridItemRenderer.construct)
+    ..itemRendererFactory = _dataGridItemRendererFactory
     ..useSelectionEffects = _useSelectionEffects
     ..autoManageScrollBars = _autoManageScrollBars;
     
@@ -549,7 +584,7 @@ class DataGrid extends ListBase {
             renderer.gap = _columnSpacing;
             
             if (renderer.columns != _columns) renderer.columns = _columns;
-            else renderer._refreshColumns();
+            else renderer.refreshColumns();
           }
         );
       }
