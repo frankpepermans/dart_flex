@@ -177,5 +177,7 @@ class RichText extends UIWrapper {
     } else {
       _label.text = newText;
     }
+    
+    control.title = newText.replaceAll(new RegExp(r'<[^>]+>'), '');
   }
 }
