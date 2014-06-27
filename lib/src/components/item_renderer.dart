@@ -19,6 +19,12 @@ abstract class IItemRenderer<D extends dynamic> implements IUIWrapper {
   bool get selected;
   set selected(bool value);
   
+  bool get notApplicable;
+  set notApplicable(bool value);
+  
+  bool get showAsEditable;
+  set showAsEditable(bool value);
+  
   InactiveHandler get inactiveHandler;
   set inactiveHandler(InactiveHandler value);
   
@@ -118,9 +124,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
       
       getDataToObserve();
       
-      _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
-      
-      _rebuildCSS();
+      later > _updateDefaultClass;
       
       notify(
         new FrameworkEvent<D>('dataChanged', relatedObject: value)
@@ -211,8 +215,42 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (value != _selected) {
       _selected = value;
       
-      later > _rebuildCSS;
+      later > _updateDefaultClass;
 
+      later > updateAfterInteraction;
+    }
+  }
+  
+  //---------------------------------
+  // notApplicable
+  //---------------------------------
+  
+  bool _notApplicable = false;
+  
+  bool get notApplicable => _notApplicable;
+  set notApplicable(bool value) {
+    if (value != _notApplicable) {
+      _notApplicable = value;
+      
+      later > _updateDefaultClass;
+  
+      later > updateAfterInteraction;
+    }
+  }
+  
+  //---------------------------------
+  // showAsEditable
+  //---------------------------------
+  
+  bool _showAsEditable = false;
+  
+  bool get showAsEditable => _showAsEditable;
+  set showAsEditable(bool value) {
+    if (value != _showAsEditable) {
+      _showAsEditable = value;
+      
+      later > _updateDefaultClass;
+  
       later > updateAfterInteraction;
     }
   }
@@ -227,9 +265,8 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
   set inactiveHandler(InactiveHandler value) {
     if (value != _inactiveHandler) {
       _inactiveHandler = value;
-      _inactive = (value != null) ? value(data) : false;
       
-      later > _rebuildCSS;
+      later > _updateDefaultClass;
     }
   }
   
@@ -244,7 +281,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (value != _validationHandler) {
       _validationHandler = value;
       
-      later > invalidateData;
+      later > _updateDefaultClass;
     }
   }
   
@@ -395,11 +432,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     later > invalidateData;
   }
 
-  void invalidateData() {
-    _isInvalid = (_validationHandler != null) ? !_validationHandler(data) : false;
-          
-    later > _rebuildCSS;
-  }
+  void invalidateData() {}
 
   void updateAfterInteraction() {}
   
@@ -488,10 +521,37 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     );
   }
   
-  void _rebuildCSS() {
+  @override
+  void _updateDefaultClass() {
+    if (_control == null) return;
+    
     final String mainClassName = className.split(' ').first;
-          
-    className = '${mainClassName}${_selected ? ' ${mainClassName}-selected' : ''}${_inactive ? ' inactive' : ''}${_isInvalid ? ' invalid' : ''}';
+    final List<String> newClasses = <String>[];
+    final List<String> cssList = '_${_className}'.split(' ');
+    
+    cssList.forEach(
+      (String C) {
+        if (_inheritsDefaultCSS) newClasses.add(C);
+      }
+    );
+    
+    if (_cssClasses != null) newClasses.addAll(_cssClasses);
+    
+    _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
+    _isInvalid = (_validationHandler != null) ? !_validationHandler(data) : false;
+    
+    if (_selected) newClasses.add('${mainClassName}-selected');
+    
+    if (_notApplicable) newClasses.add('not-applicable');
+    
+    if (_showAsEditable) newClasses.add('editable');
+    
+    if (_inactive) newClasses.add('inactive');
+    
+    if (_isInvalid) newClasses.add('invalid');
+    
+    _control.classes.clear();
+    _control.classes.addAll(newClasses);
   }
   
   void _data_changesHandler(Iterable<dynamic> changes) {
@@ -525,9 +585,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
       }
     }
     
-    _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
-    
-    later > _rebuildCSS;
+    later > _updateDefaultClass;
     
     later > invalidateData;
     

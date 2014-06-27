@@ -414,15 +414,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     if (_isCSSClassesChanged) {
       _isCSSClassesChanged = false;
       
-      if (_control != null) {
-        _updateDefaultClass();
-        
-        if (_cssClasses != null) _cssClasses.forEach(
-          (String cssClass) {
-            if (!_control.classes.contains(cssClass)) _control.classes.add(cssClass);
-          }
-        );
-      }
+      if (_control != null) _updateDefaultClass();
     }
     
     if (_isEnabledChanged) {
@@ -647,21 +639,21 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   }
   
   void _updateDefaultClass() {
+    if (_control == null) return;
+    
+    final List<String> newClasses = <String>[];
     final List<String> cssList = '_${_className}'.split(' ');
     
-    if (_isInitialized) {
-      _control.classes.removeWhere(
-          (String classNameEntry) => !cssList.contains(classNameEntry)    
-      );
-    }
-    
     cssList.forEach(
-      (String css) {
-        if (_inheritsDefaultCSS) {
-          if (!_control.classes.contains(css)) _control.classes.add(css);
-        } else _control.classes.remove(css);
+      (String C) {
+        if (_inheritsDefaultCSS) newClasses.add(C);
       }
     );
+    
+    if (_cssClasses != null) newClasses.addAll(_cssClasses);
+    
+    _control.classes.clear();
+    _control.classes.addAll(newClasses);
   }
   
   bool _addDefaultClass() => _control.classes.add('_$_className');

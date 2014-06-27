@@ -35,6 +35,7 @@ class ListRenderer extends ListBase {
   @override
   set dataProvider(ObservableList value) {
     _previousFirstIndex = -1;
+    _firstIndex = 0;
     
     super.dataProvider = value;
   }
