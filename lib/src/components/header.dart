@@ -208,8 +208,8 @@ class Header extends HGroup {
     ) {
       final int len = max(_leftSideContainer.childWrappers.length, _rightSideContainer.childWrappers.length);
           
-      _leftSideContainer.width = _leftSideContainer.layout.gap * (len - 1) + 28 * len;
-      _rightSideContainer.width = _rightSideContainer.layout.gap * (len - 1) + 28 * len;
+      _leftSideContainer.width = max(1, _leftSideContainer.layout.gap * (len - 1) + 28 * len);
+      _rightSideContainer.width = max(1, _rightSideContainer.layout.gap * (len - 1) + 28 * len);
     }
   }
   

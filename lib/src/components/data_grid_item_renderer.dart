@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class DataGridItemRenderer<D extends dynamic> extends ItemRenderer {
+class DataGridItemRenderer<D> extends ItemRenderer {
 
   //---------------------------------
   //

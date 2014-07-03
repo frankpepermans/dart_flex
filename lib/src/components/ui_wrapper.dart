@@ -199,14 +199,19 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   set cssClasses(List<String> value) {
     if (value != _cssClasses) {
       _cssClasses = value;
-      _isCSSClassesChanged = true;
 
       notify(
         new FrameworkEvent('cssClassesChanged')
       );
 
-      invalidateProperties();
+      refreshStyle();
     }
+  }
+  
+  void refreshStyle() {
+    _isCSSClassesChanged = true;
+
+    invalidateProperties();
   }
 
   //---------------------------------

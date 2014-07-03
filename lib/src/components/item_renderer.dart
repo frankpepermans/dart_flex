@@ -1,6 +1,6 @@
 part of dart_flex;
 
-abstract class IItemRenderer<D extends dynamic> implements IUIWrapper {
+abstract class IItemRenderer<D> implements IUIWrapper {
   
   Stream<FrameworkEvent> get onDataChanged;
   Stream<FrameworkEvent> get onFieldChanged;
