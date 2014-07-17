@@ -550,7 +550,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
             ) ||
             (parentElement.style.display == 'none')
         ) {
-          reflowManager.animationFrame.whenComplete(updateSize);
+          reflowManager.invocationFrame.whenComplete(updateSize);
           
           return;
         }
@@ -563,7 +563,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       if (
           (rect.width == 0) && 
           (rect.height == 0)
-      ) reflowManager.animationFrame.whenComplete(updateSize);
+      ) reflowManager.invocationFrame.whenComplete(updateSize);
       else {
         width = rect.width;
         height = rect.height;

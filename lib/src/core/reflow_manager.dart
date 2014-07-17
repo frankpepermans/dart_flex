@@ -21,26 +21,9 @@ class ReflowManager {
   // invocationFrame
   //---------------------------------
   
-  Future _invocationFuture;
-  
-  Future get invocationFrame {
-    if (_invocationFuture != null) return _invocationFuture;
-    // 60fps => 1000 / 60 = 16
-    _invocationFuture = new Future.delayed(const Duration(milliseconds: 16))
-      ..whenComplete(
-        () => _invocationFuture = null 
-      );
-    
-    return _invocationFuture;
-  }
-  
-  //---------------------------------
-  // animationFrame
-  //---------------------------------
-  
   Future _animationFrameFuture;
   
-  Future get animationFrame {
+  Future get invocationFrame {
     if (_animationFrameFuture != null) return _animationFrameFuture;
     
     final Completer animationFrameCompleter = new Completer.sync();
@@ -57,26 +40,6 @@ class ReflowManager {
     
     return _animationFrameFuture;
   }
-  
-  //---------------------------------
-  // layoutFrame
-  //---------------------------------
-  
-  Future _layoutFuture;
-  
-  Future get layoutFrame {
-    if (_layoutFuture != null) return _layoutFuture;
-    
-    _layoutFuture = Future.wait(
-        <Future>[
-            invocationFrame,
-            animationFrame
-        ]
-    ).whenComplete(_resetLayoutFuture);
-    
-    return _layoutFuture;
-  }
-  void _resetLayoutFuture() => _layoutFuture = null;
   
   //---------------------------------
   //
@@ -137,7 +100,7 @@ class ReflowManager {
 
     if (elementCSSMap == null) _elements[element] = elementCSSMap = new _ElementCSSMap(element);
     
-    elementCSSMap.asyncUpdateCss(layoutFrame, property, value);
+    elementCSSMap.asyncUpdateCss(invocationFrame, property, value);
   }
   
   void batchInvalidateCSS(Element element, List<dynamic> list) {
@@ -148,7 +111,7 @@ class ReflowManager {
 
     if (elementCSSMap == null) _elements[element] = elementCSSMap = new _ElementCSSMap(element);
     
-    for (i=0; i<len; i+=2) elementCSSMap.asyncUpdateCss(layoutFrame, list[i], list[i+1]);
+    for (i=0; i<len; i+=2) elementCSSMap.asyncUpdateCss(invocationFrame, list[i], list[i+1]);
   }
 }
 
@@ -179,7 +142,7 @@ class _ElementCSSMap {
   _ElementCSSMap(this._element);
   
   void asyncUpdateCss(Future await, String propertyName, String value) {
-    if (await != _currentWait) _currentWait = await..then(_finalize);
+    if (await != _currentWait) _currentWait = await..whenComplete(_finalize);
     
     if (_element.style.getPropertyValue(propertyName) != value) {
       if (_dirtyProperties == null) _dirtyProperties = <String, String>{};
@@ -189,7 +152,7 @@ class _ElementCSSMap {
     }
   }
   
-  void _finalize(_) {
+  void _finalize() {
     if (!_isDirty) return;
     
     _dirtyProperties.forEach(

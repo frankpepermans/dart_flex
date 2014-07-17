@@ -452,7 +452,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     
     _isHighlightActivated = true;
     
-    _reflowManager.layoutFrame.whenComplete(
+    _reflowManager.invocationFrame.whenComplete(
       () => _highlightTimer = new Timer(
           new Duration(milliseconds: 350), 
           () {
