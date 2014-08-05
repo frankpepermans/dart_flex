@@ -111,7 +111,7 @@ class ReflowManager {
 
     if (elementCSSMap == null) _elements[element] = elementCSSMap = new _ElementCSSMap(element);
     
-    for (i=0; i<len; i+=2) elementCSSMap.asyncUpdateCss(invocationFrame, list[i], list[i+1]);
+    for (i=0; i<len; elementCSSMap.asyncUpdateCss(invocationFrame, list[i], list[i+1]), i+=2);
   }
 }
 

@@ -578,9 +578,9 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     ) {
       _control.hidden = !_visible;
       
-      if (_control.style.display == 'none') _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
+      if (_control.style.display == 'none') later > () => _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
       
-      _reflowManager.invalidateCSS(_control, 'visibility', (_visible ? 'visible' : 'hidden'));
+      later > () => _reflowManager.invalidateCSS(_control, 'visibility', (_visible ? 'visible' : 'hidden'));
     }
   }
   
