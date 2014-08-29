@@ -671,6 +671,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
         (_elementId == null)
     ) {
       final Function I = _reflowManager.invalidateCSS;
+      
       if (_useMatrixTransformations) {
         switch (type) {
           case 1 : case 2 : I(_control, '${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ${_x}, ${_y}, 0, 1)');  break;

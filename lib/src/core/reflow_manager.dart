@@ -8,8 +8,8 @@ class ReflowManager {
   //
   //---------------------------------
   
-  final Map<dynamic, List<_MethodInvokationMap>> _scheduledHandlers = new Map<dynamic, List<_MethodInvokationMap>>();
-  final Map<Element, _ElementCSSMap> _elements = <Element, _ElementCSSMap>{};
+  final Map<dynamic, List<_MethodInvokationMap>> _scheduledHandlers = new Map<dynamic, List<_MethodInvokationMap>>.identity();
+  final Map<Element, _ElementCSSMap> _elements = new Map<Element, _ElementCSSMap>.identity();
   
   //---------------------------------
   //

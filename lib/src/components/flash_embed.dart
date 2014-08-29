@@ -169,6 +169,10 @@ class FlashEmbed extends UIWrapper {
       ObjectElement controlCast = _control as ObjectElement;
     
       if (_source != null) {
+        final ObjectElement controlCast = control as ObjectElement;
+        
+        controlCast.data = _source;
+        
         if (_movieParam == null) {
           _movieParam = new ParamElement()..name = 'movie';
           
