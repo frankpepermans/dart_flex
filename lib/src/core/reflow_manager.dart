@@ -8,6 +8,8 @@ class ReflowManager {
   //
   //---------------------------------
   
+  final FrameManager F = new FrameManager()..fps = 60;
+  
   final Map<dynamic, List<_MethodInvokationMap>> _scheduledHandlers = new Map<dynamic, List<_MethodInvokationMap>>.identity();
   final Map<Element, _ElementCSSMap> _elements = new Map<Element, _ElementCSSMap>.identity();
   
@@ -21,21 +23,25 @@ class ReflowManager {
   // invocationFrame
   //---------------------------------
   
-  Future _animationFrameFuture;
+  Future<Frame> _animationFrameFuture;
+  StreamSubscription _nextFrameListener;
   
-  Future get invocationFrame {
+  Future<Frame> get invocationFrame {
     if (_animationFrameFuture != null) return _animationFrameFuture;
     
-    final Completer animationFrameCompleter = new Completer.sync();
+    final Completer<Frame> animationFrameCompleter = new Completer<Frame>.sync();
     
     _animationFrameFuture = animationFrameCompleter.future;
     
-    window.requestAnimationFrame(
-        (_) {
+    _nextFrameListener = F.S.listen(
+      (Frame f) {
+        if (f is EnterFrame) {
           _animationFrameFuture = null;
+          _nextFrameListener.cancel();
       
-          animationFrameCompleter.complete();
+          animationFrameCompleter.complete(f);
         }
+      }
     );
     
     return _animationFrameFuture;

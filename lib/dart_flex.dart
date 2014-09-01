@@ -50,6 +50,7 @@ part "src/components/view_stack.dart";
 
 part "src/core/class_factory.dart";
 part "src/core/event_hook.dart";
+part "src/core/frame_rate_manager.dart";
 part "src/core/invalidation.dart";
 part "src/core/layout.dart";
 part "src/core/function_equality_util.dart";
