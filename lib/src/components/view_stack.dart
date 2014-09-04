@@ -111,10 +111,8 @@ class ViewStack extends Group {
     
     if (animationDirection == 0) return false;
     
-    if (currentData.element.x == 0) currentData.element.x = -width * animationDirection;
+    currentData.element.x = 0;
     currentData.element.y = 0;
-    
-    new Timer(const Duration(milliseconds: 100), () => currentData.element.x = 0);
     
     addComponent(currentData.element);
     
