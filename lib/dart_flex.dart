@@ -7,6 +7,7 @@ import 'dart:html_common';
 import 'dart:js';
 import 'dart:math';
 
+import 'package:crypto/crypto.dart';
 import 'package:observe/observe.dart';
 
 part "src/components/accordion.dart";

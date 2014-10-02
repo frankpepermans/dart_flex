@@ -538,7 +538,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (_cssClasses != null) newClasses.addAll(_cssClasses);
     
     _inactive = (_inactiveHandler != null) ? _inactiveHandler(data) : false;
-    _isInvalid = (_validationHandler != null) ? !_validationHandler(data) : false;
+    _isInvalid = (!_notApplicable && _validationHandler != null) ? !_validationHandler(data) : false;
     
     if (_selected) newClasses.add('${mainClassName}-selected');
     

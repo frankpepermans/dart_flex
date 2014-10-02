@@ -21,6 +21,10 @@ packages:
     description: collection
     source: hosted
     version: "0.9.4"
+  crypto:
+    description: crypto
+    source: hosted
+    version: "0.9.0"
   logging:
     description: logging
     source: hosted

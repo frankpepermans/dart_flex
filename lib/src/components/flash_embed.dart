@@ -84,14 +84,14 @@ class FlashEmbed extends UIWrapper {
         )
         ..append(
             new ParamElement()
-              ..name = 'quality'
-              ..value = 'high'
-        )
-        ..append(
-            new ParamElement()
               ..name = 'allowscriptaccess'
               ..value = 'always'
         )
+        ..append(
+          new ParamElement()
+            ..name = 'quality'
+            ..value = 'low'
+          )
         ..append(
             new ParamElement()
               ..name = 'wmode'
@@ -119,7 +119,7 @@ class FlashEmbed extends UIWrapper {
         
         _injectScript(callbackMethod);
               
-        context['_iop_${_currentId}_$callbackMethod'] = (String value) => callbackHandler(value);
+        context['_iop_${_currentId}_$callbackMethod'] = (String value) => callbackHandler(new String.fromCharCodes(CryptoUtils.base64StringToBytes(value)));
       }
     }
     else {
