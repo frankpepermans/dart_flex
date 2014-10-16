@@ -13,6 +13,9 @@ class ListRenderer extends ListBase {
   //
   //---------------------------------
   
+  static const EventHook<FrameworkEvent> onRedrawEvent = const EventHook<FrameworkEvent>('redraw');
+  Stream<FrameworkEvent> get onRedraw => ListRenderer.onRedrawEvent.forTarget(this);
+  
   //---------------------------------
   // inactiveHandler
   //---------------------------------
@@ -715,7 +718,13 @@ class ListRenderer extends ListBase {
       _updateVisibleItemRenderers();
     }
     
-    later > updateLayout;
+    later > () {
+      updateLayout();
+      
+      notify(
+        new FrameworkEvent('redraw')    
+      );
+    };
   }
 
   void _updateVisibleItemRenderers({bool ignorePreviousIndex: false}) {

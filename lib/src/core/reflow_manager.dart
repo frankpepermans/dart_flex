@@ -147,8 +147,8 @@ class _ElementCSSMap {
   
   _ElementCSSMap(this._element);
   
-  void asyncUpdateCss(Future await, String propertyName, String value) {
-    if (await != _currentWait) _currentWait = await..whenComplete(_finalize);
+  void asyncUpdateCss(Future F, String propertyName, String value) {
+    if (F != _currentWait) _currentWait = F..whenComplete(_finalize);
     
     if (_element.style.getPropertyValue(propertyName) != value) {
       if (_dirtyProperties == null) _dirtyProperties = <String, String>{};

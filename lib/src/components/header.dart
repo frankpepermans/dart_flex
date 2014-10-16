@@ -43,6 +43,21 @@ class Header extends HGroup {
   }
   
   //---------------------------------
+  // labelCSSClassName
+  //---------------------------------
+  
+  String _labelCSSClassName = 'header-title';
+  
+  String get labelCSSClassName => _labelCSSClassName;
+  set labelCSSClassName(String value) {
+    if (value != _labelCSSClassName) {
+      _labelCSSClassName = value;
+      
+      if (_headerLabel != null) _headerLabel.cssClasses = <String>[value];
+    }
+  }
+  
+  //---------------------------------
   // leftSideContainer
   //---------------------------------
 
@@ -152,7 +167,7 @@ class Header extends HGroup {
     ..autoSize = true
     ..align = 'center'
     ..text = _label
-    ..cssClasses = const <String>['header-title'];
+    ..cssClasses = <String>[_labelCSSClassName];
     
     _leftSideContainer = new HGroup()
     ..percentHeight = 100.0;

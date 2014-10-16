@@ -14,6 +14,8 @@ class DataGrid extends ListBase {
   //---------------------------------
 
   List<IHeaderItemRenderer> _headerItemRenderers;
+  
+  List<IHeaderItemRenderer> get headerItemRenderers => _headerItemRenderers;
 
   VGroup _gridContainer;
   HGroup _headerContainer;

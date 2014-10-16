@@ -9,6 +9,8 @@ class DataGridItemRenderer<D> extends ItemRenderer {
   //---------------------------------
 
   List<IItemRenderer> _itemRendererInstances;
+  
+  List<IItemRenderer> get itemRendererInstances => _itemRendererInstances;
 
   //---------------------------------
   //

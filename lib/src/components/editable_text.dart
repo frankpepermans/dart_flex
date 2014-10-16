@@ -208,8 +208,20 @@ class EditableTextMask<T extends DateTime> extends EditableText {
   String _oldInputValue;
   int _selectedIndex = -1;
   int _selectedSubIndex = 0;
-  int _doubleCharSize = 20;
   bool _hasFocus = false;
+  
+  //---------------------------------
+  // doubleCharSize
+  //---------------------------------
+  
+  int _doubleCharSize = 20;
+  
+  int get doubleCharSize => _doubleCharSize;
+  void set doubleCharSize(int value) {
+    if (value != _doubleCharSize) {
+      _doubleCharSize = value;
+    }
+  }
 
   //---------------------------------
   //
