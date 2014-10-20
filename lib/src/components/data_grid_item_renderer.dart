@@ -194,11 +194,11 @@ class DataGridItemRenderer<D> extends ItemRenderer {
     if (_grid != null && _columns != null) {
       int rendererIndex = 0;
       
-      if (_itemRendererInstances != null) {
-        _itemRendererInstances.forEach(
-            (ItemRenderer renderer) => removeComponent(renderer)
-        );
-      } else _itemRendererInstances = new List<IItemRenderer>();
+      if (_itemRendererInstances != null) _itemRendererInstances.forEach(
+          (ItemRenderer renderer) => removeComponent(renderer)
+      );
+      
+      _itemRendererInstances = new List<IItemRenderer>();
       
       _streamSubscriptionManager.flushIdent('data_grid_item_renderer_rendererColumnChanges');
       _streamSubscriptionManager.flushIdent('data_grid_item_renderer_rendererDataPropertyChanged');

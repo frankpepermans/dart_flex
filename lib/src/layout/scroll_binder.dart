@@ -12,7 +12,7 @@ class ScrollBinder {
     );
     
     Future.wait(waits).then(
-      (List<ListRenderer> scrollTargets) {print('GO');
+      (List<ListRenderer> scrollTargets) {
         if (bindHorizontally) {
           scrollTargets.forEach(
             (ListRenderer R) {

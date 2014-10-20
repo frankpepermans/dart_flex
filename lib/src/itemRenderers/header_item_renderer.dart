@@ -110,6 +110,8 @@ class HeaderData implements IHeaderData {
   final dynamic data = null;
   
   const HeaderData(this.identifier, this.field, this.label, this.labelLong);
+  
+  String toString() => '$label : $field';
 }
 
 class DynamicHeaderData implements IHeaderData {
@@ -119,4 +121,6 @@ class DynamicHeaderData implements IHeaderData {
   final dynamic data;
   
   const DynamicHeaderData(this.identifier, this.field, this.label, this.labelLong, this.data);
+  
+  String toString() => '$label : $field';
 }

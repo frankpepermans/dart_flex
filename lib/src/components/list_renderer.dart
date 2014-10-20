@@ -514,7 +514,7 @@ class ListRenderer extends ListBase {
   
   void setScrollPosition({int horizontalScrollValue: null, int verticalScrollValue: null}) {
     if (_control == null) return;
-    print('$horizontalScrollValue $verticalScrollValue');
+    
     if (horizontalScrollValue != null)  _control.scrollLeft = horizontalScrollValue;
     if (verticalScrollValue != null)    _control.scrollTop = verticalScrollValue;
   }

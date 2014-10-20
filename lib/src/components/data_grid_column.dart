@@ -149,6 +149,19 @@ class DataGridColumn {
   }
   
   //---------------------------------
+  // isVisible
+  //---------------------------------
+
+  bool _isVisible = true;
+
+  bool get isVisible => _isVisible;
+  set isVisible(bool value) {
+    if (value != _isVisible) {
+      _isVisible = value;
+    }
+  }
+  
+  //---------------------------------
   // labelHandler
   //---------------------------------
 
@@ -187,5 +200,7 @@ class DataGridColumn {
   // Public properties
   //
   //---------------------------------
+  
+  String toString() => '$_property => $_headerData';
 }
 

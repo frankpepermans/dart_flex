@@ -64,6 +64,25 @@ class FrameManager {
     );
   }
   
+  Future awaitFrames(int amount) {
+    final Completer C = new Completer();
+    final int endFrame = _lastFrame + amount;
+    StreamSubscription L;
+    
+    L = S.listen(
+      (Frame f) {
+        if (f is EnterFrame) {
+          if (f.count >= endFrame) {
+            L.cancel();
+            
+            C.complete();
+          }
+        }
+      }
+    );
+    
+    return C.future;
+  }
 }
 
 abstract class Frame {

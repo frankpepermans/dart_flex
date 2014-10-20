@@ -90,9 +90,17 @@ class EditableDateTime<T extends DateTime> extends EditableTextMask {
     
     _updateSelection(!isDel);
     
+    DateTime oldDate = _data as DateTime;
+    
     _data = _toDateTime(_text);
     
-    notify(
+    if (oldDate != null && _data != null) notify(
+      new FrameworkEvent(
+        'dataChanged',
+        relatedObject: (_data as DateTime).difference(oldDate)
+      )
+    );
+    else notify(
       new FrameworkEvent(
         'dataChanged'
       )

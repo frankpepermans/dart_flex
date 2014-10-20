@@ -619,7 +619,7 @@ class DataGrid extends ListBase {
       while (i > 0) {
         column = _columns[--i];
         
-        if (column._isActive) {
+        if (column._isActive && column._isVisible) {
           if (column.percentWidth > .0) {
             procCount += column.percentWidth;
 
