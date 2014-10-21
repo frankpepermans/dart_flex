@@ -50,6 +50,8 @@ class FrameManager {
   void nextFrame() {
     window.animationFrame.then(
       (double T) {
+        if (T.isNaN || T.isInfinite) T = .0;
+        
         final double interval = 1000 / fps;
         final int currentFrame = T ~/ interval;
         

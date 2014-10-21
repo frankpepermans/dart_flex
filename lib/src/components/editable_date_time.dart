@@ -45,8 +45,12 @@ class EditableDateTime<T extends DateTime> extends EditableTextMask {
   // data
   //---------------------------------
   
+  T _compareDateTime;
+  
   set data(T value) {
     super.data = value;
+    
+    _compareDateTime = value;
     
     if (!_hasFocus && value == null) text = DATE_TIME_MASK;
   }
@@ -90,14 +94,17 @@ class EditableDateTime<T extends DateTime> extends EditableTextMask {
     
     _updateSelection(!isDel);
     
-    DateTime oldDate = _data as DateTime;
+    DateTime oldDate = _compareDateTime as DateTime;
     
     _data = _toDateTime(_text);
+    if (isValidEntry(_text)) _compareDateTime = _toDateTime(_text, hardError: true, returnOnError: _compareDateTime);
     
-    if (oldDate != null && _data != null) notify(
+    print('${oldDate} ${_compareDateTime}');
+    
+    if (oldDate != null && _compareDateTime != null) notify(
       new FrameworkEvent(
         'dataChanged',
-        relatedObject: (_data as DateTime).difference(oldDate)
+        relatedObject: (_compareDateTime as DateTime).difference(oldDate)
       )
     );
     else notify(
@@ -243,7 +250,7 @@ class EditableDateTime<T extends DateTime> extends EditableTextMask {
     return null;
   }
   
-  DateTime _toDateTime(String value) {
+  DateTime _toDateTime(String value, {bool hardError: false, DateTime returnOnError}) {
     if (
         (value == DATE_TIME_MASK) ||
         value.contains(DATE_TIME_MASK_DAY) ||
@@ -255,6 +262,7 @@ class EditableDateTime<T extends DateTime> extends EditableTextMask {
     
     final List<String> dateParts = value.split('/');
     final List<String> timeParts = value.split(':');
+    final int onErrValue = hardError ? -1 : 0;
     
     if (
         (dateParts.length != 3)
@@ -262,12 +270,32 @@ class EditableDateTime<T extends DateTime> extends EditableTextMask {
     
     if (!isValidEntry(value)) return null;
     
-    final int yy = int.parse(dateParts.removeLast().substring(0, 2), onError: (_) => 0);
-    final int mm = int.parse(dateParts.removeLast(), onError: (_) => 0);
-    final int dd = int.parse(dateParts.removeLast(), onError: (_) => 0);
+    final String pyy = dateParts.removeLast().substring(0, 2);
+    final String pmm = dateParts.removeLast();
+    final String pdd = dateParts.removeLast();
     
-    final int thh = int.parse(timeParts.first.substring(timeParts.first.length - 2), onError: (_) => 0);
-    final int tmm = int.parse(timeParts.last, onError: (_) => 0);
+    final String pthh = timeParts.first.substring(timeParts.first.length - 2);
+    final String ptmm = timeParts.last;
+    
+    if (
+        hardError &&
+        (
+          !_isDoubleCharString(pyy) ||
+          !_isDoubleCharString(pmm) ||
+          !_isDoubleCharString(pdd) ||
+          !_isDoubleCharString(pthh) ||
+          !_isDoubleCharString(ptmm)
+        )
+    ) return returnOnError;
+    
+    final int yy = int.parse(pyy, onError: (_) => onErrValue);
+    final int mm = int.parse(pmm, onError: (_) => onErrValue);
+    final int dd = int.parse(pdd, onError: (_) => onErrValue);
+    
+    final int thh = int.parse(pthh, onError: (_) => onErrValue);
+    final int tmm = int.parse(ptmm, onError: (_) => onErrValue);
+    
+    if (yy == -1 || mm == -1 || dd == -1 || thh == -1 || tmm == -1) return returnOnError;
     
     return new DateTime.utc(
         (2000 + yy), 
@@ -277,4 +305,6 @@ class EditableDateTime<T extends DateTime> extends EditableTextMask {
         tmm
     );
   }
+  
+  bool _isDoubleCharString(String S) => (S != null && S.length == 2);
 }
