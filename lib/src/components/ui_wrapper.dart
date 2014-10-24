@@ -150,6 +150,10 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     if (newValue != _useMatrixTransformations) {
       _useMatrixTransformations = newValue;
       
+      if (_childWrappers != null) _childWrappers.forEach(
+        (IUIWrapper W) => W.useMatrixTransformations = value    
+      );
+      
       _updateControl(1);
       _updateControl(2);
     }
@@ -440,6 +444,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     
     final UIWrapper elementCast = element as UIWrapper;
     
+    elementCast._useMatrixTransformations = _useMatrixTransformations;
     elementCast._reflowManager = _reflowManager;
 
     if (_control == null) {
@@ -578,9 +583,9 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     ) {
       _control.hidden = !_visible;
       
-      if (_control.style.display == 'none') later > () => _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
+      if (_control.style.display == 'none') _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
       
-      later > () => _reflowManager.invalidateCSS(_control, 'visibility', (_visible ? 'visible' : 'hidden'));
+      _reflowManager.invalidateCSS(_control, 'visibility', (_visible ? 'visible' : 'hidden'));
     }
   }
   

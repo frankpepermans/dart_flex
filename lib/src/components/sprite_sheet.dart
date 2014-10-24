@@ -7,12 +7,17 @@ class SpriteSheet extends Group {
   // Protected properties
   //
   //---------------------------------
+  
+  bool _allowClick = true;
 
   //---------------------------------
   //
   // Public properties
   //
   //---------------------------------
+  
+  static const EventHook<FrameworkEvent<MouseEvent>> onButtonClickEvent = const EventHook<FrameworkEvent<MouseEvent>>('buttonClick');
+  Stream<FrameworkEvent<MouseEvent>> get onButtonClick => SpriteSheet.onButtonClickEvent.forTarget(this);
 
   //---------------------------------
   // source
@@ -177,6 +182,13 @@ class SpriteSheet extends Group {
   @override
   void createChildren() {
     super.createChildren();
+    
+    _streamSubscriptionManager.flushIdent('button_elementClick');
+    
+    _streamSubscriptionManager.add(
+        'button_elementClick', 
+        _control.onClick.listen(_propagateClick)
+    );
 
     if (_source != null) _reflowManager.invalidateCSS(_control, 'background-image', 'url($_source)');
   }
@@ -214,6 +226,24 @@ class SpriteSheet extends Group {
       final int posY = row * _rowSize;
 
       _reflowManager.invalidateCSS(_control, 'background-position', '$posX$px $posY$px');
+    }
+  }
+  
+  void _propagateClick(MouseEvent event) {
+    if (_allowClick) {
+      _allowClick = false;
+      
+      notify(
+          new FrameworkEvent<MouseEvent>(
+              'buttonClick',
+              relatedObject: event
+          )
+      );
+      
+      new Timer(
+        const Duration(milliseconds: 50),
+        () => _allowClick = true
+      );
     }
   }
 }

@@ -321,7 +321,7 @@ class ListRenderer extends ListBase {
       if (_layout is VerticalLayout) _control.scrollTop = _scrollPosition;
       else _control.scrollLeft = _scrollPosition;
 
-      _updateAfterScrollPositionChanged();
+      later > _updateAfterScrollPositionChanged;
     }
   }
 
@@ -336,7 +336,7 @@ class ListRenderer extends ListBase {
         )
       );
 
-      _updateAfterScrollPositionChanged();
+      later > _updateAfterScrollPositionChanged;
     }
   }
   

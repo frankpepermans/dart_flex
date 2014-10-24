@@ -256,8 +256,6 @@ class EditableTextMask<T extends DateTime> extends EditableText {
         (value != _data)
     ) {
       _data = value;
-      
-      if (value != null) _lastValidData = value;
 
       notify(
         new FrameworkEvent(
