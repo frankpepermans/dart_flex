@@ -158,7 +158,7 @@ class UIMLElement extends UIMLPart {
         _declarations.add('StreamSubscription ${streams.join(', ')};');
         
         decl += 'void ${bindName}(_) { ${_getExistsStatement(existsStatement)} ${_id}.${property} = ${fullExpr}; else ${_id}.${property} = null; \r\t${streamMethods.join('\r\t')} }\r\r\t';
-        invoc += 'later > () => ${bindName}(null);';
+        invoc += 'reflowManager.scheduleMethod(this, ${bindName}, [null], forceSingleExecution: true);';
       }
     );
     
