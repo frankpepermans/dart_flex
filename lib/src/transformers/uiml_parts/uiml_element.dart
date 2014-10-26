@@ -175,10 +175,17 @@ class UIMLElement extends UIMLPart {
   }
   
   String _getInclusionStatement() {
-    if (parent is UIMLElement) return '\r\t\t${(parent as UIMLElement).id}.addComponent(${_id});';
+    final String stateUpdateCurrent = '\r\t\rupdateAfterSkinStateChanged(${_id});\r\t\tonCurrentSkinStatesChanged.listen((FrameworkEvent<List<SkinState>> event) => updateAfterSkinStateChanged(${_id}));';
+    
+    if (parent is UIMLElement) {
+      final String stateUpdateInclude = '\r\t\t${_id}.onIncludeInChanged.listen((FrameworkEvent<List<SkinState>> event) => updateAfterSkinStateChanged(${_id}));';
+      final String stateUpdateExclude = '\r\t\t${_id}.onExcludeFromChanged.listen((FrameworkEvent<List<SkinState>> event) => updateAfterSkinStateChanged(${_id}));';
+      
+      return '\r\t\t${(parent as UIMLElement).id}.addComponent(${_id});${stateUpdateCurrent}${stateUpdateInclude}${stateUpdateExclude}';
+    }
     else if (parent is UIMLProperty) return '\r\t\t${(parent.parent as UIMLElement).id}.${parent.className} = ${_id};';
     
-    return '\r\t\taddComponent(${_id});';
+    return '\r\t\taddComponent(${_id});${stateUpdateCurrent}';
   }
   
   String _getCreationEvent() {

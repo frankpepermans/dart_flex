@@ -15,6 +15,9 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   Stream<FrameworkEvent<Element>> get onControlChanged;
   Stream<FrameworkEvent> get onInitializationComplete;
   Stream<FrameworkEvent> get onOwnerChanged;
+  Stream<FrameworkEvent<List<SkinState>>> get onCurrentSkinStatesChanged;
+  Stream<FrameworkEvent<List<SkinState>>> get onIncludeInChanged;
+  Stream<FrameworkEvent<List<SkinState>>> get onExcludeFromChanged;
   
   //---------------------------------
   //
@@ -25,6 +28,15 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   ReflowManager get reflowManager;
   
   StreamSubscriptionManager get streamSubscriptionManager;
+  
+  List<SkinState> get currentSkinStates;
+  set currentSkinStates(List<SkinState> value);
+  
+  List<SkinState> get includeIn;
+  set includeIn(List<SkinState> value);
+    
+  List<SkinState> get excludeFrom;
+  set excludeFrom(List<SkinState> value);
 
   bool get visible;
   set visible(bool value);
@@ -67,6 +79,7 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   void removeAll();
   void flushHandler();
   void transportComponents(IUIWrapper target);
+  void updateAfterSkinStateChanged(IUIWrapper recursiveChildWrapper);
 
   void operator []=(String type, Function eventHandler) => observeEventType(type, eventHandler);
 
@@ -156,6 +169,77 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       
       _updateControl(1);
       _updateControl(2);
+    }
+  }
+  
+  final List<SkinState> _skinStates = <SkinState>[];
+  
+  //---------------------------------
+  // currentSkinStates
+  //---------------------------------
+  
+  static const EventHook<FrameworkEvent<List<SkinState>>> onCurrentSkinStatesChangedEvent = const EventHook<FrameworkEvent<List<SkinState>>>('currentSkinStatesChanged');
+  Stream<FrameworkEvent<List<SkinState>>> get onCurrentSkinStatesChanged => UIWrapper.onCurrentSkinStatesChangedEvent.forTarget(this);
+  
+  List<SkinState> _currentSkinStates;
+  
+  List<SkinState> get currentSkinStates => _currentSkinStates;
+  void set currentSkinStates(List<SkinState> value) {
+    if (value != _currentSkinStates) {
+      _currentSkinStates = value;
+      
+      notify(
+        new FrameworkEvent(
+            'currentSkinStatesChanged',
+            relatedObject: value
+        )
+      );
+    }
+  }
+  
+  //---------------------------------
+  // includeIn
+  //---------------------------------
+  
+  static const EventHook<FrameworkEvent<List<SkinState>>> onIncludeInChangedEvent = const EventHook<FrameworkEvent<List<SkinState>>>('includeInChanged');
+  Stream<FrameworkEvent<List<SkinState>>> get onIncludeInChanged => UIWrapper.onIncludeInChangedEvent.forTarget(this);
+  
+  List<SkinState> _includeIn;
+  
+  List<SkinState> get includeIn => _includeIn;
+  void set includeIn(List<SkinState> value) {
+    if (value != _includeIn) {
+      _includeIn = value;
+      
+      notify(
+        new FrameworkEvent(
+            'includeInChanged',
+            relatedObject: value
+        )
+      );
+    }
+  }
+  
+  //---------------------------------
+  // excludeFrom
+  //---------------------------------
+  
+  static const EventHook<FrameworkEvent<List<SkinState>>> onExcludeFromChangedEvent = const EventHook<FrameworkEvent<List<SkinState>>>('excludeFromChanged');
+  Stream<FrameworkEvent<List<SkinState>>> get onExcludeFromChanged => UIWrapper.onExcludeFromChangedEvent.forTarget(this);
+  
+  List<SkinState> _excludeFrom;
+  
+  List<SkinState> get excludeFrom => _excludeFrom;
+  void set excludeFrom(List<SkinState> value) {
+    if (value != _excludeFrom) {
+      _excludeFrom = value;
+      
+      notify(
+        new FrameworkEvent(
+            'excludeFromChanged',
+            relatedObject: value
+        )
+      );
     }
   }
   
@@ -419,6 +503,43 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
 
   void createChildren() {}
   
+  void updateAfterSkinStateChanged(IUIWrapper recursiveChildWrapper) {
+    if (_currentSkinStates == null || recursiveChildWrapper.includeIn == null) return;
+    
+    int lenA, i;
+    SkinState sA;
+    
+    if (recursiveChildWrapper.includeIn != null) {
+      lenA = recursiveChildWrapper.includeIn.length;
+      
+      for (i=0; i<lenA; i++) {
+        sA = recursiveChildWrapper.includeIn[i];
+        
+        if (_currentSkinStates.contains(sA)) {
+          recursiveChildWrapper.visible = recursiveChildWrapper.includeInLayout = recursiveChildWrapper.allowLayoutUpdate = true;
+          
+          return;
+        }
+      }
+      
+      if (recursiveChildWrapper.excludeFrom != null) {
+        lenA = recursiveChildWrapper.excludeFrom.length;
+        
+        for (i=0; i<lenA; i++) {
+          sA = recursiveChildWrapper.excludeFrom[i];
+          
+          if (_currentSkinStates.contains(sA)) {
+            recursiveChildWrapper.visible = recursiveChildWrapper.includeInLayout = recursiveChildWrapper.allowLayoutUpdate = false;
+            
+            return;
+          }
+        }
+      }
+    }
+    
+    recursiveChildWrapper.visible = recursiveChildWrapper.includeInLayout = recursiveChildWrapper.allowLayoutUpdate = (recursiveChildWrapper.includeIn == null);
+  }
+  
   void commitProperties() {
     if (_isCSSClassesChanged) {
       _isCSSClassesChanged = false;
@@ -437,6 +558,10 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
 
       updateLayout();
     }
+  }
+  
+  void registerSkinState(SkinState state) {
+    _skinStates.add(state);
   }
 
   void addComponent(IUIWrapper element, {bool prepend: false}) {

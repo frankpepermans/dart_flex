@@ -26,7 +26,7 @@ class _EventStream<T extends FrameworkEvent> extends Stream<T> {
   
   bool get isBroadcast => true;
 
-  StreamSubscription<T> listen(
+  _EventStreamSubscription<T> listen(
       void onData(T event),
       { 
         void onError(Error error),

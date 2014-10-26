@@ -14,16 +14,21 @@ part "uiml_parts/uiml_skin_library_item.dart";
 
 class UIMLTransformer extends Transformer {
   
+  static const String SKIN_PARTS = '#SKIN_PARTS#';
   static const String SKIN_DECL = '#SKIN_DECL#';
   static const String SKIN_CREATE_BLOCK = '#SKIN_CREATE_BLOCK#';
   static const String SKIN_FNC = '#SKIN_FNC#';
   
   static const String TEMPLATE = '''#SKIN_DECL#
+
+  @override
+  void setSkinStates() {
+    #SKIN_PARTS#
+  }
   
   @override
   void createChildren() {
     super.createChildren();
-    
     #SKIN_CREATE_BLOCK#
   }
   
@@ -53,6 +58,7 @@ class UIMLTransformer extends Transformer {
               
               String res = TEMPLATE;
               
+              res = res.replaceAll(SKIN_PARTS, skin.getSkinParts());
               res = res.replaceAll(SKIN_DECL, skin.getLocalDeclarations());
               res = res.replaceAll(SKIN_FNC, skin.getBindingMethods());
               

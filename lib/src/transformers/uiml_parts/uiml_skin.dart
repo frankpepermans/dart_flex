@@ -8,6 +8,7 @@ class UIMLSkin {
   List<UIMLSkinLibraryItem> _libraryItems;
   List<UIMLPart> _elements;
   List<String> _declarations = <String>[];
+  List<String> _states = <String>[];
   
   List<UIMLSkinLibraryItem> get libraryItems => _libraryItems;
   List<UIMLPart> get elements => _elements;
@@ -16,6 +17,8 @@ class UIMLSkin {
     _libraryItems = _getLibraryItems();
     _elements = _toElements(element);
   }
+  
+  String getSkinParts() => _states.join('\r\t');
   
   String getLocalDeclarations() {
     List<String> declarations = <String>[];
@@ -77,6 +80,13 @@ class UIMLSkin {
             N.children.forEach(
               (XmlNode O) => _declarations.add(_toObservable(O))
             );
+          } else if (nsAndName.last == 'states') {
+            N.children.forEach(
+              (XmlNode O) {
+                _declarations.add(_toStateDeclaration(O));
+                _states.add(_toState(O));
+              }
+            );
           } else {
             final String casing = nsAndName.last[0];
             final UIMLPart uimlElm = (casing == casing.toLowerCase()) ? new UIMLProperty(this, parent, N) : new UIMLElement(this, parent, N);
@@ -90,6 +100,38 @@ class UIMLSkin {
     );
     
     return elements;
+  }
+  
+  String _toStateDeclaration(XmlNode node) {
+    if (node is XmlElement) {
+      final List<String> nsAndName = node.name.toString().split(':');
+      final String declName = nsAndName.last;
+      final XmlAttribute idAttr = node.attributes.firstWhere(
+        (XmlAttribute A) => (A.name.local == 'id'),
+        orElse: () => null
+      );
+      
+      if (idAttr == null) return '';
+      else return 'final SkinState ${idAttr.value} = const SkinState(\'${idAttr.value}\');';
+    }
+    
+    return '';
+  }
+  
+  String _toState(XmlNode node) {
+    if (node is XmlElement) {
+      final List<String> nsAndName = node.name.toString().split(':');
+      final XmlAttribute idAttr = node.attributes.firstWhere(
+        (XmlAttribute A) => (A.name.local == 'id'),
+        orElse: () => null
+      );
+      
+      if (idAttr == null) return '';
+      
+      return 'registerSkinState(${idAttr.value});';
+    }
+    
+    return '';
   }
   
   String _toObservable(XmlNode node) {

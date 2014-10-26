@@ -10,6 +10,8 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:observe/observe.dart';
 
+export 'package:observe/observe.dart';
+
 part "src/components/accordion.dart";
 part "src/components/button.dart";
 part "src/components/color_box.dart";
@@ -40,7 +42,9 @@ part "src/components/item_renderer.dart";
 part "src/components/list_renderer.dart";
 part "src/components/list_base.dart";
 part "src/components/rich_text.dart";
+part "src/components/skinnable_component.dart";
 part "src/components/slider.dart";
+part "src/components/spacer.dart";
 part "src/components/sprite_sheet.dart";
 part "src/components/text_area.dart";
 part "src/components/tile_group.dart";
@@ -57,6 +61,7 @@ part "src/core/layout.dart";
 part "src/core/function_equality_util.dart";
 part "src/core/reflow_manager.dart";
 part "src/core/scroll_policy.dart";
+part "src/core/skin_state.dart";
 part "src/core/stream_subscription_manager.dart";
 part "src/core/update_manager.dart";
 
@@ -76,6 +81,7 @@ part "src/itemRenderers/accordion_header_item_renderer.dart";
 part "src/itemRenderers/header_item_renderer.dart";
 part "src/itemRenderers/editable_label_item_renderer.dart";
 part "src/itemRenderers/label_item_renderer.dart";
+part "src/itemRenderers/image_item_renderer.dart";
 
 class NullTreeSanitizer implements NodeTreeSanitizer {
   void sanitizeTree(Node node) {}

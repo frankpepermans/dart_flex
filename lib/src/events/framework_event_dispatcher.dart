@@ -70,7 +70,7 @@ class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
 
     handlers = _observers[type];
 
-    if (handlers.length > 0) ignoreEventType(type, eventHandler);
+    //if (handlers.length > 0) ignoreEventType(type, eventHandler);
 
     handlers.add(eventHandler);
   }
