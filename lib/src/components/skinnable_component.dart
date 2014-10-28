@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class SkinnableComponent extends UIWrapper {
+class SkinnableComponent extends Group {
   
   static const EventHook<FrameworkEvent<IUIWrapper>> onSkinPartAddedEvent = const EventHook<FrameworkEvent<IUIWrapper>>('skinPartAdded');
   Stream<FrameworkEvent<IUIWrapper>> get onSkinPartAdded => SkinnableComponent.onSkinPartAddedEvent.forTarget(this);

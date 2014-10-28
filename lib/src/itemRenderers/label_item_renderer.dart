@@ -7,6 +7,8 @@ class LabelItemRenderer extends ItemRenderer {
   // Protected properties
   //
   //---------------------------------
+  
+  bool _useHtmlText = false;
 
   //---------------------------------
   //
@@ -48,8 +50,9 @@ class LabelItemRenderer extends ItemRenderer {
     _label = new RichText()
     ..percentWidth = 100.0
     ..autoSize = true
-    ..text = itemToLabel()
     ..className = 'item-renderer-label';
+    
+    _useHtmlText ? _label.richText = itemToLabel() : _label.text = itemToLabel();
 
     addComponent(_label);
   }
@@ -58,7 +61,7 @@ class LabelItemRenderer extends ItemRenderer {
   void invalidateData() {
     super.invalidateData();
     
-    if (_label != null) _label.text = itemToLabel();
+    if (_label != null) _useHtmlText ? _label.richText = itemToLabel() : _label.text = itemToLabel();;
   }
   
   String obtainValue() {
@@ -84,4 +87,20 @@ class LabelItemRenderer extends ItemRenderer {
   }
   
   String itemToLabel() => obtainValue();
+}
+
+class HTMLLabelItemRenderer extends LabelItemRenderer {
+  
+  //---------------------------------
+  //
+  // Constructor
+  //
+  //---------------------------------
+  
+  HTMLLabelItemRenderer({String elementId: null}) : super(elementId: null) {
+    _useHtmlText = true;
+  }
+  
+  static HTMLLabelItemRenderer construct() => new HTMLLabelItemRenderer();
+  
 }
