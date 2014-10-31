@@ -48,11 +48,8 @@ class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
   //-----------------------------------
 
   FrameworkEventDispatcher({IFrameworkEventDispatcher dispatcher: null}) {
-    if (dispatcher == null) {
-      _dispatcher = this;
-    } else {
-      _dispatcher = dispatcher;
-    }
+    if (dispatcher == null) _dispatcher = this;
+    else _dispatcher = dispatcher;
   }
 
   //-----------------------------------

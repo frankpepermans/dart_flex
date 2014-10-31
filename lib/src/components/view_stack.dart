@@ -86,6 +86,8 @@ class ViewStack extends Group {
     if (viewStackElement == null && element != null) {
       viewStackElement = new ViewStackElementData(element, uniqueId);
       
+      element.streamSubscriptionManager.flushIdent('view_stack_elementRequestViewChange');
+      
       element.streamSubscriptionManager.add(
           'view_stack_elementRequestViewChange', 
           element.onRequestViewChange.listen(_viewStackElement_requestViewChangeHandler)
