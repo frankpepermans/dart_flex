@@ -47,6 +47,22 @@ class TileLayout implements ILayout {
 
   String get align => _align;
   set align(String value) => _align = value;
+  
+  //---------------------------------
+  // layoutWidth
+  //---------------------------------
+  
+  int _layoutWidth = 0;
+  
+  int get layoutWidth => _layoutWidth;
+  
+  //---------------------------------
+  // layoutHeight
+  //---------------------------------
+  
+  int _layoutHeight = 0;
+  
+  int get layoutHeight => _layoutHeight;
 
   //---------------------------------
   //
@@ -113,7 +129,7 @@ class TileLayout implements ILayout {
         w = (w == null) ? 0 : w;
         h = (h == null) ? 0 : h;
         s = w + _gap + element.paddingLeft + element.paddingRight;
-        t = width ~/ s * s;
+        t = (width + w + gap * 2) ~/ s * s;
 
         if (
             (pageSize == 0) ||
@@ -143,6 +159,9 @@ class TileLayout implements ILayout {
         if (_constrainToBounds && element.autoSize) {
           element.height = h;
         }
+        
+        _layoutWidth = element.x + element.width;
+        _layoutHeight = element.y + element.height;
         
         offset += s;
       } else {

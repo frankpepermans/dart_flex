@@ -19,7 +19,11 @@ class UIMLElement extends UIMLPart {
     //_classMirror = skin.getLibraryItem(_ns).getClassMirror(_className);
   }
   
-  String toString() => '$_id = new ${_className}();${_properties}${_getInclusionStatement()}${_getCreationEvent()}';
+  String toString() {
+    if (parent != null && parent.isRepeater) return '${(parent as UIMLElement).id}.creationHandler = () { final $_className $_id = new ${_className}();${_properties} return $_id; };';
+    
+    return '$_id = new ${_className}();${_properties}${_getInclusionStatement()}${_getCreationEvent()}';
+  }
   
   String _getId() {
     final XmlAttribute idAttr = element.attributes.firstWhere(
@@ -61,27 +65,37 @@ class UIMLElement extends UIMLPart {
           property = eventName;
         }
         
-        if (exp.hasMatch(value)) {
+        final bool parentIsRepeater = (parent != null && parent.isRepeater);
+        
+        if (!parentIsRepeater && exp.hasMatch(value)) {
           bindingObj = _getBindingStatement(value, property);
           
           _methods.add(bindingObj['declaration']);
-          
+              
           properties.add(bindingObj['invocation']);
-        } else switch (property) {
-          case 'id': break;
-          case 'width':
-            if (A.value.contains('%')) properties.add('${_id}.percentWidth=${A.value.substring(0, A.value.length - 1)}.0;');
-            else properties.add('${_id}.width=${A.value};');
-            
-            break;
-          case 'height':
-            if (A.value.contains('%')) properties.add('${_id}.percentHeight=${A.value.substring(0, A.value.length - 1)}.0;');
-            else properties.add('${_id}.height=${A.value};');
-            
-            break;
-          default:
-            if (isEvent) properties.add('${_id}.${property}.listen(${A.value});');
-            else properties.add('${_id}.${property}=${A.value};');
+        } else {
+          String aval = A.value;
+          
+          if (parent != null) aval = aval.replaceAll('repeater.currentValue', '${(parent as UIMLElement).id}.getCurrentValueFor(${_id})');
+          
+          if (exp.hasMatch(aval)) aval = aval.substring(1, aval.length - 1);
+          
+          switch (property) {
+            case 'id': break;
+            case 'width':
+              if (A.value.contains('%')) properties.add('${_id}.percentWidth=${A.value.substring(0, A.value.length - 1)}.0;');
+              else properties.add('${_id}.width=${A.value};');
+              
+              break;
+            case 'height':
+              if (A.value.contains('%')) properties.add('${_id}.percentHeight=${A.value.substring(0, A.value.length - 1)}.0;');
+              else properties.add('${_id}.height=${A.value};');
+              
+              break;
+            default:
+              if (isEvent) properties.add('${_id}.${property}.listen(${A.value});');
+              else properties.add('${_id}.${property}=${aval};');
+          }
         }
       }
     );
@@ -114,7 +128,7 @@ class UIMLElement extends UIMLPart {
   }
   
   Map<String, String> _getBindingStatement(String expr, String property) {
-    final String fullExpr = expr.substring(1, expr.length - 1);
+    String fullExpr = expr.substring(1, expr.length - 1);
     final List<String> matches = _allMatches(_trimQuotes(fullExpr));
     
     String decl = '', invoc = '';
@@ -137,7 +151,7 @@ class UIMLElement extends UIMLPart {
             
             final String stream = '$streamName = (($srcTarget is ObservableList) ? ${target}listChanges.listen(${bindName}) : ($srcTarget is Observable) ? ${target}changes.listen(${bindName}) : ($srcTarget is IUIWrapper) ? $listenerTarget.listen(${bindName}) : null);';
             
-            if (currentPath.length > 0) existsStatement.add('(${currentPath.join('.')}.$node != null)');
+            if (currentPath.isNotEmpty) existsStatement.add('(${currentPath.join('.')}.$node != null)');
             else existsStatement.add('($node != null)');
             
             currentPath.add(node);
@@ -157,6 +171,8 @@ class UIMLElement extends UIMLPart {
         
         _declarations.add('StreamSubscription ${streams.join(', ')};');
         
+        fullExpr = fullExpr.replaceAll('repeater.currentValue', '${(parent as UIMLElement).id}.getCurrentValueFor(${_id})');
+        
         decl += 'void ${bindName}(_) { ${_getExistsStatement(existsStatement)} ${_id}.${property} = ${fullExpr}; else ${_id}.${property} = null; \r\t${streamMethods.join('\r\t')} }\r\r\t';
         invoc += 'reflowManager.scheduleMethod(this, ${bindName}, [null], forceSingleExecution: true);';
       }
@@ -169,9 +185,15 @@ class UIMLElement extends UIMLPart {
   }
   
   String _getExistsStatement(List<String> existsStatement) {
-    if (existsStatement.length > 0) return 'if (${existsStatement.join(' && ')})';
+    const List<String> excludes = const <String>['(new != null)', '(const != null)', '(final != null)', '( != null)'];
     
-    return '';
+    existsStatement.removeWhere(
+      (String E) => excludes.contains(E)  
+    );
+    
+    if (existsStatement.isNotEmpty) return 'if (${existsStatement.join(' && ')})';
+    
+    return 'if (true)';
   }
   
   String _getInclusionStatement() {

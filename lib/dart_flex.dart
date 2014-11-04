@@ -41,6 +41,7 @@ part "src/components/image.dart";
 part "src/components/item_renderer.dart";
 part "src/components/list_renderer.dart";
 part "src/components/list_base.dart";
+part "src/components/repeater.dart";
 part "src/components/rich_text.dart";
 part "src/components/skinnable_component.dart";
 part "src/components/slider.dart";

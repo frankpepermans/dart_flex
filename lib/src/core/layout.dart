@@ -6,8 +6,10 @@ abstract class IFlexLayout {
   Stream<FrameworkEvent> get onYChanged;
   Stream<FrameworkEvent> get onWidthChanged;
   Stream<FrameworkEvent> get onPercentWidthChanged;
+  Stream<FrameworkEvent> get onLayoutWidthChanged;
   Stream<FrameworkEvent> get onHeightChanged;
   Stream<FrameworkEvent> get onPercentHeightChanged;
+  Stream<FrameworkEvent> get onLayoutHeightChanged;
   Stream<FrameworkEvent> get onPaddingLeftChanged;
   Stream<FrameworkEvent> get onPaddingRightChanged;
   Stream<FrameworkEvent> get onPaddingTopChanged;
@@ -30,12 +32,14 @@ abstract class IFlexLayout {
   set y(int value);
 
   int get width;
+  int get layoutWidth;
   set width(int value);
 
   double get percentWidth;
   set percentWidth(double value);
 
   int get height;
+  int get layoutHeight;
   set height(int value);
 
   double get percentHeight;
@@ -179,12 +183,16 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   //---------------------------------
   // width
   //---------------------------------
-
+  
+  static const EventHook<FrameworkEvent> onLayoutWidthChangedEvent = const EventHook<FrameworkEvent>('layoutWidthChanged');
+  Stream<FrameworkEvent> get onLayoutWidthChanged => FlexLayoutMixin.onLayoutWidthChangedEvent.forTarget(this);
+  
   static const EventHook<FrameworkEvent> onWidthChangedEvent = const EventHook<FrameworkEvent>('widthChanged');
   Stream<FrameworkEvent> get onWidthChanged => FlexLayoutMixin.onWidthChangedEvent.forTarget(this);
   int _width = 0;
 
   int get width => _width;
+  int get layoutWidth => (_layout != null) ? _layout.layoutWidth : 0;
 
   set width(int value) {
     if (value != _width) {
@@ -225,12 +233,16 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   //---------------------------------
   // height
   //---------------------------------
+  
+  static const EventHook<FrameworkEvent> onLayoutHeightChangedEvent = const EventHook<FrameworkEvent>('layoutHeightChanged');
+  Stream<FrameworkEvent> get onLayoutHeightChanged => FlexLayoutMixin.onLayoutHeightChangedEvent.forTarget(this);
 
   static const EventHook<FrameworkEvent> onHeightChangedEvent = const EventHook<FrameworkEvent>('heightChanged');
   Stream<FrameworkEvent> get onHeightChanged => FlexLayoutMixin.onHeightChangedEvent.forTarget(this);
   int _height = 0;
 
   int get height => _height;
+  int get layoutHeight => (_layout != null) ? _layout.layoutHeight : 0;
 
   set height(int value) {
     if (value != _height) {

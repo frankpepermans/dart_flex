@@ -45,6 +45,22 @@ class AbsoluteLayout implements ILayout {
 
   String get align => _align;
   set align(String value) => _align = value;
+  
+  //---------------------------------
+  // layoutWidth
+  //---------------------------------
+  
+  int _layoutWidth = 0;
+  
+  int get layoutWidth => _layoutWidth;
+  
+  //---------------------------------
+  // layoutHeight
+  //---------------------------------
+  
+  int _layoutHeight = 0;
+  
+  int get layoutHeight => _layoutHeight;
 
   //---------------------------------
   //

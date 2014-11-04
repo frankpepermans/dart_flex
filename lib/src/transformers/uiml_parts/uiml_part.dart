@@ -11,11 +11,15 @@ abstract class UIMLPart {
   String get ns => _ns;
   String get className => _className;
   
+  bool isRepeater;
+  
   UIMLPart(this.skin, this.parent, this.element) {
     final List<String> nsAndName = element.name.toString().split(':');
         
     _ns = nsAndName.first;
     _className = nsAndName.last;
+    
+    isRepeater = (_className == 'Repeater');
   }
   
 }

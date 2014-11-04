@@ -47,6 +47,22 @@ class HorizontalLayout implements ILayout {
 
   String get align => _align;
   set align(String value) => _align = value;
+  
+  //---------------------------------
+  // layoutWidth
+  //---------------------------------
+  
+  int _layoutWidth = 0;
+  
+  int get layoutWidth => _layoutWidth;
+  
+  //---------------------------------
+  // layoutHeight
+  //---------------------------------
+  
+  int _layoutHeight = 0;
+  
+  int get layoutHeight => _layoutHeight;
 
   //---------------------------------
   //
@@ -122,6 +138,9 @@ class HorizontalLayout implements ILayout {
         if (element.autoSize) element.width = w;
 
         if (_constrainToBounds && element.autoSize) element.height = h;
+        
+        _layoutWidth = element.x + element.width;
+        _layoutHeight = element.y + element.height;
 
         offset += w + _gap + element.paddingLeft + element.paddingRight;
       } else if (element.visible) {

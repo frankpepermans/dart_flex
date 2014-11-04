@@ -649,15 +649,29 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       (_width > 0) &&
       (_height > 0)
     ) {
-      if (_layout != null) _layout.doLayout(
-          _width,
-          _height,
-          _getPageItemSize(),
-          _getPageOffset(),
-          _getPageSize(),
-          _childWrappers
-      );
-      else _childWrappers.forEach(
+      if (_layout != null) {
+        final int dw = _layout.layoutWidth;
+        final int dh = _layout.layoutHeight;
+        
+        _layout.doLayout(
+            _width,
+            _height,
+            _getPageItemSize(),
+            _getPageOffset(),
+            _getPageSize(),
+            _childWrappers
+        );
+        
+        if (_layout.layoutWidth != dw) notify(
+          new FrameworkEvent('layoutWidthChanged')    
+        );
+        
+        if (_layout.layoutHeight != dh) notify(
+          new FrameworkEvent('layoutHeightChanged')    
+        );
+        
+        if ((_layout.layoutWidth != dw || _layout.layoutHeight != dh) && owner != null) owner.invalidateLayout();
+      } else _childWrappers.forEach(
           (IFlexLayout element) {
             element.x = element.paddingLeft;
             element.y = element.paddingRight;
