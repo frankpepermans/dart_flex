@@ -40,6 +40,7 @@ class RichText extends UIWrapper {
   set text(String value) {
     if (value != _text) {
       _text = value;
+      _richText = null;
  
       notify(
         new FrameworkEvent(
@@ -62,6 +63,7 @@ class RichText extends UIWrapper {
   String get richText => _richText;
   set richText(String value) {
     if (value != _richText) {
+      _text = null;
       _richText = value;
  
       notify(
