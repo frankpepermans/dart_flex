@@ -147,7 +147,7 @@ class EditableTextArea extends UIWrapper {
 
   void _commitText() {
     if (_control != null) {
-      _reflowManager.scheduleMethod(this, _commitTextOnReflow, []);
+      _reflowManager.scheduleMethod(this, _commitTextOnReflow, [], forceSingleExecution: true);
     }
   }
   

@@ -78,7 +78,7 @@ class Toggle extends UIWrapper {
   
   void _commitIsToggled() {
     if (_control != null) {
-      _reflowManager.scheduleMethod(this, _commitIsToggledOnReflow, []);
+      _reflowManager.scheduleMethod(this, _commitIsToggledOnReflow, [], forceSingleExecution: true);
     }
   }
   

@@ -14,12 +14,12 @@ class SkinnableComponent extends Group {
   SkinnableComponent() : super() {
     setSkinStates();
     
-    onSkinPartAdded.listen(
-      (FrameworkEvent<IUIWrapper> E) => partAdded(E.relatedObject)    
-    );
+    onSkinPartAdded.listen(_event_partAdded);
   }
   
   void partAdded(IUIWrapper part) {}
   
   void setSkinStates() {}
+  
+  void _event_partAdded(FrameworkEvent<IUIWrapper> E) => partAdded(E.relatedObject);
 }

@@ -192,29 +192,26 @@ class RichText extends UIWrapper {
   }
  
   void _commitTextAutoTruncate() {
-       if (_autoTruncate) {
+    if (_autoTruncate) {
       if (_label != null) _reflowManager.invalidateCSS(_control, 'text-overflow', 'ellipsis');
       if (_label != null) _reflowManager.invalidateCSS(_control, 'white-space', 'nowrap');
-       }
-       else {
+    } else {
       if (_label != null) _reflowManager.invalidateCSS(_control, 'text-overflow', 'clip');
       if (_label != null) _reflowManager.invalidateCSS(_control, 'white-space', 'normal');
-       }
+    }
   }
  
   void _commitText() {
-    if (_label != null) _reflowManager.scheduleMethod(this, _commitTextOnReflow, []);
+    if (_label != null) _reflowManager.scheduleMethod(this, _commitTextOnReflow, [], forceSingleExecution: true);
   }
  
   void _commitTextOnReflow() {
     final String newText = (_richText != null) ? _richText : (_text != null) ? _text : '';
-   
+    
     if (_richText != null) {
       _label.setInnerHtml(newText, treeSanitizer: new NullTreeSanitizer());
-    } else {
-      _label.text = newText;
-    }
-   
-    control.title = newText.replaceAll(new RegExp(r'<[^>]+>'), '');
+      
+      control.title = newText.replaceAll(new RegExp(r'<[^>]+>'), '');
+    } else _label.text = control.title = newText;
   }
 }

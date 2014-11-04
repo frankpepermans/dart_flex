@@ -132,7 +132,7 @@ class EditableDouble extends UIWrapper {
   //---------------------------------
 
   void _commitValue() {
-    if (_control != null) _reflowManager.scheduleMethod(this, _commitValueOnReflow, []);
+    if (_control != null) _reflowManager.scheduleMethod(this, _commitValueOnReflow, [], forceSingleExecution: true);
   }
   
   void _commitValueOnReflow() {

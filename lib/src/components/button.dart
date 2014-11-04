@@ -81,11 +81,8 @@ class Button extends UIWrapper {
   //---------------------------------
 
   void _commitLabel() {
-    if (_control != null) {
-      _reflowManager.scheduleMethod(this, _updateElementText, [_label]);
-    } else {
-      later > _commitLabel;
-    }
+    if (_control != null) _reflowManager.scheduleMethod(this, _updateElementText, [_label], forceSingleExecution: true);
+    else later > _commitLabel;
   }
   
   void _updateElementText(String label) => _control.setInnerHtml(label);

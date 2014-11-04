@@ -173,7 +173,7 @@ class EditableText extends UIWrapper {
   }
 
   void _commitText() {
-    if (_control != null) _reflowManager.scheduleMethod(this, _commitTextOnReflow, []);
+    if (_control != null) _reflowManager.scheduleMethod(this, _commitTextOnReflow, [], forceSingleExecution: true);
   }
   
   void _commitTextOnReflow() {
