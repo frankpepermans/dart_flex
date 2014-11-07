@@ -167,7 +167,8 @@ class RichText extends UIWrapper {
   void createChildren() {
     super.createChildren();
    
-    _label = new LabelElement();
+    _label = new LabelElement()
+      ..onClick.listen((_) => notify(new FrameworkEvent('click')));
  
     _setControl(_label);
  
