@@ -18,7 +18,7 @@ class DataGrid extends ListBase {
   List<IHeaderItemRenderer> get headerItemRenderers => _headerItemRenderers;
 
   VGroup _gridContainer;
-  HGroup _headerContainer;
+  HGroup _headerBounds, _headerContainer;
   ListRenderer _list;
   
   ListRenderer get list => _list;
@@ -117,6 +117,7 @@ class DataGrid extends ListBase {
     if (value != _headless) {
       _headless = value;
       
+      if (_headerBounds != null) _headerBounds.visible = _headerBounds.includeInLayout = !value;
       if (_headerContainer != null) _headerContainer.visible = _headerContainer.includeInLayout = !value;
 
       if (_headerItemRenderers != null) {
@@ -462,6 +463,11 @@ class DataGrid extends ListBase {
     ..height = _headerHeight
     ..autoSize = false
     ..className = 'data-grid-header-container';
+    
+    _headerBounds = new HGroup()
+      ..percentWidth = 100.0
+      ..height = _headerHeight
+      ..addComponent(_headerContainer);
 
     _list = new ListRenderer(orientation: 'grid')
     ..cssClasses = _listCssClasses
@@ -488,7 +494,7 @@ class DataGrid extends ListBase {
         )
     );
 
-    _gridContainer.addComponent(_headerContainer);
+    _gridContainer.addComponent(_headerBounds);
     _gridContainer.addComponent(_list);
 
     addComponent(_gridContainer);
@@ -656,6 +662,11 @@ class DataGrid extends ListBase {
       
       if (_autoManageScrollBars) _list.horizontalScrollPolicy = (tw > _width) ? ScrollPolicy.AUTO : ScrollPolicy.NONE;
       else _list.horizontalScrollPolicy = _horizontalScrollPolicy;
+      
+      if (_headerBounds != null) {
+        _headerBounds.width = w;
+        _headerBounds.height = _headerHeight;
+      }
 
       if (_headerContainer != null) {
         _headerContainer.width = w;
