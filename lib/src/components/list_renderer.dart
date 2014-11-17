@@ -755,7 +755,7 @@ class ListRenderer extends ListBase {
       _previousFirstIndex = _firstIndex;
       
       _childWrappers = new List<IItemRenderer>.from(_itemRenderers);
-
+      
       for (i=_firstIndex; i<len; i++) {
         isRendererShown = (i < dpLen);
         
