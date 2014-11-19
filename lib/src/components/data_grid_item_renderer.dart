@@ -128,7 +128,7 @@ class DataGridItemRenderer<D> extends ItemRenderer {
 
     if (
         (_itemRendererInstances != null) &&
-        (_itemRendererInstances.length > 0)
+        _itemRendererInstances.isNotEmpty
     ) _itemRendererInstances.forEach(
         (IItemRenderer renderer) => renderer.data = _data
     );

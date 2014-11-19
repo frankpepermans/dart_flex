@@ -91,7 +91,7 @@ class ReflowManager {
       
       invocationFrame.then(
           (_) {
-            if (ownerMap.remove(invocation) && (ownerMap.length == 0)) _scheduledHandlers.remove(owner);
+            if (ownerMap.remove(invocation) && ownerMap.isEmpty) _scheduledHandlers.remove(owner);
             
             invocation.invoke();
           }
@@ -143,9 +143,12 @@ class _ElementCSSMap {
   
   Future _currentWait;
   Map<String, String> _dirtyProperties;
+  CssStyleDeclaration D;
   bool _isDirty = false;
   
-  _ElementCSSMap(this._element);
+  _ElementCSSMap(this._element) {
+    D = new CssStyleDeclaration.css(_element.style.cssText);
+  }
   
   void asyncUpdateCss(Future F, String propertyName, String value) {
     if (F != _currentWait) _currentWait = F..whenComplete(_finalize);
@@ -161,9 +164,17 @@ class _ElementCSSMap {
   void _finalize() {
     if (!_isDirty) return;
     
-    _dirtyProperties.forEach(
-      (String N, String V) => _element.style.setProperty(N, V, _PRIORITY)
-    );
+    if (!_dirtyProperties.containsKey('background-position')) {
+      _dirtyProperties.forEach(
+        (String N, String V) => D.setProperty(N, V, _PRIORITY)
+      );
+      
+      if (_element.style.cssText != D.cssText) _element.style.cssText = D.cssText;
+    } else {
+      _dirtyProperties.forEach(
+        (String N, String V) => _element.style.setProperty(N, V, _PRIORITY)
+      );
+    }
     
     _isDirty = false;
     _dirtyProperties = null;
