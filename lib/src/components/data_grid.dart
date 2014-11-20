@@ -383,6 +383,21 @@ class DataGrid extends ListBase {
   //---------------------------------
 
   SortHandler sortHandler;
+  
+  //---------------------------------
+  // disableRecycling
+  //---------------------------------
+  
+  bool _disableRecycling = false;
+  
+  bool get disableRecycling => _disableRecycling;
+  set disableRecycling(bool value) {
+    if (value != _disableRecycling) {
+      _disableRecycling = value;
+  
+      if (_list != null) _list.disableRecycling = value;
+    }
+  }
 
   //---------------------------------
   //
@@ -465,14 +480,17 @@ class DataGrid extends ListBase {
     ..className = 'data-grid-header-container';
     
     _headerBounds = new HGroup()
-      ..percentWidth = 100.0
-      ..height = _headerHeight
-      ..addComponent(_headerContainer);
+    ..percentWidth = 100.0
+    ..height = _headerHeight
+    ..visible = !_headless
+    ..includeInLayout = !_headless
+    ..addComponent(_headerContainer);
 
     _list = new ListRenderer(orientation: 'grid')
     ..cssClasses = _listCssClasses
     ..percentWidth = 100.0
     ..percentHeight = 100.0
+    ..disableRecycling = _disableRecycling
     ..colPercentWidth = 100.0
     ..autoScrollSelectionIntoView = _autoScrollSelectionIntoView
     ..inactiveHandler = _inactiveHandler

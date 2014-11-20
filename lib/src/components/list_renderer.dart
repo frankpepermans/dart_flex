@@ -430,6 +430,21 @@ class ListRenderer extends ListBase {
     
     _forceRefresh();
   }
+  
+  //---------------------------------
+  // disableRecycling
+  //---------------------------------
+
+  bool _disableRecycling = false;
+
+  bool get disableRecycling => _disableRecycling;
+  set disableRecycling(bool value) {
+    if (value != _disableRecycling) {
+      _disableRecycling = value;
+
+      _forceRefresh();
+    }
+  }
 
   //---------------------------------
   //
@@ -653,6 +668,8 @@ class ListRenderer extends ListBase {
             (_rowHeight == 0)
         ) {
           elementsRequired = 0;
+        } else if (_disableRecycling) {
+          elementsRequired = _dataProvider.length;
         } else {
           elementsRequired = min(
               (_height ~/ _rowHeight + 2),
@@ -665,6 +682,8 @@ class ListRenderer extends ListBase {
             (_colWidth == 0)
         ) {
           elementsRequired = 0;
+        } else if (_disableRecycling) {
+          elementsRequired = _dataProvider.length;
         } else {
           elementsRequired = min(
               (_width ~/ _colWidth + 2),
@@ -713,7 +732,7 @@ class ListRenderer extends ListBase {
 
   void _updateAfterScrollPositionChanged() {
     if (_dataProvider != null) {
-      if (_updateElements()) return;
+      if (_updateElements() || _disableRecycling) return;
       
       _updateVisibleItemRenderers();
     }
@@ -735,7 +754,7 @@ class ListRenderer extends ListBase {
     
     final int pageItemSize = _getPageItemSize();
     
-    _firstIndex = (pageItemSize > 0) ? (_scrollPosition ~/ pageItemSize) : 0;
+    _firstIndex = _disableRecycling ? 0 : (pageItemSize > 0) ? (_scrollPosition ~/ pageItemSize) : 0;
     
     if (
         ignorePreviousIndex ||
