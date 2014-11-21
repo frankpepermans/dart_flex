@@ -828,7 +828,7 @@ class ListRenderer extends ListBase {
         
         if (pageItemSize is int && pageItemSize <= 0) return;
         
-        final int index = (_scrollPosition ~/ _getPageItemSize()) + _itemRenderers.indexOf(itemRenderer);
+        final int index = _disableRecycling ? _itemRenderers.indexOf(itemRenderer) : (_scrollPosition ~/ _getPageItemSize()) + _itemRenderers.indexOf(itemRenderer);
         
         if (_allowMultipleSelection) {
           selectedIndex = -1;
