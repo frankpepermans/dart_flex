@@ -143,12 +143,9 @@ class _ElementCSSMap {
   
   Future _currentWait;
   Map<String, String> _dirtyProperties;
-  CssStyleDeclaration D;
   bool _isDirty = false;
   
-  _ElementCSSMap(this._element) {
-    D = new CssStyleDeclaration.css(_element.style.cssText);
-  }
+  _ElementCSSMap(this._element);
   
   void asyncUpdateCss(Future F, String propertyName, String value) {
     if (F != _currentWait) _currentWait = F..whenComplete(_finalize);
@@ -164,17 +161,9 @@ class _ElementCSSMap {
   void _finalize() {
     if (!_isDirty) return;
     
-    if (!_dirtyProperties.containsKey('background-position')) {
-      _dirtyProperties.forEach(
-        (String N, String V) => D.setProperty(N, V, _PRIORITY)
-      );
-      
-      if (_element.style.cssText != D.cssText) _element.style.cssText = D.cssText;
-    } else {
-      _dirtyProperties.forEach(
-        (String N, String V) => _element.style.setProperty(N, V, _PRIORITY)
-      );
-    }
+    _dirtyProperties.forEach(
+      (String N, String V) => _element.style.setProperty(N, V, _PRIORITY)
+    );
     
     _isDirty = false;
     _dirtyProperties = null;
