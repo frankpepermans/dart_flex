@@ -1,4 +1,6 @@
 part of dart_flex;
+
+typedef String TitleHandler(String S);
  
 class RichText extends UIWrapper {
  
@@ -144,6 +146,29 @@ class RichText extends UIWrapper {
       _commitTextAutoTruncate();
     }
   }
+  
+  //---------------------------------
+  // titleHandler
+  //---------------------------------
+ 
+  static const EventHook<FrameworkEvent> onTitleHandlerChangedEvent = const EventHook<FrameworkEvent>('titleHandlerChangedEvent');
+  Stream<FrameworkEvent> get onTitleHandlerChanged => RichText.onTitleHandlerChangedEvent.forTarget(this);
+  TitleHandler _titleHandler;
+ 
+  TitleHandler get titleHandler => _titleHandler;
+  set titleHandler(TitleHandler value) {
+    if (value != _titleHandler) {
+       _titleHandler = value;
+ 
+      notify(
+        new FrameworkEvent(
+          'titleHandlerChangedEvent'
+        )
+      );
+ 
+      _commitTextAutoTruncate();
+    }
+  }
  
   //---------------------------------
   //
@@ -212,7 +237,11 @@ class RichText extends UIWrapper {
     if (_richText != null) {
       _label.setInnerHtml(newText, treeSanitizer: new NullTreeSanitizer());
       
-      control.title = newText.replaceAll(new RegExp(r'<[^>]+>'), '');
-    } else _label.text = control.title = newText;
+      control.title = (_titleHandler != null) ? _titleHandler(newText) : newText.replaceAll(new RegExp(r'<[^>]+>'), '');
+    } else {
+      _label.text = newText;
+      
+      control.title = (_titleHandler != null) ? _titleHandler(newText) : newText;
+    }
   }
 }
