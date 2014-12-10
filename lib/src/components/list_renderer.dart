@@ -731,19 +731,19 @@ class ListRenderer extends ListBase {
   }
 
   void _updateAfterScrollPositionChanged() {
-    if (_dataProvider != null) {
-      if (_updateElements() || _disableRecycling) return;
-      
-      _updateVisibleItemRenderers();
-    }
+    if (_dataProvider != null && (_updateElements() || _disableRecycling)) return;
     
-    later > () {
-      updateLayout();
-      
-      notify(
-        new FrameworkEvent('redraw')    
-      );
-    };
+    later > _invalidateAfterScrollPositionChanged;
+  }
+  
+  void _invalidateAfterScrollPositionChanged() {
+    if (_dataProvider != null) _updateVisibleItemRenderers();
+    
+    updateLayout();
+    
+    notify(
+      new FrameworkEvent('redraw')    
+    );
   }
 
   void _updateVisibleItemRenderers({bool ignorePreviousIndex: false}) {
