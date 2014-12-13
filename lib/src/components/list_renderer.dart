@@ -336,7 +336,7 @@ class ListRenderer extends ListBase {
         )
       );
 
-      later > _updateAfterScrollPositionChanged;
+      _updateAfterScrollPositionChanged();
     }
   }
   
@@ -733,7 +733,7 @@ class ListRenderer extends ListBase {
   void _updateAfterScrollPositionChanged() {
     if (_dataProvider != null && (_updateElements() || _disableRecycling)) return;
     
-    later > _invalidateAfterScrollPositionChanged;
+    _invalidateAfterScrollPositionChanged();
   }
   
   void _invalidateAfterScrollPositionChanged() {

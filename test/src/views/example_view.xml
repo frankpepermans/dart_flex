@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <fx:Skin xmlns:fx="library://dart_flex">
+
   <fx:VGroup id="verticalContainer" width="100%" height="100%">
     <fx:Group height="100"/>
     <fx:HGroup id="horizontalContainer" width="100%" height="100%">
@@ -19,7 +20,7 @@
           id="accordion"
           width="100%" height="100%"
           dataProvider="createAccordionDataProvider()"
-          headerItemRendererFactory="new ItemRendererFactory&lt;IAccordionHeaderItemRenderer&gt;(constructorMethod: AccordionHeaderItemRenderer.construct)"
+          headerItemRendererFactory="new ItemRendererFactory(constructorMethod: AccordionHeaderItemRenderer.construct)"
           headerHeight="30"
           headerFields="[taskSymbol]"
           headerField="taskNameSymbol"
@@ -60,4 +61,5 @@
     </fx:HGroup>
     <fx:Group height="100"/>
   </fx:VGroup>
+  
 </fx:Skin>

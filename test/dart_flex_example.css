@@ -20,34 +20,9 @@ h1, p {
   color: #333;
 }
 
-#header {
-  width: 100%;
-  height: 240px;
-  background-color: #fff;
-  background: url(images/bg_header.jpg);
-  overflow: hidden;
-}
-
-.header-large {
-  font-size: 24px;
-  left: 110px;
-  right: 110px;
-  top: 20px;
-  position: relative;
-  font-weight: bold;
-}
-
-.header-small {
-  font-size: 14px;
-  top: 25px;
-  left: 110px;
-  position: relative;
-  color: #666;
-}
-
 #dart_flex_container {
   width: 100%;
-  height: 400px;
+  height: 100%;
   position: relative;
   border: 1px solid #ccc;
   background-color: #fff;

@@ -1,5 +1,5 @@
 name: dart_flex
-version: 0.8.32
+version: 0.8.35
 author: Frank Pepermans <frank@igindo.com>
 description: Flex-like components in Dart
 homepage: https://github.com/frankpepermans/dart_flex
@@ -9,3 +9,6 @@ dependencies:
   crypto: any
   observe: any
   xml: any
+transformers:
+- dart_flex/src/transformers/uiml_transformer
+- observe/transformer

@@ -171,7 +171,7 @@ class UIMLElement extends UIMLPart {
         
         _declarations.add('StreamSubscription ${streams.join(', ')};');
         
-        fullExpr = fullExpr.replaceAll('repeater.currentValue', '${(parent as UIMLElement).id}.getCurrentValueFor(${_id})');
+        if (fullExpr.contains('repeater.currentValue')) fullExpr = fullExpr.replaceAll('repeater.currentValue', '${(parent as UIMLElement).id}.getCurrentValueFor(${_id})');
         
         decl += 'void ${bindName}(_) { ${_getExistsStatement(existsStatement)} ${_id}.${property} = ${fullExpr}; else ${_id}.${property} = null; \r\t${streamMethods.join('\r\t')} }\r\r\t';
         invoc += 'reflowManager.scheduleMethod(this, ${bindName}, [null], forceSingleExecution: true);';
