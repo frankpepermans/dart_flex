@@ -119,9 +119,12 @@ class UIMLElement extends UIMLPart {
   List<String> _allMatches(String value) {
     final List<String> result = <String>[];
     final RegExp exp = new RegExp(r"[^\(\) \+\-\/\*\&\|]+");
+    final RegExp exp2 = new RegExp(r"[!=&|<>\^]+");
     
     exp.allMatches(value).forEach(
-      (Match M) => result.add(value.substring(M.start, M.end))    
+      (Match M) {
+        if (!exp2.hasMatch(value.substring(M.start, M.end))) result.add(value.substring(M.start, M.end));
+      }
     );
     
     return result;
@@ -169,7 +172,7 @@ class UIMLElement extends UIMLPart {
           }
         );
         
-        _declarations.add('StreamSubscription ${streams.join(', ')};');
+        if (streams.isNotEmpty) _declarations.add('StreamSubscription ${streams.join(', ')};');
         
         if (fullExpr.contains('repeater.currentValue')) fullExpr = fullExpr.replaceAll('repeater.currentValue', '${(parent as UIMLElement).id}.getCurrentValueFor(${_id})');
         
@@ -185,7 +188,7 @@ class UIMLElement extends UIMLPart {
   }
   
   String _getExistsStatement(List<String> existsStatement) {
-    const List<String> excludes = const <String>['(new != null)', '(const != null)', '(final != null)', '( != null)'];
+    const List<String> excludes = const <String>['(new != null)', '(const != null)', '(final != null)', '( != null)', '(!= != null)'];
     
     existsStatement.removeWhere(
       (String E) => excludes.contains(E)  

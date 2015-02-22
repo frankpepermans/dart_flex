@@ -747,7 +747,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   }
   
   void updateEnabledStatus() {
-    if (_control != null) reflowManager.invalidateCSS(_control, 'pointer-events', (_enabled ? 'auto' : 'none'));
+    if (_control != null && _enabled != null) reflowManager.invalidateCSS(_control, 'pointer-events', (_enabled ? 'auto' : 'none'));
   }
   
   void transportComponents(IUIWrapper target) {

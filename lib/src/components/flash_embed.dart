@@ -90,7 +90,7 @@ class FlashEmbed extends UIWrapper {
         ..append(
           new ParamElement()
             ..name = 'quality'
-            ..value = 'low'
+            ..value = 'high'
           )
         ..append(
             new ParamElement()
