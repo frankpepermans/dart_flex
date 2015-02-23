@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <fx:Skin xmlns:fx="library://dart_flex/dart_flex.dart">
 
-  <fx:VGroup id="verticalContainer" width="100%" height="100%">
+  <fx:VGroup id="verticalContainer" percentWidth="100" percentHeight="100">
     <fx:Group height="100"/>
-    <fx:HGroup id="horizontalContainer" width="100%" height="100%">
+    <fx:HGroup id="horizontalContainer" percentWidth="100" percentHeight="100">
       <fx:Group width="100"/>
-      <fx:HGroup id="centerContainer" cssClasses="['main-panel']" paddingBottom="15" width="100%" height="100%">
+      <fx:HGroup id="centerContainer" cssClasses="['main-panel']" paddingBottom="15" percentWidth="100" percentHeight="100">
         <fx:DataGrid 
           id="dataGrid"
           cssClasses="[]"
-          percentWidth="{centerContainer.percentWidth}" height="100%"
+          percentWidth="{centerContainer.percentWidth}" percentHeight="100"
           headerHeight="30"
           rowHeight="34"
           columnSpacing="0" rowSpacing="0"
@@ -18,7 +18,7 @@
           sortHandler="dataGrid_sortHandler" />
         <fx:Accordion 
           id="accordion"
-          width="100%" height="100%"
+          percentWidth="100" percentHeight="100"
           dataProvider="createAccordionDataProvider()"
           headerItemRendererFactory="new ItemRendererFactory(constructorMethod: AccordionHeaderItemRenderer.construct)"
           headerHeight="30"
@@ -27,14 +27,14 @@
           contentItemRendererFactory="new ItemRendererFactory(constructorMethod: SpriteSheetItemRenderer.construct)"
           contentFields="[urgencySymbol]"
           contentField="urgencyNameSymbol" />
-        <fx:VGroup id="masterTables" width="200" height="100%">
+        <fx:VGroup id="masterTables" width="200" percentHeight="100">
           <fx:Image 
             id="editTasksImage"
             width="200" height="50"
-            source="'images/edit_tasks.jpg'" />
+            source="images/edit_tasks.jpg" />
           <fx:ListRenderer
             id="tasksGrid"
-            width="100%" height="100%"
+            percentWidth="100" percentHeight="100"
             rowHeight="34"
             rowSpacing="0"
             field="taskNameSymbol"
@@ -48,7 +48,7 @@
             id="urgenciesGrid"
             paddingBottom="30"
             cssClasses="[]"
-            width="100%" height="100%"
+            percentWidth="100" percentHeight="100"
             rowHeight="34"
             rowSpacing="0"
             field="urgencyNameSymbol"

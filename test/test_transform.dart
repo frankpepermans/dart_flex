@@ -73,7 +73,11 @@ _Declaration _convertXmlElementToScript(xml.XmlElement E, Map<String, List<_Libr
   SB.write('$id = new ${E.name.local}()');
 
   M.forEach(
-      (String K, _PendingAttribute V) => SB.write('..${K}=${V.value}')
+      (String K, _PendingAttribute V) {
+        _SourceResult SR = _xmlValueToSourceValue(V.value, V.setter.expectedType);
+
+        SB.write('..${K}=${SR.sourceValue}');
+      }
   );
 
   SB.write(';');
@@ -312,4 +316,37 @@ class _Declaration {
 
     return SB.toString();
   }
+}
+
+_SourceResult _xmlValueToSourceValue(String xmlValue, Type expectedType) {
+  if (xmlValue.codeUnitAt(0) == '{'.codeUnitAt(0) && xmlValue.codeUnitAt(xmlValue.length - 1) == '}'.codeUnitAt(0)) {
+    final String xmlSource = xmlValue.substring(1, xmlValue.length - 1);
+    final List<String> dotPath = xmlSource.split('.');
+    final String genericMethodName = '__scope_fnc_local_${++_localScopeCount}';
+    //todo: make generic method
+
+    return new _SourceResult('${genericMethodName}()', _buildSourceMethod(dotPath, genericMethodName, expectedType), genericMethodName);
+  }
+
+  switch (expectedType) {
+    case String: return new _SourceResult("'${xmlValue}'", null, null);
+    case int: return new _SourceResult(int.parse(xmlValue).toString(), null, null);
+    case double:
+      if (xmlValue.contains('.')) return new _SourceResult(double.parse(xmlValue).toString(), null, null);
+      else return new _SourceResult(double.parse('${xmlValue}.0').toString(), null, null);
+  }
+
+  return new _SourceResult(xmlValue, null, null);
+}
+
+String _buildSourceMethod(List<String> dotPath, String genericMethodName, Type expectedType) {
+  return '$expectedType ${genericMethodName}() => null;';
+}
+
+class _SourceResult {
+
+  final String sourceValue, sourceMethod, sourceMethodName;
+
+  _SourceResult(this.sourceValue, this.sourceMethod, this.sourceMethodName);
+
 }
