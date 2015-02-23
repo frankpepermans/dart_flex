@@ -25,3 +25,6 @@ test/packages/
 
 # Exclude pubspec when developing library packages
 # pubspec.lock
+.pub/
+.idea/
+dart_flex.iml
