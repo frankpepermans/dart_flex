@@ -2,9 +2,12 @@ part of codegen;
 
 class Scanner {
 
+  final dynamic instance;
+  final String forXml;
+  final Reflection R = new Reflection();
   int _localScopeCount = 0;
 
-  Scanner(String forXml) {
+  Scanner(this.instance, this.forXml) {
     _loadXml('src/views/example_view.xml').then(
             (xml.XmlDocument xml) {
           final xml.XmlNode xmlBody = xml.lastChild;
@@ -43,7 +46,6 @@ class Scanner {
   }
 
   List<_Library> _fetchXmlLibraries(xml.XmlNode xmlBody) {
-    final Reflection R = new Reflection();
     final List<_Library> libraries = <_Library>[];
 
     xmlBody.attributes.forEach(
@@ -140,6 +142,28 @@ class Scanner {
   }
 
   String _buildSourceMethod(List<String> dotPath, String genericMethodName, Type expectedType) {
+    final mirrors.InstanceMirror IM = R.reflectInstance(instance);
+    mirrors.ClassMirror CM = IM.type;
+
+    dotPath.forEach(
+      (String segment) {
+        if (R.extendsUIWrapper(CM)) {
+          final Map<String, List<_IInvokable>> decl = R.createGraphForUIWrapper(CM);
+
+          decl['getters'].forEach(
+              (_Getter G) {
+                if (G.name == segment) {
+                  if (G.listener != null) {
+                    print('TEST: ${G.name} => ${G.listener.name}');
+                  }
+
+                  CM = G.expectedType;
+                }
+              }
+          );
+        }
+      }
+    );
     return '$expectedType ${genericMethodName}() => null;';
   }
 

@@ -10,16 +10,7 @@ class Reflection {
           if (uri.path == libraryUri) {
             M.declarations.forEach(
               (Symbol S, mirrors.DeclarationMirror D) {
-                  if (D is mirrors.ClassMirror && _extendsUIWrapper(D)) {
-                    Map<String, List<_IInvokable>> decl = <String, List<_IInvokable>>{};
-
-                    decl['methods'] = <_IInvokable>[];
-
-                    decl['getters'] = _fillGetters(D);
-                    decl['setters'] = _fillSetters(D, decl['getters']);
-
-                    uiList[S] = decl;
-                  }
+                  if (D is mirrors.ClassMirror && extendsUIWrapper(D)) uiList[S] = createGraphForUIWrapper(D);
               }
             );
           }
@@ -29,11 +20,20 @@ class Reflection {
     return uiList;
   }
 
-  // Private
+  Map<String, List<_IInvokable>> createGraphForUIWrapper(mirrors.ClassMirror CM) {
+    final Map<String, List<_IInvokable>> decl = <String, List<_IInvokable>>{};
 
-  String _toQName(String symbolName) => symbolName.split('"')[1];
+    decl['methods'] = <_IInvokable>[];
 
-  bool _extendsUIWrapper(mirrors.ClassMirror M) {
+    decl['getters'] = _fillGetters(CM);
+    decl['setters'] = _fillSetters(CM, decl['getters']);
+
+    return decl;
+  }
+
+  mirrors.InstanceMirror reflectInstance(dynamic instance) => mirrors.reflect(instance);
+
+  bool extendsUIWrapper(mirrors.ClassMirror M) {
     bool isUIWrapperSubClass = false;
     mirrors.ClassMirror m = M;
 
@@ -49,6 +49,61 @@ class Reflection {
 
     return isUIWrapperSubClass;
   }
+
+  bool extendsObservable(mirrors.ClassMirror M) {
+    bool isObservableSubClass = false;
+    mirrors.ClassMirror m = M;
+
+    while (m.superclass != null) {
+      if (m.superclass != null && m.superclass.simpleName.toString() == 'Symbol("Observable")') {
+        isObservableSubClass = true;
+
+        break;
+      }
+
+      m = m.superclass;
+    }
+
+    return isObservableSubClass;
+  }
+
+  bool extendsObservableList(mirrors.ClassMirror M) {
+    bool isObservableSubClass = false;
+    mirrors.ClassMirror m = M;
+
+    while (m.superclass != null) {
+      if (m.superclass != null && m.superclass.simpleName.toString() == 'Symbol("ObservableList")') {
+        isObservableSubClass = true;
+
+        break;
+      }
+
+      m = m.superclass;
+    }
+
+    return isObservableSubClass;
+  }
+
+  bool extendsObservableMap(mirrors.ClassMirror M) {
+    bool isObservableSubClass = false;
+    mirrors.ClassMirror m = M;
+
+    while (m.superclass != null) {
+      if (m.superclass != null && m.superclass.simpleName.toString() == 'Symbol("ObservableMap")') {
+        isObservableSubClass = true;
+
+        break;
+      }
+
+      m = m.superclass;
+    }
+
+    return isObservableSubClass;
+  }
+
+  // Private
+
+  String _toQName(String symbolName) => symbolName.split('"')[1];
 
   List<_IInvokable> _fillGetters(mirrors.ClassMirror M) {
     final List<_IInvokable> L = <_IInvokable>[];
