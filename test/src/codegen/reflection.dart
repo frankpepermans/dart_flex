@@ -10,7 +10,7 @@ class Reflection {
           if (uri.path == libraryUri) {
             M.declarations.forEach(
               (Symbol S, mirrors.DeclarationMirror D) {
-                  if (D is mirrors.ClassMirror && extendsUIWrapper(D)) uiList[S] = createGraphForUIWrapper(D);
+                  if (D is mirrors.ClassMirror && extendsWhat(D).extendsUIWrapper) uiList[S] = createGraphForUIWrapper(D);
               }
             );
           }
@@ -33,72 +33,32 @@ class Reflection {
 
   mirrors.InstanceMirror reflectInstance(dynamic instance) => mirrors.reflect(instance);
 
-  bool extendsUIWrapper(mirrors.ClassMirror M) {
+  _Extends extendsWhat(mirrors.ClassMirror M) {
+    const String uiWrapperSymbolName = 'Symbol("UIWrapper")';
+    const String observableSymbolName = 'Symbol("Observable")';
+    const String observableListSymbolName = 'Symbol("ObservableList")';
+    const String observableMapSymbolName = 'Symbol("ObservableMap")';
+    String simpleName;
     bool isUIWrapperSubClass = false;
-    mirrors.ClassMirror m = M;
-
-    while (m.superclass != null) {
-      if (m.superclass != null && m.superclass.simpleName.toString() == 'Symbol("UIWrapper")') {
-        isUIWrapperSubClass = true;
-
-        break;
-      }
-
-      m = m.superclass;
-    }
-
-    return isUIWrapperSubClass;
-  }
-
-  bool extendsObservable(mirrors.ClassMirror M) {
     bool isObservableSubClass = false;
+    bool isObservableListSubClass = false;
+    bool isObservableMapSubClass = false;
     mirrors.ClassMirror m = M;
 
     while (m.superclass != null) {
-      if (m.superclass != null && m.superclass.simpleName.toString() == 'Symbol("Observable")') {
-        isObservableSubClass = true;
-
-        break;
+      if (m.superclass != null) {
+        simpleName = m.superclass.simpleName.toString();
+        
+        if (!isUIWrapperSubClass && simpleName == uiWrapperSymbolName) isUIWrapperSubClass = true;
+        else if (!isObservableSubClass && simpleName == observableSymbolName) isObservableSubClass = true;
+        else if (!isObservableListSubClass && simpleName == observableListSymbolName) isObservableListSubClass = true;
+        else if (!isObservableMapSubClass && simpleName == observableMapSymbolName) isObservableMapSubClass = true;
       }
 
       m = m.superclass;
     }
 
-    return isObservableSubClass;
-  }
-
-  bool extendsObservableList(mirrors.ClassMirror M) {
-    bool isObservableSubClass = false;
-    mirrors.ClassMirror m = M;
-
-    while (m.superclass != null) {
-      if (m.superclass != null && m.superclass.simpleName.toString() == 'Symbol("ObservableList")') {
-        isObservableSubClass = true;
-
-        break;
-      }
-
-      m = m.superclass;
-    }
-
-    return isObservableSubClass;
-  }
-
-  bool extendsObservableMap(mirrors.ClassMirror M) {
-    bool isObservableSubClass = false;
-    mirrors.ClassMirror m = M;
-
-    while (m.superclass != null) {
-      if (m.superclass != null && m.superclass.simpleName.toString() == 'Symbol("ObservableMap")') {
-        isObservableSubClass = true;
-
-        break;
-      }
-
-      m = m.superclass;
-    }
-
-    return isObservableSubClass;
+    return new _Extends(isUIWrapperSubClass, isObservableSubClass, isObservableListSubClass, isObservableMapSubClass);
   }
 
   // Private
@@ -110,11 +70,27 @@ class Reflection {
 
     M.instanceMembers.forEach(
       (Symbol S, mirrors.MethodMirror V) {
-          if (!V.isPrivate)
-            if (V.isGetter) {
-              if (V.returnType.hasReflectedType) L.add(new _Getter(_toQName(V.simpleName.toString()), V.returnType.reflectedType, _getListener(M, _toQName(V.simpleName.toString()))));
-              else L.add(new _Getter(_toQName(V.simpleName.toString()), dynamic, _getListener(M, _toQName(V.simpleName.toString()))));
+        bool isReflectable = false;
+        
+        V.metadata.forEach(
+          (mirrors.InstanceMirror IM) {
+            if (IM.reflectee is ObservableProperty) isReflectable = true;
           }
+        );
+        
+        if (!V.isPrivate)
+          if (V.isGetter) {
+            if (V.returnType.hasReflectedType) L.add(
+                new _Getter(
+                    _toQName(V.simpleName.toString()), V.returnType.reflectedType, _getListener(M, _toQName(V.simpleName.toString())), isReflectable
+                )
+            );
+            else L.add(
+                new _Getter(
+                    _toQName(V.simpleName.toString()), dynamic, _getListener(M, _toQName(V.simpleName.toString())), isReflectable
+                )
+            );
+        }
       }
     );
 
@@ -153,8 +129,8 @@ class Reflection {
       (Symbol S, mirrors.MethodMirror V) {
           if (!V.isPrivate)
             if (V.isGetter && _toQName(V.simpleName.toString()) == listenerName) {
-              if (V.returnType.hasReflectedType) listener = new _Getter(_toQName(V.simpleName.toString()), V.returnType.reflectedType, null);
-              else listener = new _Getter(_toQName(V.simpleName.toString()), dynamic, null);
+              if (V.returnType.hasReflectedType) listener = new _Getter(_toQName(V.simpleName.toString()), V.returnType.reflectedType, null, false);
+              else listener = new _Getter(_toQName(V.simpleName.toString()), dynamic, null, false);
           }
       }
     );

@@ -20,11 +20,11 @@
           id="accordion"
           percentWidth="100" percentHeight="100"
           dataProvider="createAccordionDataProvider()"
-          headerItemRendererFactory="new ItemRendererFactory(constructorMethod: AccordionHeaderItemRenderer.construct)"
+          headerItemRendererFactory="{AccordionHeaderItemRenderer}"
           headerHeight="30"
           headerFields="[taskSymbol]"
           headerField="taskNameSymbol"
-          contentItemRendererFactory="new ItemRendererFactory(constructorMethod: SpriteSheetItemRenderer.construct)"
+          contentItemRendererFactory="{SpriteSheetItemRenderer}"
           contentFields="[urgencySymbol]"
           contentField="urgencyNameSymbol" />
         <fx:VGroup id="masterTables" width="200" percentHeight="100">
@@ -38,7 +38,7 @@
             rowHeight="34"
             rowSpacing="0"
             field="taskNameSymbol"
-            itemRendererFactory="new ItemRendererFactory(constructorMethod: EditableLabelItemRenderer.construct)"
+            itemRendererFactory="{EditableLabelItemRenderer}"
             dataProvider="taskNames" />
           <fx:Image 
             id="editUrgenciesImage"
@@ -52,7 +52,7 @@
             rowHeight="34"
             rowSpacing="0"
             field="urgencyNameSymbol"
-            itemRendererFactory="new ItemRendererFactory(constructorMethod: EditableLabelItemRenderer.construct)"
+            itemRendererFactory="{EditableLabelItemRenderer}"
             dataProvider="urgencyNames" />
         </fx:VGroup>
         <fx:Group width="8"/>

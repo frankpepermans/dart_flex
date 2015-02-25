@@ -1,5 +1,6 @@
 part of dart_flex;
 
+@classFactoryTarget(ItemRendererFactory, 'constructorMethod')
 abstract class IItemRenderer<D> implements IUIWrapper {
   
   Stream<FrameworkEvent> get onDataChanged;

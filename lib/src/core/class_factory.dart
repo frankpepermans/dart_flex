@@ -1,5 +1,25 @@
 part of dart_flex;
 
+class classFactory {
+  
+  final Type expectsType;
+  
+  const classFactory(this.expectsType);
+  
+  String toString() => 'classFactory($expectsType)';
+}
+
+class classFactoryTarget {
+  
+  final Type name;
+  final String method;
+  
+  const classFactoryTarget(this.name, this.method);
+  
+  String toString() => 'classFactoryTarget($name, $method)';
+}
+
+@classFactory(IItemRenderer)
 class ClassFactory<T extends IUIWrapper> {
   
   //---------------------------------

@@ -1,5 +1,13 @@
 part of codegen;
 
+class _Extends {
+  
+  final bool extendsUIWrapper, extendsObsevable, extendsObsevableList, extendsObsevableMap;
+  
+  _Extends(this.extendsUIWrapper, this.extendsObsevable, this.extendsObsevableList, this.extendsObsevableMap);
+  
+}
+
 class _Library {
 
   final String prefix, uri;
@@ -20,9 +28,10 @@ class _Getter implements _IInvokable {
 
   String name;
   Type expectedType;
-  _Getter listener;
+  final _Getter listener;
+  final bool isReflectable;
 
-  _Getter(this.name, this.expectedType, this.listener) {
+  _Getter(this.name, this.expectedType, this.listener, this.isReflectable) {
     //if (listener != null) print(listener.name);
   }
 
