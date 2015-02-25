@@ -24,7 +24,7 @@ class Scanner {
     final Completer<xml.XmlDocument> C = new Completer<xml.XmlDocument>();
 
     HttpRequest.getString(uri).then(
-            (String content) => C.complete(xml.parse(content))
+      (String content) => C.complete(xml.parse(content))
     );
 
     return C.future;
@@ -32,18 +32,18 @@ class Scanner {
 
   void _scanRecursively(xml.XmlNode xmlNode, List<_Library> libraries) {
     xmlNode.children.forEach(
-            (xml.XmlNode node) {
-          //node.nodeType.ELEMENT;
-          if (node is xml.XmlElement) {
-            xml.XmlElement E = node;
+      (xml.XmlNode node) {
+        //node.nodeType.ELEMENT;
+        if (node is xml.XmlElement) {
+          xml.XmlElement E = node;
 
-            _Declaration D = _convertXmlElementToScript(E, libraries);
-            
-            _initLines.add(D.toString());
+          _Declaration D = _convertXmlElementToScript(E, libraries);
+          
+          _initLines.add(D.toString());
 
-            print(D);
-          }
+          print(D);
         }
+      }
     );
   }
 
@@ -110,7 +110,7 @@ class Scanner {
 
     if (!lib.listing.containsKey(S)) throw new ArgumentError('Element ${E.name.local} is not found in library ${lib.uri}}');
 
-    final List<_IInvokable> setters = lib.listing[S]['setters'];
+    final List<_IInvokable> setters = lib.listing[S].setters;
     final Map<String, _PendingAttribute> M = <String, _PendingAttribute>{};
     String id;
 
@@ -124,7 +124,7 @@ class Scanner {
           );
 
           if (setter == null) throw new ArgumentError('Property ${A.name.local} is not found in ${E.name.local}');
-          else M[A.name.local] = new _PendingAttribute(A.value, setter);
+          else M[A.name.local] = new _PendingAttribute(A.value, setter, false, null);
         }
       }
     );
@@ -156,7 +156,7 @@ class Scanner {
               orElse: () => null
             );
             
-            M[C.name.local] = new _PendingAttribute('{${content.name.local}}', setter);
+            M[C.name.local] = new _PendingAttribute('{${content.name.local}}', setter, (content.name.prefix == 'core' && content.name.local == 'List'), content);
           }
         }
       }
@@ -164,7 +164,7 @@ class Scanner {
     
     M.forEach(
       (String K, _PendingAttribute V) {
-        _SourceResult SR = _xmlValueToSourceValue(V.value, V.setter.expectedType);
+        _SourceResult SR = V.isList ? _parseListDeclaration(V.listElement, libraries) : _xmlValueToSourceValue(V.value, V.setter.expectedType);
         
         SB.write('${id}.${K}=${SR.sourceValue};');
       }
@@ -173,6 +173,30 @@ class Scanner {
     D.body = SB.toString();
 
     return D;
+  }
+  
+  _SourceResult _parseListDeclaration(xml.XmlElement listElement, List<_Library> libraries) {
+    final List<String> L = <String>[];
+    
+    listElement.children.forEach(
+      (xml.XmlNode N) {
+        if (N is xml.XmlElement) {
+          _Library lib = libraries.firstWhere(
+            (_Library L) => L.prefix == N.name.prefix,
+            orElse: () => null
+          );
+          Symbol S = new Symbol(N.name.local);
+          
+          _LibraryPart R = lib.listing[S];
+          
+          _SourceResult SR = _xmlValueToSourceValue(N.children.first.text, R.CM.reflectedType);
+          
+          L.add(SR.sourceValue);
+        }
+      }
+    );
+    
+    return new _SourceResult('[${L.join(',')}]', null, null);
   }
 
   String _buildSourceMethod(List<String> dotPath, String genericMethodName, Type expectedType, bool isClassFactory) {
@@ -183,9 +207,9 @@ class Scanner {
     dotPath.forEach(
       (String segment) {
         if (CM != null) {
-          final Map<String, List<_IInvokable>> decl = R.createGraphForUIWrapper(CM);
+          final _LibraryPart decl = R.createGraphForUIWrapper(CM);
 
-          decl['getters'].forEach(
+          decl.getters.forEach(
               (_Getter G) {
                 if (G.name == segment) {
                   if (G.isReflectable) {

@@ -11,10 +11,19 @@ class _Extends {
 class _Library {
 
   final String prefix, uri;
-  final Map<Symbol, Map<String, List<_IInvokable>>> listing;
+  final Map<Symbol, _LibraryPart> listing;
 
   _Library(this.prefix, this.uri, this.listing);
 
+}
+
+class _LibraryPart {
+  
+  final mirrors.ClassMirror CM;
+  final List<_IInvokable> methods, getters, setters;
+  
+  _LibraryPart(this.CM, this.methods, this.getters, this.setters);
+  
 }
 
 abstract class _IInvokable {
@@ -91,8 +100,10 @@ class _PendingAttribute {
 
   final String value;
   final _Setter setter;
+  final bool isList;
+  final xml.XmlElement listElement;
 
-  _PendingAttribute(this.value, this.setter);
+  _PendingAttribute(this.value, this.setter, this.isList, this.listElement);
 
 }
 

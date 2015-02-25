@@ -1,11 +1,18 @@
 <?xml version="1.0"?>
-<fx:Skin xmlns:fx="library://dart_flex/dart_flex.dart">
+<fx:Skin 
+  xmlns:core="library://core"
+  xmlns:fx="library://dart_flex/dart_flex.dart">
 
   <fx:VGroup id="verticalContainer" percentWidth="100" percentHeight="100">
     <fx:Group height="100"/>
     <fx:HGroup id="horizontalContainer" percentWidth="100" percentHeight="100">
       <fx:Group width="100"/>
-      <fx:HGroup id="centerContainer" cssClasses="['main-panel']" paddingBottom="15" percentWidth="100" percentHeight="100">
+      <fx:HGroup id="centerContainer" paddingBottom="15" percentWidth="100" percentHeight="100">
+        <fx:cssClasses>
+          <core:List>
+            <core:String>main-panel</core:String>
+          </core:List>
+        </fx:cssClasses>
         <fx:DataGrid 
           id="dataGrid"
           cssClasses="[]"

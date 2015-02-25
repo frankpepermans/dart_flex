@@ -2,15 +2,15 @@ part of codegen;
 
 class Reflection {
 
-  Map<Symbol, Map<String, List<_IInvokable>>> createGraph(String libraryUri) {
-    final Map<Symbol, Map<String, List<_IInvokable>>> uiList = <Symbol, Map<String, List<_IInvokable>>>{};
+  Map<Symbol, _LibraryPart> createGraph(String libraryUri) {
+    final Map<Symbol, _LibraryPart> uiList = <Symbol, _LibraryPart>{};
 
     mirrors.currentMirrorSystem().libraries.forEach(
       (Uri uri, mirrors.LibraryMirror M) {
           if (uri.path == libraryUri) {
             M.declarations.forEach(
               (Symbol S, mirrors.DeclarationMirror D) {
-                  if (D is mirrors.ClassMirror && extendsWhat(D).extendsUIWrapper) uiList[S] = createGraphForUIWrapper(D);
+                  if (D is mirrors.ClassMirror) uiList[S] = createGraphForUIWrapper(D);
               }
             );
           }
@@ -20,15 +20,11 @@ class Reflection {
     return uiList;
   }
 
-  Map<String, List<_IInvokable>> createGraphForUIWrapper(mirrors.ClassMirror CM) {
+  _LibraryPart createGraphForUIWrapper(mirrors.ClassMirror CM) {
     final Map<String, List<_IInvokable>> decl = <String, List<_IInvokable>>{};
+    final List<_IInvokable> getters = _fillGetters(CM);
 
-    decl['methods'] = <_IInvokable>[];
-
-    decl['getters'] = _fillGetters(CM);
-    decl['setters'] = _fillSetters(CM, decl['getters']);
-
-    return decl;
+    return new _LibraryPart(CM, <_IInvokable>[], getters, _fillSetters(CM, getters));
   }
 
   mirrors.InstanceMirror reflectInstance(dynamic instance) => mirrors.reflect(instance);
