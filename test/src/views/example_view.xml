@@ -11,6 +11,7 @@
         <fx:cssClasses>
           <core:List>
             <core:String>main-panel</core:String>
+            <fx:UIWrapper>{centerContainer.owner}</fx:UIWrapper>
           </core:List>
         </fx:cssClasses>
         <fx:DataGrid 
@@ -55,7 +56,7 @@
           <fx:Image 
             id="editUrgenciesImage"
             width="200" height="50"
-            source="'images/edit_urgencies.jpg'" />
+            source="images/edit_urgencies.jpg" />
           <fx:ListRenderer
             id="urgenciesGrid"
             paddingBottom="30"

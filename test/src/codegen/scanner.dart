@@ -5,7 +5,7 @@ class Scanner {
   final dynamic instance;
   final String forXml;
   final Reflection R = new Reflection();
-  final List<String> _initLines = <String>[], _methodLines = <String>[], _declarations = <String>[];
+  final List<String> _initLines = <String>[], _methodLines = <String>[], _declarations = <String>[], _listVars = <String>[];
   int _localScopeCount = 0;
 
   Scanner(this.instance, this.forXml) {
@@ -14,7 +14,14 @@ class Scanner {
         final List<_Library> libraries = _fetchXmlLibraries(xml.lastChild);
 
         _scanRecursively(xml.lastChild, libraries);
-      }
+        
+        print('@override void createChildren() { super.createChildren(); ');
+        print(_declarations.join(new String.fromCharCode(10)));
+        print(_methodLines.join(new String.fromCharCode(10)));
+        print(_listVars.join(new String.fromCharCode(10)));
+        print(_initLines.join(new String.fromCharCode(10)));
+        print('}');  
+    }
     );
   }
 
@@ -40,8 +47,6 @@ class Scanner {
           _Declaration D = _convertXmlElementToScript(E, libraries);
           
           _initLines.add(D.toString());
-
-          print(D);
         }
       }
     );
@@ -64,7 +69,7 @@ class Scanner {
     return libraries;
   }
 
-  _SourceResult _xmlValueToSourceValue(String xmlValue, Type expectedType) {
+  _SourceResult _xmlValueToSourceValue(String xmlValue, Type expectedType, String dotSetter) {
     if (xmlValue.codeUnitAt(0) == '{'.codeUnitAt(0) && xmlValue.codeUnitAt(xmlValue.length - 1) == '}'.codeUnitAt(0)) {
       final String xmlSource = xmlValue.substring(1, xmlValue.length - 1);
       final List<String> dotPath = xmlSource.split('.');
@@ -84,7 +89,7 @@ class Scanner {
         CM = CM.superclass;
       }
 
-      return new _SourceResult('${genericMethodName}()', _buildSourceMethod(dotPath, genericMethodName, expectedType, isClassFactory), genericMethodName);
+      return new _SourceResult('${genericMethodName}(null)', _buildSourceMethod(dotPath, genericMethodName, expectedType, isClassFactory, dotSetter), genericMethodName);
     }
 
     switch (expectedType) {
@@ -164,7 +169,7 @@ class Scanner {
     
     M.forEach(
       (String K, _PendingAttribute V) {
-        _SourceResult SR = V.isList ? _parseListDeclaration(V.listElement, libraries) : _xmlValueToSourceValue(V.value, V.setter.expectedType);
+        _SourceResult SR = V.isList ? _parseListDeclaration(V.listElement, libraries, V.setter.expectedType) : _xmlValueToSourceValue(V.value, V.setter.expectedType, '${id}.${K}');
         
         SB.write('${id}.${K}=${SR.sourceValue};');
       }
@@ -175,8 +180,10 @@ class Scanner {
     return D;
   }
   
-  _SourceResult _parseListDeclaration(xml.XmlElement listElement, List<_Library> libraries) {
+  _SourceResult _parseListDeclaration(xml.XmlElement listElement, List<_Library> libraries, Type expectedType) {
     final List<String> L = <String>[];
+    final String theVar = '__scope_var_local_${++_localScopeCount}';
+    int index = 0;
     
     listElement.children.forEach(
       (xml.XmlNode N) {
@@ -189,20 +196,37 @@ class Scanner {
           
           _LibraryPart R = lib.listing[S];
           
-          _SourceResult SR = _xmlValueToSourceValue(N.children.first.text, R.CM.reflectedType);
+          _SourceResult SR = _xmlValueToSourceValue(N.children.first.text, R.CM.reflectedType, '${theVar}[${index++}]');
           
           L.add(SR.sourceValue);
         }
       }
     );
     
-    return new _SourceResult('[${L.join(',')}]', null, null);
+    _declarations.add('$expectedType $theVar;');
+    _listVars.add('$theVar = new ObservableList.from([${L.join(',')}]);');
+    
+    return new _SourceResult(theVar, null, null);
   }
 
-  String _buildSourceMethod(List<String> dotPath, String genericMethodName, Type expectedType, bool isClassFactory) {
+  String _buildSourceMethod(List<String> dotPath, String genericMethodName, Type expectedType, bool isClassFactory, String dotSetter) {
     final mirrors.InstanceMirror IM = R.reflectInstance(instance);
     mirrors.ClassMirror CM = IM.type;
-    List<String> targets = <String>['this'], nullChecks = <String>[], fncBodyList = <String>[];
+    List<String> targets = <String>['this'], nullChecks = <String>[], preNullChecks = <String>[], fncBodyList = <String>[];
+    
+    dotPath.forEach(
+      (String segment) {
+        if (CM != null) {
+          targets.add(segment);
+          
+          preNullChecks.add('(${targets.join('.')} != null)');
+        }
+      }
+    );
+    
+    targets = <String>['this'];
+    
+    final String nullCondition = preNullChecks.isEmpty ? '' : 'if (${preNullChecks.join(' && ')}) ';
 
     dotPath.forEach(
       (String segment) {
@@ -217,8 +241,8 @@ class Scanner {
                     
                     fncBodyList.add('if (__scope_var_local_${_localScopeCount} != null) __scope_var_local_${_localScopeCount}.cancel();');
                     
-                    if (nullChecks.isNotEmpty) fncBodyList.add('if (${nullChecks.join(' && ')}) __scope_var_local_${_localScopeCount} = ${targets.join('.')}.changes.listen(${genericMethodName});');
-                    else fncBodyList.add('__scope_var_local_${_localScopeCount} = ${targets.join('.')}.changes.listen(${genericMethodName});');
+                    if (nullChecks.isNotEmpty) fncBodyList.add('if (${nullChecks.join(' && ')}) __scope_var_local_${_localScopeCount} = ${targets.join('.')}.changes.listen((_) { $nullCondition $dotSetter = ${genericMethodName}(null); });');
+                    else fncBodyList.add('__scope_var_local_${_localScopeCount} = ${targets.join('.')}.changes.listen((_) { $nullCondition $dotSetter = ${genericMethodName}(null); });');
                   }
                   
                   if (G.listener != null) {
@@ -226,8 +250,8 @@ class Scanner {
                     
                     fncBodyList.add('if (__scope_var_local_${_localScopeCount} != null) __scope_var_local_${_localScopeCount}.cancel();');
                     
-                    if (nullChecks.isNotEmpty) fncBodyList.add('if (${nullChecks.join(' && ')}) __scope_var_local_${_localScopeCount} = ${targets.join('.')}.${G.listener.name}.listen(${genericMethodName});');
-                    else fncBodyList.add('__scope_var_local_${_localScopeCount} = ${targets.join('.')}.${G.listener.name}.listen(${genericMethodName});');
+                    if (nullChecks.isNotEmpty) fncBodyList.add('if (${nullChecks.join(' && ')}) __scope_var_local_${_localScopeCount} = ${targets.join('.')}.${G.listener.name}.listen((_) { $nullCondition $dotSetter = ${genericMethodName}(null); });');
+                    else fncBodyList.add('__scope_var_local_${_localScopeCount} = ${targets.join('.')}.${G.listener.name}.listen((_) { $nullCondition $dotSetter = ${genericMethodName}(null); });');
                   }
 
                   CM = mirrors.reflectType(G.expectedType) as mirrors.ClassMirror;
@@ -253,8 +277,6 @@ class Scanner {
     else theMethod = '$expectedType ${genericMethodName}(_) { ${fncBodyList.join('')} return (${nullChecks.join(' && ')}) ? ${theReturn} : null; }';
     
     _methodLines.add(theMethod);
-    
-    print(theMethod);
     
     return '${genericMethodName}(null)';
   }

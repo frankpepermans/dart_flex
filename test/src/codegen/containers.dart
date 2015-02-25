@@ -88,7 +88,7 @@ class _Declaration {
 
     declarations.forEach(
             (_Declaration D) {
-          SB.write('${new String.fromCharCode(10)}${id}.addComponent(${D.id}});');
+          SB.write('${new String.fromCharCode(10)}${id}.addComponent(${D.id});');
         }
     );
 

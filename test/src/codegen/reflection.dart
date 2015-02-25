@@ -21,7 +21,6 @@ class Reflection {
   }
 
   _LibraryPart createGraphForUIWrapper(mirrors.ClassMirror CM) {
-    final Map<String, List<_IInvokable>> decl = <String, List<_IInvokable>>{};
     final List<_IInvokable> getters = _fillGetters(CM);
 
     return new _LibraryPart(CM, <_IInvokable>[], getters, _fillSetters(CM, getters));
