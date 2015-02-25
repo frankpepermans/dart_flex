@@ -20,13 +20,18 @@
           id="accordion"
           percentWidth="100" percentHeight="100"
           dataProvider="createAccordionDataProvider()"
-          headerItemRendererFactory="{AccordionHeaderItemRenderer}"
           headerHeight="30"
           headerFields="[taskSymbol]"
           headerField="taskNameSymbol"
-          contentItemRendererFactory="{SpriteSheetItemRenderer}"
           contentFields="[urgencySymbol]"
-          contentField="urgencyNameSymbol" />
+          contentField="urgencyNameSymbol">
+          <fx:headerItemRendererFactory>
+            <fx:AccordionHeaderItemRenderer />
+          </fx:headerItemRendererFactory>
+          <fx:contentItemRendererFactory>
+            <fx:SpriteSheetItemRenderer />
+          </fx:contentItemRendererFactory>
+        </fx:Accordion>
         <fx:VGroup id="masterTables" width="200" percentHeight="100">
           <fx:Image 
             id="editTasksImage"

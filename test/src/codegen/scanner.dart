@@ -99,9 +99,9 @@ class Scanner {
   }
 
   _Declaration _convertXmlElementToScript(xml.XmlElement E, List<_Library> libraries) {
-    _Library lib = libraries.firstWhere(
-            (_Library L) => L.prefix == E.name.prefix,
-        orElse: () => null
+    final _Library lib = libraries.firstWhere(
+      (_Library L) => L.prefix == E.name.prefix,
+      orElse: () => null
     );
 
     if (lib == null) throw new ArgumentError('Prefix ${E.name.prefix} is not declared in the XML header');
@@ -115,18 +115,18 @@ class Scanner {
     String id;
 
     E.attributes.forEach(
-            (xml.XmlAttribute A) {
-          if (A.name.local == 'id') id = A.value;
-          else {
-            final _Setter setter = setters.firstWhere(
-                    (_Setter S) => S.name == '${A.name.local}=',
-                orElse: () => null
-            );
+      (xml.XmlAttribute A) {
+        if (A.name.local == 'id') id = A.value;
+        else {
+          final _Setter setter = setters.firstWhere(
+            (_Setter S) => S.name == '${A.name.local}=',
+            orElse: () => null
+          );
 
-            if (setter == null) throw new ArgumentError('Property ${A.name.local} is not found in ${E.name.local}');
-            else M[A.name.local] = new _PendingAttribute(A.value, setter);
-          }
+          if (setter == null) throw new ArgumentError('Property ${A.name.local} is not found in ${E.name.local}');
+          else M[A.name.local] = new _PendingAttribute(A.value, setter);
         }
+      }
     );
 
     final StringBuffer SB = new StringBuffer();
@@ -138,22 +138,39 @@ class Scanner {
     }
 
     SB.write('$id = new ${E.name.local}();');
-
-    M.forEach(
-            (String K, _PendingAttribute V) {
-          _SourceResult SR = _xmlValueToSourceValue(V.value, V.setter.expectedType);
-
-          SB.write('${id}.${K}=${SR.sourceValue};');
-        }
-    );
-
-    final _Declaration D = new _Declaration(id, SB.toString());
+    
+    final _Declaration D = new _Declaration(id);
 
     E.children.forEach(
-            (xml.XmlNode C) {
-          if (C is xml.XmlElement) D.declarations.add(_convertXmlElementToScript(C, libraries));
+      (xml.XmlNode C) {
+        if (C is xml.XmlElement) {
+          final _Setter setter = setters.firstWhere(
+            (_Setter S) => S.name == '${C.name.local}=',
+            orElse: () => null
+          );
+          
+          if (setter == null) D.declarations.add(_convertXmlElementToScript(C, libraries));
+          else {
+            final xml.XmlElement content = C.children.firstWhere(
+              (xml.XmlNode N) => N is xml.XmlElement,
+              orElse: () => null
+            );
+            
+            M[C.name.local] = new _PendingAttribute('{${content.name.local}}', setter);
+          }
         }
+      }
     );
+    
+    M.forEach(
+      (String K, _PendingAttribute V) {
+        _SourceResult SR = _xmlValueToSourceValue(V.value, V.setter.expectedType);
+        
+        SB.write('${id}.${K}=${SR.sourceValue};');
+      }
+    );
+    
+    D.body = SB.toString();
 
     return D;
   }

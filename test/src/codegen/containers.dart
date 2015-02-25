@@ -60,10 +60,11 @@ class _Method implements _IInvokable {
 
 class _Declaration {
 
-  final String id, body;
+  final String id;
   final List<_Declaration> declarations = <_Declaration>[];
+  String body;
 
-  _Declaration(this.id, this.body);
+  _Declaration(this.id);
 
   String toString() {
     final StringBuffer SB = new StringBuffer();
