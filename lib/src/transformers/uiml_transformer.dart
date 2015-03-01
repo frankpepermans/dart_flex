@@ -1,16 +1,16 @@
-library dart_flex.build.uiml_transformer;
+library dart_flex.codegen;
 
 import 'dart:async';
-import 'dart:mirrors';
+import 'dart:mirrors' as mirrors;
 
+//import 'package:dart_flex/dart_flex.dart' as flex;
 import 'package:barback/barback.dart';
-import 'package:xml/xml.dart';
+import 'package:xml/xml.dart' as xml;
+import 'package:observe/observe.dart';
 
-part "uiml_parts/uiml_part.dart";
-part "uiml_parts/uiml_property.dart";
-part "uiml_parts/uiml_element.dart";
-part "uiml_parts/uiml_skin.dart";
-part "uiml_parts/uiml_skin_library_item.dart";
+part "codegen/containers.dart";
+part "codegen/reflection.dart";
+part "codegen/scanner.dart";
 
 class UIMLTransformer extends Transformer {
   
@@ -19,20 +19,11 @@ class UIMLTransformer extends Transformer {
   static const String SKIN_CREATE_BLOCK = '#SKIN_CREATE_BLOCK#';
   static const String SKIN_FNC = '#SKIN_FNC#';
   
-  static const String TEMPLATE = '''#SKIN_DECL#
-
-  @override
-  void setSkinStates() {
-    #SKIN_PARTS#
-  }
-  
-  @override
+  static const String TEMPLATE = '''@override
   void createChildren() {
     super.createChildren();
     #SKIN_CREATE_BLOCK#
   }
-  
-  #SKIN_FNC#
 ''';
     
   UIMLTransformer.asPlugin();
@@ -48,24 +39,19 @@ class UIMLTransformer extends Transformer {
         final RegExp exp = new RegExp(r"@Skin\('[^']+'\)");
         final Iterable<Match> matches = exp.allMatches(codeBody);
         
-        if ((matches != null) && (matches.length > 0)) {
+        if ((matches != null) && matches.isNotEmpty) {
           final AssetId skinAssetId = new AssetId.parse(codeBody.substring(matches.first.start + 7, matches.first.end - 2));
           
           transform.readInputAsString(skinAssetId).then(
             (String content) {
-              final XmlDocument incoming = parse(content);
-              final UIMLSkin skin = new UIMLSkin(incoming.lastChild as XmlElement, transform.logger);
+              final Scanner S = new Scanner('Controller', content);
               
               String res = TEMPLATE;
-              
-              res = res.replaceAll(SKIN_PARTS, skin.getSkinParts());
-              res = res.replaceAll(SKIN_DECL, skin.getLocalDeclarations());
-              res = res.replaceAll(SKIN_FNC, skin.getBindingMethods());
               
               transform.addOutput(
                 new Asset.fromString(
                     transform.primaryInput.id, 
-                    codeBody.replaceAll(exp, res.replaceAll(SKIN_CREATE_BLOCK, skin.toString()))
+                    codeBody.replaceAll(exp, res.replaceAll(SKIN_CREATE_BLOCK, S.createChildrenBody))
                 )
               );
               

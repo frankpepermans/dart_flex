@@ -111,6 +111,8 @@ class HeaderData implements IHeaderData {
   
   const HeaderData(this.identifier, this.field, this.label, this.labelLong);
   
+  static HeaderData createSimple(String simpleName) => new HeaderData(simpleName, new Symbol(simpleName), simpleName, simpleName);
+  
   String toString() => '$label : $field';
 }
 
@@ -121,6 +123,8 @@ class DynamicHeaderData implements IHeaderData {
   final dynamic data;
   
   const DynamicHeaderData(this.identifier, this.field, this.label, this.labelLong, this.data);
+  
+  static DynamicHeaderData createSimple(String simpleName, dynamic simpleData) => new DynamicHeaderData(simpleName, new Symbol(simpleName), simpleName, simpleName, simpleData);
   
   String toString() => '$label : $field';
 }

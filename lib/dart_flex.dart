@@ -88,6 +88,14 @@ class NullTreeSanitizer implements NodeTreeSanitizer {
   void sanitizeTree(Node node) {}
 }
 
+class htmlInjectable {
+  
+  final String src;
+  
+  const htmlInjectable(this.src);
+  
+}
+
 class Skin {
   
   final String src;

@@ -1,13 +1,16 @@
-part of codegen;
+part of dart_flex.codegen;
 
 class Reflection {
 
   Map<Symbol, _LibraryPart> createGraph(String libraryUri) {
     final Map<Symbol, _LibraryPart> uiList = <Symbol, _LibraryPart>{};
+    bool hasMatch = false;
 
     mirrors.currentMirrorSystem().libraries.forEach(
       (Uri uri, mirrors.LibraryMirror M) {
           if (uri.path == libraryUri) {
+            hasMatch = true;
+            
             M.declarations.forEach(
               (Symbol S, mirrors.DeclarationMirror D) {
                   if (D is mirrors.ClassMirror) uiList[S] = createGraphForUIWrapper(D);
@@ -16,6 +19,8 @@ class Reflection {
           }
        }
     );
+    
+    if (!hasMatch) throw new ArgumentError('Library $libraryUri was not found');
 
     return uiList;
   }

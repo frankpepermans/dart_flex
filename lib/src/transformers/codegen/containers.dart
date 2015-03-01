@@ -1,4 +1,4 @@
-part of codegen;
+part of dart_flex.codegen;
 
 class _Extends {
   
@@ -71,6 +71,7 @@ class _Declaration {
 
   final String id;
   final List<_Declaration> declarations = <_Declaration>[];
+  bool isRoot = false;
   String body;
 
   _Declaration(this.id);
@@ -81,16 +82,18 @@ class _Declaration {
     SB.write(body);
 
     declarations.forEach(
-            (_Declaration D) {
-          SB.write('${new String.fromCharCode(10)}$D');
-        }
+      (_Declaration D) {
+        SB.write('${new String.fromCharCode(10)}$D');
+      }
     );
 
     declarations.forEach(
-            (_Declaration D) {
-          SB.write('${new String.fromCharCode(10)}${id}.addComponent(${D.id});');
-        }
+      (_Declaration D) {
+        SB.write('${new String.fromCharCode(10)}${id}.addComponent(${D.id});');
+      }
     );
+    
+    if (isRoot) SB.write('${new String.fromCharCode(10)}addComponent(${id});');
 
     return SB.toString();
   }
@@ -109,7 +112,8 @@ class _PendingAttribute {
 
 class _SourceResult {
 
-  final String sourceValue, sourceMethod, sourceMethodName;
+  final String sourceValue, sourceMethod;
+  String sourceMethodName;
 
   _SourceResult(this.sourceValue, this.sourceMethod, this.sourceMethodName);
 

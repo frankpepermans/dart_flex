@@ -1,41 +1,42 @@
-part of codegen;
+part of dart_flex.codegen;
 
 class Scanner {
 
-  final dynamic instance;
-  final String forXml;
+  final String instanceName;
+  final String xmlFile;
   final Reflection R = new Reflection();
   final List<String> _initLines = <String>[], _methodLines = <String>[], _declarations = <String>[], _listVars = <String>[];
+  mirrors.ClassMirror instanceCM;
   int _localScopeCount = 0;
+  String createChildrenBody;
 
-  Scanner(this.instance, this.forXml) {
-    _loadXml('src/views/example_view.xml').then(
-      (xml.XmlDocument xml) {
-        final List<_Library> libraries = _fetchXmlLibraries(xml.lastChild);
-
-        _scanRecursively(xml.lastChild, libraries);
-        
-        print('@override void createChildren() { super.createChildren(); ');
-        print(_declarations.join(new String.fromCharCode(10)));
-        print(_methodLines.join(new String.fromCharCode(10)));
-        print(_listVars.join(new String.fromCharCode(10)));
-        print(_initLines.join(new String.fromCharCode(10)));
-        print('}');  
-    }
+  Scanner(this.instanceName, this.xmlFile) {
+    xml.XmlDocument xmlDoc = xml.parse(xmlFile);
+    final List<_Library> libraries = _fetchXmlLibraries(xmlDoc.lastChild);
+    
+    libraries.forEach(
+      (_Library L) {
+        L.listing.forEach(
+          (_, _LibraryPart LP) {
+            if (LP.CM.hasReflectedType && LP.CM.reflectedType.toString() == instanceName) instanceCM = LP.CM;
+          }
+        );
+      }
     );
+
+    _scanRecursively(xmlDoc.lastChild, libraries);
+    
+    final StringBuffer SB = new StringBuffer();
+    
+    SB.write(_declarations.join(new String.fromCharCode(10)));
+    SB.write(_methodLines.join(new String.fromCharCode(10)));
+    SB.write(_listVars.join(new String.fromCharCode(10)));
+    SB.write(_initLines.join(new String.fromCharCode(10)));
+    
+    createChildrenBody = SB.toString();
   }
 
   // Private
-
-  Future<xml.XmlDocument> _loadXml(String uri) {
-    final Completer<xml.XmlDocument> C = new Completer<xml.XmlDocument>();
-
-    HttpRequest.getString(uri).then(
-      (String content) => C.complete(xml.parse(content))
-    );
-
-    return C.future;
-  }
 
   void _scanRecursively(xml.XmlNode xmlNode, List<_Library> libraries) {
     xmlNode.children.forEach(
@@ -44,7 +45,7 @@ class Scanner {
         if (node is xml.XmlElement) {
           xml.XmlElement E = node;
 
-          _Declaration D = _convertXmlElementToScript(E, libraries);
+          _Declaration D = _convertXmlElementToScript(E, libraries, null)..isRoot = true;
           
           _initLines.add(D.toString());
         }
@@ -88,11 +89,13 @@ class Scanner {
         
         CM = CM.superclass;
       }
-
-      return new _SourceResult('${genericMethodName}(null)', _buildSourceMethod(dotPath, genericMethodName, expectedType, isClassFactory, dotSetter), genericMethodName);
+      
+      if (expectedType == Function) return new _SourceResult(genericMethodName, _buildSourceMethod(dotPath, genericMethodName, expectedType, isClassFactory, dotSetter), genericMethodName);
+      else return new _SourceResult('${genericMethodName}(null)', _buildSourceMethod(dotPath, genericMethodName, expectedType, isClassFactory, dotSetter), genericMethodName);
     }
 
     switch (expectedType) {
+      case Symbol: return new _SourceResult("const Symbol('${xmlValue}')", null, null);
       case String: return new _SourceResult("'${xmlValue}'", null, null);
       case int: return new _SourceResult(int.parse(xmlValue).toString(), null, null);
       case double:
@@ -103,7 +106,7 @@ class Scanner {
     return new _SourceResult(xmlValue, null, null);
   }
 
-  _Declaration _convertXmlElementToScript(xml.XmlElement E, List<_Library> libraries) {
+  _Declaration _convertXmlElementToScript(xml.XmlElement E, List<_Library> libraries, String contructorMethod) {
     final _Library lib = libraries.firstWhere(
       (_Library L) => L.prefix == E.name.prefix,
       orElse: () => null
@@ -142,26 +145,73 @@ class Scanner {
       _declarations.add('${E.name.local} ${id};');
     }
 
-    SB.write('$id = new ${E.name.local}();');
+    if (contructorMethod == null) SB.write('$id = new ${E.name.local}();');
+    else {
+      SB.write('$id = new ${E.name.local}.${contructorMethod}();');
+    }
     
     final _Declaration D = new _Declaration(id);
 
     E.children.forEach(
       (xml.XmlNode C) {
         if (C is xml.XmlElement) {
+          final xml.XmlAttribute F = C.attributes.firstWhere(
+            (xml.XmlAttribute A) => A.name.local == 'factory',
+            orElse: () => null
+          );
           final _Setter setter = setters.firstWhere(
             (_Setter S) => S.name == '${C.name.local}=',
             orElse: () => null
           );
           
-          if (setter == null) D.declarations.add(_convertXmlElementToScript(C, libraries));
+          if (F != null) {
+            print(F);
+          }
+          
+          if (setter == null) D.declarations.add(_convertXmlElementToScript(C, libraries, (F != null) ? F.value : null));
           else {
-            final xml.XmlElement content = C.children.firstWhere(
+            xml.XmlElement content = C.children.firstWhere(
               (xml.XmlNode N) => N is xml.XmlElement,
               orElse: () => null
             );
+            xml.XmlElement factoryArgs;
             
-            M[C.name.local] = new _PendingAttribute('{${content.name.local}}', setter, (content.name.prefix == 'core' && content.name.local == 'List'), content);
+            if (F != null) {
+              factoryArgs = content;
+              content = null;
+            }
+            
+            if (content != null) M[C.name.local] = new _PendingAttribute('{${content.name.local}}', setter, (content.name.prefix == 'core' && content.name.local == 'List'), content);
+            else {
+              if (factoryArgs != null) {
+                final List<xml.XmlElement> args = factoryArgs.children.where(
+                  (xml.XmlNode N) => N is xml.XmlElement    
+                ).toList();
+                final List<String> argsList = <String>[];
+                
+                args.forEach(
+                  (xml.XmlElement E) {
+                    final _Library lib = libraries.firstWhere(
+                      (_Library L) => L.prefix == E.name.prefix,
+                      orElse: () => null
+                    );
+
+                    if (lib == null) throw new ArgumentError('Prefix ${E.name.prefix} is not declared in the XML header');
+
+                    final Symbol S = new Symbol(E.name.local);
+
+                    if (!lib.listing.containsKey(S)) throw new ArgumentError('Element ${E.name.local} is not found in library ${lib.uri}}');
+                    
+                    _SourceResult SR = _xmlValueToSourceValue(E.children.first.text, lib.listing[S].CM.reflectedType, '');
+                    
+                    argsList.add(SR.sourceValue);
+                  }
+                );
+                
+                M[C.name.local] = new _PendingAttribute('${F.value}(${argsList.join(',')})', setter, false, null);
+              }
+              else M[C.name.local] = new _PendingAttribute('${C.children.first.text}', setter, false, null);
+            }
           }
         }
       }
@@ -195,23 +245,59 @@ class Scanner {
           Symbol S = new Symbol(N.name.local);
           
           _LibraryPart R = lib.listing[S];
+          _SourceResult SR = _buildDeclaration(N, libraries);
           
-          _SourceResult SR = _xmlValueToSourceValue(N.children.first.text, R.CM.reflectedType, '${theVar}[${index++}]');
+          SR.sourceMethodName = '${theVar}[${index++}]';
           
           L.add(SR.sourceValue);
         }
       }
     );
     
-    _declarations.add('$expectedType $theVar;');
-    _listVars.add('$theVar = new ObservableList.from([${L.join(',')}]);');
+    _declarations.add('Function $theVar;');
+    _listVars.add('${theVar} = () => new ObservableList.from([${L.join(',')}]);');
     
-    return new _SourceResult(theVar, null, null);
+    return new _SourceResult('${theVar}()', null, null);
+  }
+  
+  _SourceResult _buildDeclaration(xml.XmlElement E, List<_Library> libraries) {
+    final _Library lib = libraries.firstWhere(
+      (_Library L) => L.prefix == E.name.prefix,
+      orElse: () => null
+    );
+    final Symbol S = new Symbol(E.name.local);
+    final _LibraryPart R = lib.listing[S];
+    _SourceResult SR;
+    
+    if (lib.prefix == 'core') SR = _xmlValueToSourceValue(E.children.first.text, R.CM.reflectedType, null);
+    else {
+      final String constr = 'new ${E.name.local}()';
+      final _Declaration D = _convertXmlElementToScript(E, libraries, null);
+      
+      SR = new _SourceResult(D.id, D.body, null);
+      
+      _initLines.add(D.toString());
+    }
+    
+    return SR;
   }
 
   String _buildSourceMethod(List<String> dotPath, String genericMethodName, Type expectedType, bool isClassFactory, String dotSetter) {
-    final mirrors.InstanceMirror IM = R.reflectInstance(instance);
-    mirrors.ClassMirror CM = IM.type;
+    String theReturn, theMethod;
+    
+    if (expectedType == Function) {
+      String methodBody = dotPath.join('.').trim();
+      
+      if (methodBody[0] == '{') methodBody = methodBody.substring(1, methodBody.length - 1).trim();
+      
+      theMethod = 'dynamic ${genericMethodName}${methodBody}';
+          
+      _methodLines.add(theMethod);
+      
+      return '${genericMethodName}';
+    }
+    
+    mirrors.ClassMirror CM = instanceCM;
     List<String> targets = <String>['this'], nullChecks = <String>[], preNullChecks = <String>[], fncBodyList = <String>[];
     
     dotPath.forEach(
@@ -232,6 +318,8 @@ class Scanner {
       (String segment) {
         if (CM != null) {
           final _LibraryPart decl = R.createGraphForUIWrapper(CM);
+          
+          segment = segment.trim();
 
           decl.getters.forEach(
               (_Getter G) {
@@ -266,9 +354,7 @@ class Scanner {
       }
     );
     
-    nullChecks.removeLast();
-    
-    String theReturn, theMethod;
+    if (nullChecks.isNotEmpty) nullChecks.removeLast();
     
     if (isClassFactory) theReturn = 'new ItemRendererFactory(constructorMethod: ${dotPath.join('.')}.construct)';
     else theReturn = dotPath.join('.');
