@@ -95,7 +95,6 @@ class ComboBox extends ListBase {
   }
 
   String _createElement(dynamic item, int index) {
-    final SelectElement controlCast = _control as SelectElement;
     String itemToString;
 
     if (_labelFunction != null) itemToString = _labelFunction(item) as String;

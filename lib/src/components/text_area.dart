@@ -36,7 +36,8 @@ class TextArea extends RichText {
   //
   //---------------------------------
 
-  void _createChildren() {
+  @override
+  void createChildren() {
     _label = new TextAreaElement();
     
     _autoSize = false;

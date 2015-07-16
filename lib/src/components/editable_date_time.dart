@@ -94,7 +94,7 @@ class EditableDateTime<T extends DateTime> extends EditableTextMask {
     
     _updateSelection(!isDel);
     
-    DateTime oldDate = _compareDateTime as DateTime;
+    T oldDate = _compareDateTime;
     
     _data = _toDateTime(_text);
     if (isValidEntry(_text)) _compareDateTime = _toDateTime(_text, hardError: true, returnOnError: _compareDateTime);
@@ -102,7 +102,7 @@ class EditableDateTime<T extends DateTime> extends EditableTextMask {
     if (oldDate != null && _compareDateTime != null) notify(
       new FrameworkEvent(
         'dataChanged',
-        relatedObject: (_compareDateTime as DateTime).difference(oldDate)
+        relatedObject: _compareDateTime.difference(oldDate)
       )
     );
     else notify(

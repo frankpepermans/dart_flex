@@ -461,7 +461,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
             
             _isHighlightActivated = false;
           }
-      )     
+      )
     );
   }
   

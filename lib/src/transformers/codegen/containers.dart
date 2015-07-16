@@ -58,15 +58,6 @@ class _Setter implements _IInvokable {
   String toString() => '$expectedType $name';
 }
 
-class _Method implements _IInvokable {
-
-  String name;
-  Type expectedType;
-
-  _Method(this.name, this.expectedType);
-
-}
-
 class _Declaration {
 
   final String id;

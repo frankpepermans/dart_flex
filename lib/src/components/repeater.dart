@@ -138,11 +138,7 @@ class Repeater extends UIWrapper {
     invalidateProperties();
   }
   
-  dynamic getCurrentValueFor(IUIWrapper target) {
-    final int index = owner.childWrappers.indexOf(target);
-    
-    return _from + _currentIndex;
-  }
+  dynamic getCurrentValueFor(IUIWrapper target) => _from + _currentIndex;
   
   //---------------------------------
   //

@@ -10,9 +10,6 @@ class RichText extends UIWrapper {
   //
   //---------------------------------
  
-  bool _isWidthAutoScaled = false;
-  bool _isHeightAutoScaled = false;
- 
   //---------------------------------
   //
   // Public properties

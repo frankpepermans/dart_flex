@@ -515,7 +515,6 @@ class ListRenderer extends ListBase {
       final int pageItemSize = _getPageItemSize();
       final int startIndex = (pageItemSize > 0) ? (_scrollPosition ~/ pageItemSize) : 0;
       final int endIndex = startIndex + ((_itemRenderers != null) ? _itemRenderers.length : 0);
-      int offset, target;
       
       if (
           (_selectedIndex < startIndex) || 
@@ -692,7 +691,6 @@ class ListRenderer extends ListBase {
         }
       }
 
-      dynamic element;
       final int existingLen = (_itemRenderers != null) ? _itemRenderers.length : 0;
       final int len = elementsRequired - existingLen;
       int i;

@@ -199,12 +199,6 @@ class SpriteSheet extends Group {
   //
   //---------------------------------
 
-  void _updateSource() {
-    if (_control != null) _reflowManager.invalidateCSS(_control, 'background-image', 'url($_source)');
-    
-    _updateIndex();
-  }
-
   void _updateIndex() {
     if (
         (_control != null) &&

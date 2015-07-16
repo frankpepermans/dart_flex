@@ -140,7 +140,7 @@ class FlashEmbed extends UIWrapper {
     try {
       context.callMethod('_iop_${_currentId}_writeExternal', [exposedFlashMethod, value]);
     } catch (error) {
-      final Timer timer = new Timer(const Duration(seconds: 2), () => send(exposedFlashMethod, value));
+      new Timer(const Duration(seconds: 2), () => send(exposedFlashMethod, value));
     }
   }
 
@@ -166,8 +166,6 @@ class FlashEmbed extends UIWrapper {
     super.commitProperties();
     
     if (_control != null) {
-      ObjectElement controlCast = _control as ObjectElement;
-    
       if (_source != null) {
         final ObjectElement controlCast = control as ObjectElement;
         

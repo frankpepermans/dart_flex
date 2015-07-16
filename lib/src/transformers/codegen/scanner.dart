@@ -238,13 +238,6 @@ class Scanner {
     listElement.children.forEach(
       (xml.XmlNode N) {
         if (N is xml.XmlElement) {
-          _Library lib = libraries.firstWhere(
-            (_Library L) => L.prefix == N.name.prefix,
-            orElse: () => null
-          );
-          Symbol S = new Symbol(N.name.local);
-          
-          _LibraryPart R = lib.listing[S];
           _SourceResult SR = _buildDeclaration(N, libraries);
           
           SR.sourceMethodName = '${theVar}[${index++}]';
@@ -271,7 +264,6 @@ class Scanner {
     
     if (lib.prefix == 'core') SR = _xmlValueToSourceValue(E.children.first.text, R.CM.reflectedType, null);
     else {
-      final String constr = 'new ${E.name.local}()';
       final _Declaration D = _convertXmlElementToScript(E, libraries, null);
       
       SR = new _SourceResult(D.id, D.body, null);
