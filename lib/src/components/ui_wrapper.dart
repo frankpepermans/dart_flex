@@ -134,7 +134,6 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   static const EventHook<FrameworkEvent> onStylePrefixChangedEvent = const EventHook<FrameworkEvent>('stylePrefixChanged');
   Stream<FrameworkEvent> get onStylePrefixChanged => UIWrapper.onStylePrefixChangedEvent.forTarget(this);
   String _stylePrefix;
-  bool _isStylePrefixChanged = false;
 
   String get stylePrefix => _stylePrefix;
 
@@ -720,7 +719,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
         parentElement = parentElement.parent;
       }
       
-      final Rectangle rect = _control.client;
+      final Rectangle rect = _control.parent.client;
       
       if (
           (rect.width == 0) && 
@@ -823,7 +822,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     _control.classes.addAll(newClasses);
   }
   
-  bool _addDefaultClass() => _control.classes.add('_$_className');
+  void _addDefaultClass() => _control.classes.addAll('_$_className'.split(' '));
   
   void _addAllPendingClasses() => _control.classes.addAll(_cssClasses);
 
