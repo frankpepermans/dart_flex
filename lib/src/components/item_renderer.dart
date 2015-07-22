@@ -516,6 +516,10 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
         singleIdent, 
         value.changes.listen(_data_changesHandler)
     );
+    else if (value is ObservableMap) _streamSubscriptionManager.add(
+        listIdent, 
+        value.changes.listen(_data_changesHandler)
+        );
     else if (value is ObservableList) _streamSubscriptionManager.add(
         listIdent, 
         value.listChanges.listen(_data_changesHandler)
@@ -560,6 +564,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
       final dynamic bindableRecord = changes.firstWhere(
           (dynamic changeRecord) => (
               (changeRecord is ListChangeRecord) ||
+              (changeRecord is MapChangeRecord) ||
               (
                   (changeRecord is PropertyChangeRecord) &&
                   (
