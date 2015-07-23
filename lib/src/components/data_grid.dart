@@ -1,6 +1,6 @@
 part of dart_flex;
 
-typedef String SortHandler(dynamic data, Symbol propertySymbol);
+typedef String SortHandler(dynamic data, Symbol propertySymbol, String property);
 typedef int CompareHandler(dynamic dataA, dynamic dataB);
 typedef void HeaderMouseHandler(IItemRenderer header);
 typedef IItemRenderer ItemRendererHandler(DataGridItemRenderer rowRenderer, DataGridColumn column, int index, Function defaultHandler);
@@ -622,7 +622,7 @@ class DataGrid extends ListBase {
     
     final IHeaderItemRenderer renderer = event.currentTarget as IHeaderItemRenderer;
     
-    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, event.relatedObject.field, renderer.isSortedAsc);
+    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, event.relatedObject.field, event.relatedObject.label, renderer.isSortedAsc);
 
     renderer.isSortedAsc = !renderer.isSortedAsc;
   }
@@ -745,10 +745,10 @@ class DataGrid extends ListBase {
     if (_headerContainer._control.style.left != newValue) _headerContainer._control.style.left = newValue;
   }
   
-  int _list_dynamicSortHandler(dynamic itemA, dynamic itemB, Symbol propertySymbol, bool isAscSort) {
+  int _list_dynamicSortHandler(dynamic itemA, dynamic itemB, Symbol propertySymbol, String property, bool isAscSort) {
     if (sortHandler != null) {
-      String strA = sortHandler(itemA, propertySymbol);
-      String strB = sortHandler(itemB, propertySymbol);
+      String strA = sortHandler(itemA, propertySymbol, property);
+      String strB = sortHandler(itemB, propertySymbol, property);
       
       strA = (strA == null) ? '' : strA;
       strB = (strB == null) ? '' : strB;
