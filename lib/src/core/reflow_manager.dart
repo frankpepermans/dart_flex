@@ -10,7 +10,7 @@ class ReflowManager {
   
   final FrameManager F = new FrameManager()..fps = 60;
   
-  final Map<dynamic, List<_MethodInvokationMap>> _scheduledHandlers = new Map<dynamic, List<_MethodInvokationMap>>.identity();
+  final Map<dynamic, Map<String, _MethodInvokationMap>> _scheduledHandlers = new Map<dynamic, Map<String, _MethodInvokationMap>>.identity();
   final Map<Element, _ElementCSSMap> _elements = new Map<Element, _ElementCSSMap>.identity();
   
   //---------------------------------
@@ -72,26 +72,25 @@ class ReflowManager {
   //-----------------------------------
   
   void scheduleMethod(dynamic owner, Function method, List arguments, {bool forceSingleExecution: false}) {
-    List<_MethodInvokationMap> ownerMap = _scheduledHandlers[owner];
+    Map<String, _MethodInvokationMap> ownerMap = _scheduledHandlers[owner];
     
-    if (ownerMap == null) ownerMap = _scheduledHandlers[owner] = <_MethodInvokationMap>[];
+    if (ownerMap == null) ownerMap = _scheduledHandlers[owner] = <String, _MethodInvokationMap>{};
     
     _MethodInvokationMap invocation;
     
-    if (forceSingleExecution) invocation = ownerMap.firstWhere(
-        (_MethodInvokationMap I) => FunctionEqualityUtil.equals(I._method, method),
-        orElse: () => null
-    );
+    if (forceSingleExecution) invocation = ownerMap[method.toString()];
     
     if (invocation == null) {
       invocation = new _MethodInvokationMap(owner, method)
         .._arguments = arguments;
 
-      ownerMap.add(invocation);
+      ownerMap[invocation._method.toString()] = invocation;
       
       invocationFrame.then(
           (_) {
-            if (ownerMap.remove(invocation) && ownerMap.isEmpty) _scheduledHandlers.remove(owner);
+            ownerMap.remove(invocation._method.toString());
+            
+            if (ownerMap.isEmpty) _scheduledHandlers.remove(owner);
             
             invocation.invoke();
           }
