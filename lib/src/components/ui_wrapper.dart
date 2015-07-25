@@ -1,6 +1,6 @@
 part of dart_flex;
 
-abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILifeCycle, ICallLater {
+abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILifeCycle {
   
   //---------------------------------
   //
@@ -85,7 +85,7 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
 
 }
 
-class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEventDispatcherMixin implements IUIWrapper {
+class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMixin implements IUIWrapper {
   
   //---------------------------------
   //
@@ -115,7 +115,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   // reflowManager
   //---------------------------------
 
-  ReflowManager _reflowManager;
+  ReflowManager _reflowManager = new ReflowManager();
 
   ReflowManager get reflowManager => _reflowManager;
   
@@ -337,7 +337,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
         new FrameworkEvent('visibleChanged')
       );
 
-      later > updateVisibility;
+      invokeLaterSingle('updateVisibility', updateVisibility);
     }
   }
   
@@ -354,9 +354,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     if (value != _inheritsDefaultCSS) {
       _inheritsDefaultCSS = value;
       
-      if (_isInitialized) {
-        later > _updateDefaultClass;
-      }
+      if (_isInitialized) invokeLaterSingle('updateDefaultClass', _updateDefaultClass);
 
       notify(
         new FrameworkEvent('inheritsDefaultCSSChanged')
@@ -417,7 +415,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     if (value != _className) {
       _className = value;
       
-      if (_isInitialized) later > _updateDefaultClass;
+      if (_isInitialized) invokeLaterSingle('updateDefaultClass', _updateDefaultClass);
 
       notify(
         new FrameworkEvent('classNameChanged')
@@ -442,8 +440,6 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   //---------------------------------
 
   UIWrapper({String elementId: null}) {
-    updateManager = new UpdateManager(this);
-    
     _eventDispatcher = new FrameworkEventDispatcher(dispatcher: this);
 
     _elementId = elementId;
@@ -471,7 +467,6 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   void wrapTarget(Element target) => _wrapDOMTarget(target: target);
   
   void preInitialize(IUIWrapper forOwner) {
-    _reflowManager = new ReflowManager();
     _owner = forOwner;
     
     notify(
@@ -487,14 +482,14 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   void invalidateLayout() {
     _isLayoutUpdateRequired = _allowLayoutUpdate;
 
-    later > commitProperties;
+    invokeLaterSingle('commitProperties', commitProperties);
   }
 
   void invalidateProperties() {
     if (!_isLayoutUpdateRequired) invalidateLayout();
   }
   
-  void invalidateSize(Event event) => later > updateSize;
+  void invalidateSize(Event event) => invokeLaterSingle('updateSize', updateSize);
   
   void initialize() {
     if (!_isInitialized) {
@@ -502,7 +497,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       
       createChildren();
       
-      if (_control != null) later > updateVisibility;
+      if (_control != null) invokeLaterSingle('updateVisibility', updateVisibility);
       
       notify(
           new FrameworkEvent(
@@ -587,7 +582,6 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     final UIWrapper elementCast = element as UIWrapper;
     
     elementCast._useMatrixTransformations = _useMatrixTransformations;
-    elementCast._reflowManager = _reflowManager;
 
     if (_control == null) {
       prepend ? _addLaterElements.insert(0, element) : _addLaterElements.add(element);
@@ -614,8 +608,8 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
         prepend ? _prependControl(element.control) : _appendControl(element.control);
       } else {
         prepend ? 
-          _reflowManager.scheduleMethod(this, _prependControl, [element.control]) :
-          _reflowManager.scheduleMethod(this, _appendControl, [element.control]);
+          invokeLaterNonSingle('prependControl', _prependControl, arguments: [element.control]) :
+          invokeLaterNonSingle('appendControl', _appendControl, arguments: [element.control]);
       }
 
       invalidateLayout();
@@ -770,6 +764,15 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       );
     }
   }
+  
+  void invokeLaterSingle(String id, Function handler, {List arguments: const []}) {
+    new MethodInvoker.delayedSingle(this, id, handler, arguments);
+  }
+  
+  void invokeLaterNonSingle(String id, Function handler, {List arguments: const []}) {
+    new MethodInvoker.delayedNonSingle(this, id, handler, arguments);
+  }
+  
 
   //---------------------------------
   //
@@ -786,9 +789,9 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     
     _control.style.visibility = 'none';
     
-    if (_inheritsDefaultCSS) _reflowManager.scheduleMethod(this, _addDefaultClass, [], forceSingleExecution: true);
+    if (_inheritsDefaultCSS) invokeLaterSingle('addDefaultClass', _addDefaultClass);
     
-    if (_cssClasses != null) _reflowManager.scheduleMethod(this, _addAllPendingClasses, [], forceSingleExecution: true);
+    if (_cssClasses != null) invokeLaterSingle('addAllPendingClasses', _addAllPendingClasses);
 
     _updateControl(5);
 
@@ -806,6 +809,11 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   
   void _updateDefaultClass() {
     if (_control == null) return;
+    if (_className == null) {
+      _control.classes.clear();
+      
+      return;
+    }
     
     final List<String> newClasses = <String>[];
     final List<String> cssList = '_${_className}'.split(' ');
@@ -824,7 +832,9 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
   
   void _addDefaultClass() => _control.classes.addAll('_$_className'.split(' '));
   
-  void _addAllPendingClasses() => _control.classes.addAll(_cssClasses);
+  void _addAllPendingClasses() {
+    if (_cssClasses != null && _cssClasses.isNotEmpty) _control.classes.addAll(_cssClasses);
+  } 
 
   void _updateControl(int type) {
     if (
@@ -882,8 +892,6 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
     if (target != null) {
       _control = target;
       
-      _reflowManager = new ReflowManager();
-      
       _streamSubscriptionManager.add('windowResize', window.onResize.listen(invalidateSize), flushExisting: true);
       
       notify(
@@ -895,7 +903,7 @@ class UIWrapper extends Object with FlexLayoutMixin, CallLaterMixin, FrameworkEv
       
       initialize();
       
-      later > updateSize;
+      invokeLaterSingle('updateSize', updateSize);
     }
   }
 

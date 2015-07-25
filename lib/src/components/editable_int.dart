@@ -142,7 +142,7 @@ class EditableInt extends UIWrapper {
   //---------------------------------
 
   void _commitValue() {
-    if (_control != null) _reflowManager.scheduleMethod(this, _commitValueOnReflow, [], forceSingleExecution: true);
+    if (_control != null) invokeLaterSingle('commitValueOnReflow', _commitValueOnReflow);
   }
   
   void _commitValueOnReflow() {

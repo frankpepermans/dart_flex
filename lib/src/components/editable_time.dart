@@ -81,7 +81,7 @@ class EditableTime<T extends DateTime> extends EditableTextMask {
       )
     );
     
-    later > _setSelectionRange;
+    invokeLaterSingle('setSelectionRange', _setSelectionRange);
   }
   
   @override

@@ -173,7 +173,7 @@ class EditableText extends UIWrapper {
   }
 
   void _commitText() {
-    if (_control != null) _reflowManager.scheduleMethod(this, _commitTextOnReflow, [], forceSingleExecution: true);
+    if (_control != null) invokeLaterSingle('commitTextOnReflow', _commitTextOnReflow);
   }
   
   void _commitTextOnReflow() {
@@ -433,7 +433,7 @@ class EditableTextMask<T extends DateTime> extends EditableText {
       _selectedIndex = 0;
     }
     
-    later > _setSelectionRange;
+    invokeLaterSingle('setSelectionRange', _setSelectionRange);
   }
   
   void _updateSelection(bool isIncrease) {

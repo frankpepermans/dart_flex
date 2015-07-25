@@ -134,30 +134,22 @@ class EditableTextArea extends UIWrapper {
   //---------------------------------
 
   void _commitTextAlign() {
-    if (_control != null) {
-      _reflowManager.invalidateCSS(_control, 'text-align', _align);
-    }
+    if (_control != null) _reflowManager.invalidateCSS(_control, 'text-align', _align);
   }
   
   void _commitTextVerticalAlign() {
-    if (_control != null) {
-      _reflowManager.invalidateCSS(_control, 'vertical-align', _verticalAlign);
-    }
+    if (_control != null) _reflowManager.invalidateCSS(_control, 'vertical-align', _verticalAlign);
   }
 
   void _commitText() {
-    if (_control != null) {
-      _reflowManager.scheduleMethod(this, _commitTextOnReflow, [], forceSingleExecution: true);
-    }
+    if (_control != null) invokeLaterSingle('commitTextOnReflow', _commitTextOnReflow);
   }
   
   void _commitTextOnReflow() {
     final String newText = (_text != null) ? _text : '';
     final TextAreaElement controlCast = _control as TextAreaElement;
     
-    if (newText == controlCast.value) {
-      return;
-    }
+    if (newText == controlCast.value) return;
     
     controlCast.value = newText;
   }

@@ -157,7 +157,7 @@ class DataGrid extends ListBase {
     if (value != _headerMouseOverHandler) {
       _headerMouseOverHandler = value;
 
-      later > _invalidateHeaderHoverHandlers;
+      invokeLaterSingle('invalidateHeaderHoverHandlers', _invalidateHeaderHoverHandlers);
     }
   }
   
@@ -205,7 +205,7 @@ class DataGrid extends ListBase {
     if (value != _headerMouseOutHandler) {
       _headerMouseOutHandler = value;
 
-      later > _invalidateHeaderHoverHandlers;
+      invokeLaterSingle('invalidateHeaderHoverHandlers', _invalidateHeaderHoverHandlers);
     }
   }
 
@@ -495,6 +495,7 @@ class DataGrid extends ListBase {
 
     _list = new ListRenderer(orientation: 'grid')
     ..cssClasses = _listCssClasses
+    ..useEvenOdd = true
     ..percentWidth = 100.0
     ..percentHeight = 100.0
     ..disableRecycling = _disableRecycling
@@ -558,7 +559,7 @@ class DataGrid extends ListBase {
     if (_list != null) {
       _list._updateVisibleItemRenderers(ignorePreviousIndex: true);
       
-      later > _list.invalidateLayout;
+      _list.invokeLaterSingle('invalidateLayout', _list.invalidateLayout);
     }
   }
 
@@ -780,7 +781,7 @@ class DataGrid extends ListBase {
 
     invalidateProperties();
     
-    later > _updateSelection;
+    invokeLaterSingle('updateSelection', _updateSelection);
   }
   
   @override

@@ -64,7 +64,7 @@ part "src/core/reflow_manager.dart";
 part "src/core/scroll_policy.dart";
 part "src/core/skin_state.dart";
 part "src/core/stream_subscription_manager.dart";
-part "src/core/update_manager.dart";
+part "src/core/method_invoker.dart";
 
 part "src/events/collection_event.dart";
 part "src/events/framework_event.dart";

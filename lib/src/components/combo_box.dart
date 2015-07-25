@@ -28,7 +28,7 @@ class ComboBox extends ListBase {
         )
     );
 
-    later > _updateSelection;
+    invokeLaterSingle('updateSelection', _updateSelection);
   }
   
   //---------------------------------

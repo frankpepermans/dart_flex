@@ -10,7 +10,7 @@ class ReflowManager {
   
   final FrameManager F = new FrameManager()..fps = 60;
   
-  final Map<dynamic, Map<String, _MethodInvokationMap>> _scheduledHandlers = new Map<dynamic, Map<String, _MethodInvokationMap>>.identity();
+  final Map<dynamic, Map<String, MethodInvoker>> _scheduledHandlers = new Map<dynamic, Map<String, MethodInvoker>>.identity();
   final Map<Element, _ElementCSSMap> _elements = new Map<Element, _ElementCSSMap>.identity();
   
   //---------------------------------
@@ -71,31 +71,30 @@ class ReflowManager {
   //
   //-----------------------------------
   
-  void scheduleMethod(dynamic owner, Function method, List arguments, {bool forceSingleExecution: false}) {
-    Map<String, _MethodInvokationMap> ownerMap = _scheduledHandlers[owner];
+  void scheduleMethod(MethodInvoker invoker, {bool forceSingleExecution: false}) {
+    Map<String, MethodInvoker> ownerMap = _scheduledHandlers[invoker.owner];
+    MethodInvoker existingInvoker;
     
-    if (ownerMap == null) ownerMap = _scheduledHandlers[owner] = <String, _MethodInvokationMap>{};
+    if (ownerMap == null) ownerMap = _scheduledHandlers[invoker.owner] = <String, MethodInvoker>{};
     
-    _MethodInvokationMap invocation;
+    if (forceSingleExecution) existingInvoker = ownerMap[invoker.id];
     
-    if (forceSingleExecution) invocation = ownerMap[method.toString()];
-    
-    if (invocation == null) {
-      invocation = new _MethodInvokationMap(owner, method)
-        .._arguments = arguments;
-
-      ownerMap[invocation._method.toString()] = invocation;
+    if (existingInvoker == null) {
+      if (forceSingleExecution) ownerMap[invoker.id] = invoker;
       
-      invocationFrame.then(
-          (_) {
-            ownerMap.remove(invocation._method.toString());
-            
-            if (ownerMap.isEmpty) _scheduledHandlers.remove(owner);
-            
-            invocation.invoke();
-          }
+      invocationFrame.whenComplete(
+        () {
+          ownerMap[invoker.id] = null;
+          
+          invoker.invoke();
+        }
       );
-    } else invocation._arguments = arguments;
+    } else {
+      if (invoker.arguments.isNotEmpty) {
+        print(this);
+      }
+      existingInvoker.arguments = invoker.arguments;
+    }
   }
 
   void invalidateCSS(Element element, String property, String value) {
@@ -118,20 +117,6 @@ class ReflowManager {
     
     for (i=0; i<len; elementCSSMap.asyncUpdateCss(invocationFrame, list[i], list[i+1]), i+=2);
   }
-}
-
-class _MethodInvokationMap {
-
-  final dynamic _owner;
-  final Function _method;
-  
-  List _arguments;
-  
-  _MethodInvokationMap(this._owner, this._method);
-  
-  dynamic invoke() => Function.apply(_method, _arguments);
-
-  String toString() => '$_owner $_method $_arguments';
 }
 
 class _ElementCSSMap {

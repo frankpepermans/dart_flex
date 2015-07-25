@@ -86,7 +86,7 @@ class ListRenderer extends ListBase {
     if (value != field) {
       super.field = value;
       
-      later > _updateVisibleItemRenderers;
+      invokeLaterSingle('updateVisibleItemRenderers', _updateVisibleItemRenderers);
     }
   }
   
@@ -99,7 +99,7 @@ class ListRenderer extends ListBase {
     if (value != labelFunction) {
       super.labelFunction = value;
       
-      later > _updateVisibleItemRenderers;
+      invokeLaterSingle('updateVisibleItemRenderers', _updateVisibleItemRenderers);
     }
   }
 
@@ -132,7 +132,7 @@ class ListRenderer extends ListBase {
 
       invalidateProperties();
       
-      later > _updateAfterScrollPositionChanged;
+      invokeLaterSingle('updateAfterScrollPositionChanged', _updateAfterScrollPositionChanged);
     }
   }
   
@@ -186,6 +186,32 @@ class ListRenderer extends ListBase {
       invalidateProperties();
     }
   }
+  
+  //---------------------------------
+  // useEvenOdd
+  //---------------------------------
+  
+  static const EventHook<FrameworkEvent> onUseEvenOddChangedEvent = const EventHook<FrameworkEvent>('useEvenOddChanged');
+  Stream<FrameworkEvent> get onUseEvenOddChanged => ListRenderer.onUseEvenOddChangedEvent.forTarget(this);
+  
+  bool _useEvenOdd = false;
+  bool _isUseEvenOddChanged = false;
+  
+  bool get useEvenOdd => _useEvenOdd;
+  set useEvenOdd(bool value) {
+    if (value != _useEvenOdd) {
+      _useEvenOdd = value;
+      _isUseEvenOddChanged = true;
+  
+      notify(
+        new FrameworkEvent(
+          'useEvenOddChanged'
+        )
+      );
+  
+      invalidateProperties();
+    }
+  }
 
   //---------------------------------
   // itemRenderer
@@ -210,7 +236,7 @@ class ListRenderer extends ListBase {
 
       invalidateProperties();
       
-      later > _updateAfterScrollPositionChanged;
+      invokeLaterSingle('updateAfterScrollPositionChanged', _updateAfterScrollPositionChanged);
     }
   }
 
@@ -321,7 +347,7 @@ class ListRenderer extends ListBase {
       if (_layout is VerticalLayout) _control.scrollTop = _scrollPosition;
       else _control.scrollLeft = _scrollPosition;
 
-      later > _updateAfterScrollPositionChanged;
+      invokeLaterSingle('updateAfterScrollPositionChanged', _updateAfterScrollPositionChanged);
     }
   }
 
@@ -387,7 +413,7 @@ class ListRenderer extends ListBase {
     if (value != _autoScrollSelectionIntoView) {
       _autoScrollSelectionIntoView = value;
 
-      if (value) later > scrollSelectionIntoView;
+      if (value) invokeLaterSingle('scrollSelectionIntoView', scrollSelectionIntoView);
     }
   }
   
@@ -502,6 +528,12 @@ class ListRenderer extends ListBase {
       _itemRenderers.forEach(
         (IItemRenderer renderer) => renderer.autoDrawBackground = _useSelectionEffects    
       );
+    }
+    
+    if (_isUseEvenOddChanged) {
+      _isUseEvenOddChanged = false;
+      
+      _updateAfterScrollPositionChanged();
     }
 
     super.commitProperties();
@@ -798,6 +830,7 @@ class ListRenderer extends ListBase {
             ..data = data
             ..inactiveHandler = _inactiveHandler
             ..field = _field
+            ..cssClasses = _useEvenOdd ? ((i % 2 == 0) ? const <String>['even'] : const <String>['odd']) : null
         );
       }
     }
@@ -854,7 +887,7 @@ class ListRenderer extends ListBase {
               )
           );
           
-          later > _updateSelection;
+          invokeLaterSingle('updateSelection', _updateSelection);
           
           _forceRefresh();
         } else {
@@ -874,10 +907,10 @@ class ListRenderer extends ListBase {
     _hasScrolled = true;
     
     if (_layout is VerticalLayout) {
-      scrollPosition = _control.scrollTop;
+      _control.scrollTop = scrollPosition = _rowHeight * (_control.scrollTop ~/ _rowHeight);
       headerScrollPosition = _control.scrollLeft;
     } else {
-      scrollPosition = _control.scrollLeft;
+      _control.scrollLeft = scrollPosition = _colWidth * (_control.scrollLeft ~/ _colWidth);
       headerScrollPosition = _control.scrollTop;
     }
   }
@@ -885,7 +918,7 @@ class ListRenderer extends ListBase {
   void _updateSelection() {
     _updateVisibleItemRenderers(ignorePreviousIndex: true);
     
-    if (_autoScrollSelectionIntoView) later > scrollSelectionIntoView;
+    if (_autoScrollSelectionIntoView) invokeLaterSingle('scrollSelectionIntoView', scrollSelectionIntoView);
   }
   
   void _updateOrientationIfNeeded() {

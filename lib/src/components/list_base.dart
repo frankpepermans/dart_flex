@@ -175,7 +175,7 @@ class ListBase extends Group {
           )
       );
 
-      later > _updateSelection;
+      invokeLaterSingle('updateSelection', _updateSelection);
     }
   }
   
@@ -215,7 +215,7 @@ class ListBase extends Group {
           )
       );
 
-      later > _updateSelection;
+      invokeLaterSingle('updateSelection', _updateSelection);
     }
   }
 
@@ -250,7 +250,7 @@ class ListBase extends Group {
           )
       );
 
-      later > _updateSelection;
+      invokeLaterSingle('updateSelection', _updateSelection);
     }
   }
   
@@ -290,7 +290,7 @@ class ListBase extends Group {
           )
       );
   
-      later > _updateSelection;
+      invokeLaterSingle('updateSelection', _updateSelection);
     }
   }
 

@@ -32,7 +32,7 @@ class FlashEmbed extends UIWrapper {
           new FrameworkEvent('sourceChanged')
       );
 
-      later > _commitSource;
+      invokeLaterSingle('commitSource', _commitSource);
     }
   }
 
@@ -106,7 +106,7 @@ class FlashEmbed extends UIWrapper {
       
       document.head.append(interopScript);
       
-      later > _commitSource;
+      invokeLaterSingle('commitSource', _commitSource);
     }
 
     super.createChildren();

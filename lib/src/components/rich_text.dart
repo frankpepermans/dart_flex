@@ -225,7 +225,7 @@ class RichText extends UIWrapper {
   }
  
   void _commitText() {
-    if (_label != null) _reflowManager.scheduleMethod(this, _commitTextOnReflow, [], forceSingleExecution: true);
+    if (_label != null) invokeLaterSingle('commitTextOnReflow', _commitTextOnReflow);
   }
  
   void _commitTextOnReflow() {

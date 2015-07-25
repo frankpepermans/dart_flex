@@ -125,13 +125,13 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
       
       getDataToObserve();
       
-      later > _updateDefaultClass;
+      invokeLaterSingle('updateDefaultClass', _updateDefaultClass);
       
       notify(
         new FrameworkEvent<D>('dataChanged', relatedObject: value)
       );
 
-      later > invalidateData;
+      invokeLaterSingle('invalidateData', invalidateData);
     }
   }
   
@@ -150,7 +150,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
           new FrameworkEvent('fieldChanged')    
       );
       
-      later > invalidateData;
+      invokeLaterSingle('invalidateData', invalidateData);
     }
   }
   
@@ -171,7 +171,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
           new FrameworkEvent('fieldsChanged')    
       );
       
-      later > invalidateData;
+      invokeLaterSingle('invalidateData', invalidateData);
     }
   }
   
@@ -186,7 +186,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (value != _labelHandler) {
       _labelHandler = value;
       
-      later > invalidateData;
+      invokeLaterSingle('invalidateData', invalidateData);
     }
   }
 
@@ -201,7 +201,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (value != _state) {
       _state = value;
 
-      later > updateAfterInteraction;
+      invokeLaterSingle('updateAfterInteraction', updateAfterInteraction);
     }
   }
 
@@ -216,9 +216,8 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (value != _selected) {
       _selected = value;
       
-      later > _updateDefaultClass;
-
-      later > updateAfterInteraction;
+      invokeLaterSingle('updateDefaultClass', _updateDefaultClass);
+      invokeLaterSingle('updateAfterInteraction', updateAfterInteraction);
     }
   }
   
@@ -233,9 +232,8 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (value != _notApplicable) {
       _notApplicable = value;
       
-      later > _updateDefaultClass;
-  
-      later > updateAfterInteraction;
+      invokeLaterSingle('updateDefaultClass', _updateDefaultClass);
+      invokeLaterSingle('updateAfterInteraction', updateAfterInteraction);
     }
   }
   
@@ -250,9 +248,8 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (value != _showAsEditable) {
       _showAsEditable = value;
       
-      later > _updateDefaultClass;
-  
-      later > updateAfterInteraction;
+      invokeLaterSingle('updateDefaultClass', _updateDefaultClass);
+      invokeLaterSingle('updateAfterInteraction', updateAfterInteraction);
     }
   }
   
@@ -267,7 +264,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (value != _inactiveHandler) {
       _inactiveHandler = value;
       
-      later > _updateDefaultClass;
+      invokeLaterSingle('updateDefaultClass', _updateDefaultClass);
     }
   }
   
@@ -282,7 +279,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (value != _validationHandler) {
       _validationHandler = value;
       
-      later > _updateDefaultClass;
+      invokeLaterSingle('updateDefaultClass', _updateDefaultClass);
     }
   }
   
@@ -313,7 +310,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (value != _editable) {
       _editable = value;
 
-      later > updateForEditable;
+      invokeLaterSingle('updateForEditable', updateForEditable);
     }
   }
   
@@ -362,7 +359,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     if (value != _gap) {
       _gap = value;
 
-      later > updateLayout;
+      invokeLaterSingle('updateLayout', updateLayout);
     }
   }
 
@@ -430,7 +427,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
         )
     );
 
-    later > invalidateData;
+    invokeLaterSingle('invalidateData', invalidateData);
   }
 
   void invalidateData() {}
@@ -587,7 +584,7 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
             )
         );
         
-        later > highlight;
+        invokeLaterSingle('highlight', highlight);
       }
     }
     
