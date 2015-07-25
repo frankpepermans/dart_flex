@@ -20,6 +20,7 @@ class DataGrid extends ListBase {
   VGroup _gridContainer;
   HGroup _headerBounds, _headerContainer;
   ListRenderer _list;
+  bool _isSelectedIndexUpdateRequired = false;
   
   ListRenderer get list => _list;
 
@@ -430,6 +431,12 @@ class DataGrid extends ListBase {
 
       _updateColumnsAndHeaders();
     }
+    
+    if (_isSelectedIndexUpdateRequired) {
+      _isSelectedIndexUpdateRequired = false;
+      
+      selectedIndex = (_selectedItem != null) ? _dataProvider.indexOf(_selectedItem) : -1;
+    }
   }
   
   void setScrollTarget(DataGridItemRenderer target, int offset) {
@@ -790,7 +797,7 @@ class DataGrid extends ListBase {
   void _dataProvider_collectionChangedHandler(List<ListChangeRecord> changes) {
     super._dataProvider_collectionChangedHandler(changes);
     
-    selectedIndex = _dataProvider.indexOf(_selectedItem);
+    _isSelectedIndexUpdateRequired = true;
   }
   
   @override
