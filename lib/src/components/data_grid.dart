@@ -624,6 +624,7 @@ class DataGrid extends ListBase {
     if (!_allowHeaderColumnSorting) return;
     
     final IHeaderItemRenderer renderer = event.currentTarget as IHeaderItemRenderer;
+    IHeaderItemRenderer SH;
     
     if (renderer.lastClickEvent is MouseEvent) {
       final MouseEvent mouseEvent = renderer.lastClickEvent;
@@ -633,31 +634,33 @@ class DataGrid extends ListBase {
     
     if (!_sortHandlers.contains(renderer)) _sortHandlers.add(renderer);
     
+    final int maxLen = _sortHandlers.length;
+    
     _headerItemRenderers.forEach((IHeaderItemRenderer H) => H.cssClasses = null);
     
-    if (_sortHandlers.length > 1) 
-      for (int i=0, len=_sortHandlers.length; i<len; i++) 
-        _sortHandlers[i].cssClasses = <String>[_sortHandlers[i].isSortedAsc ? 'sort-asc' : 'sort-desc', 'index_${i+1}'];
-    else _sortHandlers.first.cssClasses = <String>[_sortHandlers.first.isSortedAsc ? 'sort-asc' : 'sort-desc'];
+    renderer.isSortedAsc = !renderer.isSortedAsc;
     
-    final int maxLen = _sortHandlers.length;
-    IHeaderItemRenderer recursiveSortHandler;
+    if (_sortHandlers.length > 1) {
+      for (int i=0; i<maxLen; i++) {
+        SH = _sortHandlers[i];
+        
+        SH.cssClasses = <String>[SH.isSortedAsc ? 'sort-asc' : 'sort-desc', 'index_${i+1}'];
+      }
+    } else _sortHandlers.first.cssClasses = <String>[_sortHandlers.first.isSortedAsc ? 'sort-asc' : 'sort-desc'];
     
     presentationHandler = (dynamic a, dynamic b) {
       int i = 0, c = 0;
       
       while (c == 0 && i < maxLen) {
-        recursiveSortHandler = _sortHandlers[i++];
+        IHeaderItemRenderer H = _sortHandlers[i++];
         
-        c = recursiveSortHandler.isSortedAsc ? 
-            recursiveSortHandler.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(recursiveSortHandler)], event.relatedObject) :
-           -recursiveSortHandler.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(recursiveSortHandler)], event.relatedObject);
+        c = H.isSortedAsc ? 
+            H.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(H)], event.relatedObject) :
+           -H.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(H)], event.relatedObject);
       }
       
       return c;
     };
-
-    renderer.isSortedAsc = !renderer.isSortedAsc;
   }
   
   @override
