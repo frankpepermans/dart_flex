@@ -172,6 +172,17 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
+  // allowMultipleSelection
+  //---------------------------------
+  
+  @override
+  set allowMultipleSelection(bool value) {
+    super.allowMultipleSelection = value;
+    
+    if (_list != null) _list.allowMultipleSelection = value;
+  }
+  
+  //---------------------------------
   // inactiveHandler
   //---------------------------------
   
@@ -500,7 +511,8 @@ class DataGrid extends ListBase {
     ..dataProvider = _dataProvider
     ..itemRendererFactory = _dataGridItemRendererFactory
     ..useSelectionEffects = _useSelectionEffects
-    ..autoManageScrollBars = _autoManageScrollBars;
+    ..autoManageScrollBars = _autoManageScrollBars
+    ..allowMultipleSelection = _allowMultipleSelection;
     
     _list._streamSubscriptionManager.add(
         'data_grid_listScrollPositionChange', 

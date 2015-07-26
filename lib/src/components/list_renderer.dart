@@ -870,7 +870,7 @@ class ListRenderer extends ListBase {
         
         final int index = _disableRecycling ? _itemRenderers.indexOf(itemRenderer) : (_scrollPosition ~/ _getPageItemSize()) + _itemRenderers.indexOf(itemRenderer);
         
-        if (_allowMultipleSelection) {
+        if (_allowMultipleSelection && ((event is MouseEvent && event.ctrlKey == true) || selectedIndices.isEmpty)) {
           selectedIndex = -1;
           selectedItem = null;
           
