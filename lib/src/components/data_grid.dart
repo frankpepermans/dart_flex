@@ -655,8 +655,8 @@ class DataGrid extends ListBase {
         IHeaderItemRenderer H = _sortHandlers[i++];
         
         c = H.isSortedAsc ? 
-            H.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(H)], event.relatedObject) :
-           -H.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(H)], event.relatedObject);
+            H.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(H)], H.data) :
+           -H.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(H)], H.data);
       }
       
       return c;
