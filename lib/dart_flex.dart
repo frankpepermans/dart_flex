@@ -13,6 +13,7 @@ import 'package:observe/observe.dart';
 export 'package:observe/observe.dart';
 
 part "src/components/accordion.dart";
+part "src/components/bounds_container.dart";
 part "src/components/button.dart";
 part "src/components/color_box.dart";
 part "src/components/combo_box.dart";
