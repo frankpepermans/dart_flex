@@ -624,28 +624,35 @@ class DataGrid extends ListBase {
     if (!_allowHeaderColumnSorting) return;
     
     final IHeaderItemRenderer renderer = event.currentTarget as IHeaderItemRenderer;
-    final DataGridColumn column = _columns[_headerItemRenderers.indexOf(renderer)];
     
-    _sortHandlers.clear();
+    if (renderer.lastClickEvent is MouseEvent) {
+      final MouseEvent mouseEvent = renderer.lastClickEvent;
+      
+      if (!mouseEvent.ctrlKey) _sortHandlers.clear();
+    } else _sortHandlers.clear();
     
-    _sortHandlers.add(renderer);
+    if (!_sortHandlers.contains(renderer)) _sortHandlers.add(renderer);
     
-    final IHeaderItemRenderer firstSortHandler = _sortHandlers.first;
-    final int maxLen = _sortHandlers.length - 1;
+    _headerItemRenderers.forEach((IHeaderItemRenderer H) => H.cssClasses = null);
+    
+    if (_sortHandlers.length > 1) 
+      for (int i=0, len=_sortHandlers.length; i<len; i++) 
+        _sortHandlers[i].cssClasses = <String>[_sortHandlers[i].isSortedAsc ? 'sort-asc' : 'sort-desc', 'index_${i+1}'];
+    else _sortHandlers.first.cssClasses = <String>[_sortHandlers.first.isSortedAsc ? 'sort-asc' : 'sort-desc'];
+    
+    final int maxLen = _sortHandlers.length;
     IHeaderItemRenderer recursiveSortHandler;
     
     presentationHandler = (dynamic a, dynamic b) {
-      int i = 1;
-      int c = firstSortHandler.sortHandler(a, b, column, event.relatedObject);
+      int i = 0, c = 0;
       
       while (c == 0 && i < maxLen) {
         recursiveSortHandler = _sortHandlers[i++];
         
-        c = recursiveSortHandler.sortHandler(a, b, column, event.relatedObject);
+        c = recursiveSortHandler.isSortedAsc ? 
+            recursiveSortHandler.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(recursiveSortHandler)], event.relatedObject) :
+           -recursiveSortHandler.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(recursiveSortHandler)], event.relatedObject);
       }
-      
-      if (recursiveSortHandler != null) c *= recursiveSortHandler.isSortedAsc ? 1 : -1;
-      else c *= firstSortHandler.isSortedAsc ? 1 : -1;
       
       return c;
     };

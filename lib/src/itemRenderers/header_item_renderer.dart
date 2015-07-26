@@ -4,6 +4,8 @@ typedef int SortHandler(dynamic a, dynamic b, DataGridColumn column, IHeaderData
 
 abstract class IHeaderItemRenderer extends IItemRenderer {
   
+  Event lastClickEvent;
+  
   Stream<FrameworkEvent> get onButtonClick;
   
   SortHandler sortHandler;
@@ -34,6 +36,8 @@ class HeaderItemRenderer extends ItemRenderer implements IHeaderItemRenderer {
   // Public properties
   //
   //---------------------------------
+  
+  Event lastClickEvent;
   
   SortHandler sortHandler;
   
@@ -94,6 +98,8 @@ class HeaderItemRenderer extends ItemRenderer implements IHeaderItemRenderer {
   //---------------------------------
   
   void _button_buttonClickHandler(FrameworkEvent<dynamic> event) {
+    lastClickEvent = _button.lastClickEvent;
+    
     notify(
         new FrameworkEvent<IHeaderData>(
             'buttonClick',

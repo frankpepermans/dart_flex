@@ -8,6 +8,8 @@ class Button extends UIWrapper {
   //
   //---------------------------------
   
+  Event lastClickEvent;
+  
   bool _allowClick = true;
   
   static const EventHook<FrameworkEvent> onButtonClickEvent = const EventHook<FrameworkEvent>('buttonClick');
@@ -90,6 +92,8 @@ class Button extends UIWrapper {
   void _propagateClick(Event event) {
     if (_allowClick) {
       _allowClick = false;
+      
+      lastClickEvent = event;
       
       notify(
           new FrameworkEvent(
