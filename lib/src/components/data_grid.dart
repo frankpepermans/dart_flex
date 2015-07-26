@@ -1,6 +1,5 @@
 part of dart_flex;
 
-typedef String SortHandler(dynamic data, Symbol propertySymbol, String property);
 typedef int CompareHandler(dynamic dataA, dynamic dataB);
 typedef void HeaderMouseHandler(IItemRenderer header);
 typedef IItemRenderer ItemRendererHandler(DataGridItemRenderer rowRenderer, DataGridColumn column, int index, Function defaultHandler);
@@ -380,12 +379,6 @@ class DataGrid extends ListBase {
   }
   
   //---------------------------------
-  // sortHandler
-  //---------------------------------
-
-  SortHandler sortHandler;
-  
-  //---------------------------------
   // disableRecycling
   //---------------------------------
   
@@ -624,13 +617,38 @@ class DataGrid extends ListBase {
       }
     }
   }
+  
+  List<IHeaderItemRenderer> _sortHandlers = <IHeaderItemRenderer>[];
 
   void _header_clickHandler(FrameworkEvent<IHeaderData> event) {
     if (!_allowHeaderColumnSorting) return;
     
     final IHeaderItemRenderer renderer = event.currentTarget as IHeaderItemRenderer;
+    final DataGridColumn column = _columns[_headerItemRenderers.indexOf(renderer)];
     
-    presentationHandler = (dynamic itemA, dynamic itemB) => _list_dynamicSortHandler(itemA, itemB, event.relatedObject.field, event.relatedObject.label, renderer.isSortedAsc);
+    _sortHandlers.clear();
+    
+    _sortHandlers.add(renderer);
+    
+    final IHeaderItemRenderer firstSortHandler = _sortHandlers.first;
+    final int maxLen = _sortHandlers.length - 1;
+    IHeaderItemRenderer recursiveSortHandler;
+    
+    presentationHandler = (dynamic a, dynamic b) {
+      int i = 1;
+      int c = firstSortHandler.sortHandler(a, b, column, event.relatedObject);
+      
+      while (c == 0 && i < maxLen) {
+        recursiveSortHandler = _sortHandlers[i++];
+        
+        c = recursiveSortHandler.sortHandler(a, b, column, event.relatedObject);
+      }
+      
+      if (recursiveSortHandler != null) c *= recursiveSortHandler.isSortedAsc ? 1 : -1;
+      else c *= firstSortHandler.isSortedAsc ? 1 : -1;
+      
+      return c;
+    };
 
     renderer.isSortedAsc = !renderer.isSortedAsc;
   }
@@ -751,29 +769,6 @@ class DataGrid extends ListBase {
     final String newValue = (_headerContainer.x - _list._headerScrollPosition).toString() + 'px';
     
     if (_headerContainer._control.style.left != newValue) _headerContainer._control.style.left = newValue;
-  }
-  
-  int _list_dynamicSortHandler(dynamic itemA, dynamic itemB, Symbol propertySymbol, String property, bool isAscSort) {
-    if (sortHandler != null) {
-      String strA = sortHandler(itemA, propertySymbol, property);
-      String strB = sortHandler(itemB, propertySymbol, property);
-      
-      strA = (strA == null) ? '' : strA;
-      strB = (strB == null) ? '' : strB;
-      
-      return isAscSort ? strA.compareTo(strB) : strB.compareTo(strA);
-    }
-    
-    dynamic pvA = itemA[propertySymbol];
-    dynamic pvB = itemB[propertySymbol];
-    dynamic valA = (pvA is bool) ? pvA ? 1 : 0 : pvA;
-    dynamic valB = (pvB is bool) ? pvB ? 1 : 0 : pvB;
-    
-    if (valA == null && valB == null) return 0;
-    else if (valB == null) return -1;
-    else if (valA == null) return 1;
-    
-    return isAscSort ? valA.toString().compareTo(valB.toString()) : valB.toString().compareTo(valA.toString());
   }
 
   void _columns_collectionChangedHandler(List<ListChangeRecord> changes) {

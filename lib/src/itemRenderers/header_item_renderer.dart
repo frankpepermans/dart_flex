@@ -1,10 +1,14 @@
 part of dart_flex;
 
+typedef int SortHandler(dynamic a, dynamic b, DataGridColumn column, IHeaderData headerData);
+
 abstract class IHeaderItemRenderer extends IItemRenderer {
   
   Stream<FrameworkEvent> get onButtonClick;
   
-  bool isSortedAsc;
+  SortHandler sortHandler;
+  
+  bool isSortedAsc = true;
   
   IHeaderData get headerData;
   
@@ -31,6 +35,8 @@ class HeaderItemRenderer extends ItemRenderer implements IHeaderItemRenderer {
   //
   //---------------------------------
   
+  SortHandler sortHandler;
+  
   bool isSortedAsc = true;
   
   IHeaderData get headerData => _data as IHeaderData;
@@ -41,9 +47,11 @@ class HeaderItemRenderer extends ItemRenderer implements IHeaderItemRenderer {
   //
   //---------------------------------
 
-  HeaderItemRenderer({String elementId: null}) : super(elementId: null, autoDrawBackground: false);
+  HeaderItemRenderer({String elementId: null, SortHandler sortHandler}) : super(elementId: null, autoDrawBackground: false) {
+    this.sortHandler = sortHandler;
+  }
 
-  static HeaderItemRenderer construct() => new HeaderItemRenderer();
+  static HeaderItemRenderer construct([SortHandler sortHandler= null]) => new HeaderItemRenderer(sortHandler: sortHandler);
 
   //---------------------------------
   //
