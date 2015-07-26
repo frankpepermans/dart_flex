@@ -76,6 +76,7 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   void wrapTarget(Element target);
   void addComponent(IUIWrapper element, {bool prepend: false});
   void removeComponent(IUIWrapper element);
+  void onComponentAdded();
   void removeAll();
   void flushHandler();
   void transportComponents(IUIWrapper target);
@@ -490,6 +491,8 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   }
   
   void invalidateSize(Event event) => invokeLaterSingle('updateSize', updateSize);
+
+  void onComponentAdded() => _childWrappers.forEach((IUIWrapper child) => child.onComponentAdded());
   
   void initialize() {
     if (!_isInitialized) {
@@ -586,14 +589,16 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
     if (_control == null) {
       prepend ? _addLaterElements.insert(0, element) : _addLaterElements.add(element);
     } else {
-      elementCast._owner = this;
-      
-      elementCast.notify(
-          new FrameworkEvent<IUIWrapper>(
-              'ownerChanged',
-              relatedObject: this
-          )
-      );
+      if (elementCast._owner != this) {
+        elementCast._owner = this;
+        
+        elementCast.notify(
+            new FrameworkEvent<IUIWrapper>(
+                'ownerChanged',
+                relatedObject: this
+            )
+        );
+      }
       
       if (
           (_stylePrefix != null) &&
@@ -613,6 +618,8 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
       }
 
       invalidateLayout();
+
+      element.onComponentAdded();
       
       _childWrappers.add(element);
     }

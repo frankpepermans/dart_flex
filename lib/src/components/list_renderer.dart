@@ -489,6 +489,15 @@ class ListRenderer extends ListBase {
   // Public methods
   //
   //---------------------------------
+
+  @override
+  void onComponentAdded() {
+    super.onComponentAdded();
+    
+    _scrollPosition = -1;
+
+    invokeLaterSingle('updateScrollPosition', _updateScrollPosition);
+  }
   
   @override
   void createChildren() {
