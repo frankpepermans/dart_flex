@@ -89,12 +89,7 @@ class ReflowManager {
           invoker.invoke();
         }
       );
-    } else {
-      if (invoker.arguments.isNotEmpty) {
-        print(this);
-      }
-      existingInvoker.arguments = invoker.arguments;
-    }
+    } else existingInvoker.arguments = invoker.arguments;
   }
 
   void invalidateCSS(Element element, String property, String value) {
@@ -124,34 +119,34 @@ class _ElementCSSMap {
   static const String _PRIORITY = '';
   
   final Element _element;
+  final CssStyleDeclaration _decl = new CssStyleDeclaration();
   
   Future _currentWait;
-  Map<String, String> _dirtyProperties;
-  bool _isDirty = false;
+  int _pending = 0;
+  int _completed = 0;
   
-  _ElementCSSMap(this._element);
+  _ElementCSSMap(this._element) {
+    _decl.cssText = _element.style.cssText;
+  }
   
-  void asyncUpdateCss(Future F, String propertyName, String value) {
-    if (F != _currentWait) _currentWait = F..whenComplete(_finalize);
-    
+  void asyncUpdateCss(Future<Frame> F, String propertyName, String value) {
     if (_element.style.getPropertyValue(propertyName) != value) {
-      if (_dirtyProperties == null) _dirtyProperties = <String, String>{};
-      
-      _isDirty = true;
-      _dirtyProperties[propertyName] = value;
+      if (F != _currentWait) {
+        _pending++;
+        
+        _currentWait = F..then(_finalize);
+      }
+          
+      _decl.setProperty(propertyName, value, _PRIORITY);
     }
   }
   
-  void _finalize() {
-    if (!_isDirty) return;
-    
-    _dirtyProperties.forEach(
-      (String N, String V) => _element.style.setProperty(N, V, _PRIORITY)
-    );
-    
-    _isDirty = false;
-    _dirtyProperties = null;
+  void _finalize(Frame F) {
+    if (++_completed == _pending) {
+      _pending = _completed = 0;
+      _currentWait = null;
+      
+      _element.style.cssText = _decl.cssText;
+    }
   }
-  
-  String toString() => '$_element $_dirtyProperties';
 }

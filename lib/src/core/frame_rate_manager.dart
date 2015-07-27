@@ -4,7 +4,7 @@ class FrameManager {
   
   StreamController C;
   Stream S;
-  int fps = 61;
+  int fps = 50;
   int tick = 0;
   
   int _lastFrame = 0;
@@ -52,7 +52,7 @@ class FrameManager {
       (double T) {
         if (T.isNaN || T.isInfinite) T = .0;
         
-        final double interval = 1000 / fps;
+        final int interval = 1000 ~/ fps;
         final int currentFrame = T ~/ interval;
         
         if (currentFrame > _lastFrame) {

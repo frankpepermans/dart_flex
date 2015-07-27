@@ -8,11 +8,11 @@ class MethodInvoker {
   List arguments;
   
   MethodInvoker.delayedSingle(this.owner, this.id, this.method, this.arguments) {
-    new ReflowManager().scheduleMethod(this, forceSingleExecution: true);
+    ReflowManager._reflowManager.scheduleMethod(this, forceSingleExecution: true);
   }
   
   MethodInvoker.delayedNonSingle(this.owner, this.id, this.method, this.arguments) {
-    new ReflowManager().scheduleMethod(this, forceSingleExecution: false);
+    ReflowManager._reflowManager.scheduleMethod(this, forceSingleExecution: false);
   }
   
   dynamic invoke() {
