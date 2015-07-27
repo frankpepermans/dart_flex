@@ -2,14 +2,15 @@ part of dart_flex;
 
 class BoundsContainer extends VGroup {
 
-  VGroup _actualContainer;
+  Group _actualContainer;
   Spacer _top, _bottom, _left, _right;
+  String _orientation;
   
   //---------------------------------
   // body
   //---------------------------------
   
-  VGroup get body => _actualContainer;
+  Group get body => _actualContainer;
   
   //---------------------------------
   // left
@@ -109,13 +110,18 @@ class BoundsContainer extends VGroup {
   //
   //---------------------------------
 
-  BoundsContainer({String elementId: null}) : super(elementId: elementId, gap: 0) {
+  BoundsContainer({String elementId: null, String orientation: 'vertical'}) : super(elementId: elementId, gap: 0) {
     _className = 'BoundsContainer';
+    _orientation = orientation;
     
-    _actualContainer = new VGroup()
+    if (_orientation == 'vertical') _actualContainer = new VGroup()
       ..cssClasses = const <String>['bounds-container-body']
       ..percentWidth = 100.0
       ..percentHeight = 100.0;
+    else _actualContainer = new HGroup()
+    ..cssClasses = const <String>['bounds-container-body']
+    ..percentWidth = 100.0
+    ..percentHeight = 100.0;
   }
 
   //---------------------------------
