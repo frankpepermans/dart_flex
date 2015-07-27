@@ -552,7 +552,7 @@ class DataGrid extends ListBase {
         _list.onSelectedItemChanged.listen(_list_selectedItemChangedHandler)
     );
     
-    _updateScrollPolicy();
+    invokeLaterSingle('updateScrollPolicy', _updateScrollPolicy);
 
     super.createChildren();
   }
