@@ -97,7 +97,7 @@ class ReflowManager {
     
     _ElementCSSMap elementCSSMap = _elements[element];
 
-    if (elementCSSMap == null) _elements[element] = elementCSSMap = new _ElementCSSMap(element);
+    if (elementCSSMap == null) _elements[element] = elementCSSMap = new _ElementCSSMap(element.style);
     
     elementCSSMap.asyncUpdateCss(invocationFrame, property, value);
   }
@@ -108,45 +108,54 @@ class ReflowManager {
     
     _ElementCSSMap elementCSSMap = _elements[element];
 
-    if (elementCSSMap == null) _elements[element] = elementCSSMap = new _ElementCSSMap(element);
+    if (elementCSSMap == null) _elements[element] = elementCSSMap = new _ElementCSSMap(element.style);
     
     for (i=0; i<len; elementCSSMap.asyncUpdateCss(invocationFrame, list[i], list[i+1]), i+=2);
   }
 }
 
 class _ElementCSSMap {
-
-  static const String _PRIORITY = '';
   
-  final Element _element;
+  final CssStyleDeclaration _elementStyle;
   final CssStyleDeclaration _decl = new CssStyleDeclaration();
   
   Future _currentWait;
   int _pending = 0;
   int _completed = 0;
+  int _changeCount = 0;
   
-  _ElementCSSMap(this._element) {
-    _decl.cssText = _element.style.cssText;
+  String _singleProperty, _singleValue;
+  
+  _ElementCSSMap(this._elementStyle) {
+    _decl.cssText = _elementStyle.cssText;
   }
   
   void asyncUpdateCss(Future<Frame> F, String propertyName, String value) {
-    if (_element.style.getPropertyValue(propertyName) != value) {
+    if (_decl.getPropertyValue(propertyName) != value) {
+      _singleProperty = propertyName;
+      _singleValue = value;
+      _changeCount++;
+      
       if (F != _currentWait) {
         _pending++;
         
-        _currentWait = F..then(_finalize);
+        _currentWait = F..whenComplete(_finalize);
       }
           
-      _decl.setProperty(propertyName, value, _PRIORITY);
+      _decl.setProperty(propertyName, value);
     }
   }
   
-  void _finalize(Frame F) {
+  void _finalize() {
     if (++_completed == _pending) {
       _pending = _completed = 0;
       _currentWait = null;
       
-      _element.style.cssText = _decl.cssText;
+      if (_changeCount == 1) _elementStyle.setProperty(_singleProperty, _singleValue);
+      else _elementStyle.cssText = _decl.cssText;
+      
+      _singleProperty = _singleValue = null;
+      _changeCount = 0;
     }
   }
 }

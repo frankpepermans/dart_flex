@@ -750,9 +750,9 @@ class ListRenderer extends ListBase {
         if (isVerticalLayout) {
           _scrollTarget.width = 1;
 
-          if (_rowHeight > 0) _scrollTarget.height = _dataProvider.length * _rowHeight;
+          if (_rowHeight > 0) invokeLaterSingle('setScrollTargetHeight', _setScrollTargetHeight, arguments: <int>[_dataProvider.length * _rowHeight]);
         } else {
-          if (_colWidth > 0) _scrollTarget.width = _dataProvider.length * _colWidth;
+          if (_colWidth > 0) invokeLaterSingle('setScrollTargetWidth', _setScrollTargetWidth, arguments: <int>[_dataProvider.length * _colWidth]);
 
           _scrollTarget.height = 1;
         }
@@ -767,6 +767,14 @@ class ListRenderer extends ListBase {
     }
 
     return false;
+  }
+  
+  void _setScrollTargetWidth(int value) {
+    _scrollTarget.width = value;
+  }
+  
+  void _setScrollTargetHeight(int value) {
+    _scrollTarget.height = value;
   }
 
   void _updateAfterScrollPositionChanged() {
