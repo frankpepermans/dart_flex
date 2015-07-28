@@ -833,8 +833,20 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
     
     if (_cssClasses != null) newClasses.addAll(_cssClasses);
     
-    _control.classes.clear();
-    _control.classes.addAll(newClasses);
+    bool areListsUnequal = (newClasses.length != _control.classes.length);
+    
+    if (!areListsUnequal) for (int i=0, len=newClasses.length; i<len; i++) {
+      if (_control.classes.firstWhere((String cc) => (cc == newClasses[i]), orElse: () => null) == null) {
+        areListsUnequal = true;
+        
+        break;
+      }
+    };
+    
+    if (!areListsUnequal) {
+      _control.classes.clear();
+      _control.classes.addAll(newClasses);
+    }
   }
   
   void _addDefaultClass() => _control.classes.addAll('_$_className'.split(' '));

@@ -588,8 +588,6 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
       }
     }
     
-    _updateDefaultClass();
-    
     invalidateData();
     
     getDataToObserve();
