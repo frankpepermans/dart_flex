@@ -8,7 +8,7 @@ class ReflowManager {
   //
   //---------------------------------
   
-  final FrameManager F = new FrameManager()..fps = 60;
+  final FrameManager F = new FrameManager();
   
   final Map<dynamic, Map<String, MethodInvoker>> _scheduledHandlers = new Map<dynamic, Map<String, MethodInvoker>>.identity();
   final Map<Element, _ElementCSSMap> _elements = new Map<Element, _ElementCSSMap>.identity();

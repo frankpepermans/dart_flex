@@ -4,7 +4,7 @@ class FrameManager {
   
   StreamController C;
   Stream S;
-  int fps = 50;
+  int fps = 120;
   int tick = 0;
   
   int _lastFrame = 0;
