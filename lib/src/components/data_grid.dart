@@ -5,6 +5,19 @@ typedef void HeaderMouseHandler(IItemRenderer header);
 typedef IItemRenderer ItemRendererHandler(DataGridItemRenderer rowRenderer, DataGridColumn column, int index, Function defaultHandler);
 
 class DataGrid extends ListBase {
+  
+  @event Stream<FrameworkEvent> onRendererAdded;
+  @event Stream<FrameworkEvent> onRendererRemoved;
+  @event Stream<FrameworkEvent> onColumnsChanged;
+  @event Stream<FrameworkEvent> onDataGridItemRendererFactoryChanged;
+  @event Stream<FrameworkEvent> onListCSSClassesChanged;
+  @event Stream<FrameworkEvent> onListScrollPositionChanged;
+  @event Stream<FrameworkEvent> onHeaderHeightChanged;
+  @event Stream<FrameworkEvent> onRowHeightChanged;
+  @event Stream<FrameworkEvent> onColumnSpacingChanged;
+  @event Stream<FrameworkEvent> onRowSpacingChanged;
+  @event Stream<FrameworkEvent> onAutoManageScrollBarsChanged;
+  @event Stream<FrameworkEvent> onUseSelectionEffectsChanged;
 
   //---------------------------------
   //
@@ -28,19 +41,10 @@ class DataGrid extends ListBase {
   // Public properties
   //
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onRendererAddedEvent = const EventHook<FrameworkEvent>('rendererAdded');
-  Stream<FrameworkEvent> get onRendererAdded => DataGrid.onRendererAddedEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent> onRendererRemovedEvent = const EventHook<FrameworkEvent>('rendererRemoved');
-  Stream<FrameworkEvent> get onRendererRemoved => DataGrid.onRendererRemovedEvent.forTarget(this);
 
   //---------------------------------
   // columns
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onColumnsChangedEvent = const EventHook<FrameworkEvent>('columnsChanged');
-  Stream<FrameworkEvent> get onColumnsChanged => DataGrid.onColumnsChangedEvent.forTarget(this);
   
   ObservableList<DataGridColumn> _columns;
   bool _isColumnsChanged = false;
@@ -71,8 +75,6 @@ class DataGrid extends ListBase {
   // dataGridItemRendererFactory
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onDataGridItemRendererFactoryChangedEvent = const EventHook<FrameworkEvent>('dataGridItemRendererFactoryChanged');
-  Stream<FrameworkEvent> get onDataGridItemRendererFactoryChanged => DataGrid.onDataGridItemRendererFactoryChangedEvent.forTarget(this);
   ItemRendererFactory _dataGridItemRendererFactory = new ItemRendererFactory<DataGridItemRenderer>(constructorMethod: DataGridItemRenderer.construct);
 
   ItemRendererFactory get dataGridItemRendererFactory => _dataGridItemRendererFactory;
@@ -88,8 +90,6 @@ class DataGrid extends ListBase {
   // listClasses
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onListCSSClassesChangedEvent = const EventHook<FrameworkEvent>('listCssClassesChanged');
-  Stream<FrameworkEvent> get onListCSSClassesChanged => DataGrid.onListCSSClassesChangedEvent.forTarget(this);
   List<String> _listCssClasses = <String>[];
 
   List<String> get listCssClasses => _listCssClasses;
@@ -196,9 +196,6 @@ class DataGrid extends ListBase {
   // scrollPosition
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onListScrollPositionChangedEvent = const EventHook<FrameworkEvent>('listScrollPositionChanged');
-  Stream<FrameworkEvent> get onListScrollPositionChanged => DataGrid.onListScrollPositionChangedEvent.forTarget(this);
-  
   int get scrollPosition => (_list != null) ? _list.scrollPosition : 0;
   set scrollPosition(int value) {
     if (_list != null) _list.setScrollPositionExternally(value);
@@ -223,8 +220,6 @@ class DataGrid extends ListBase {
   // headerHeight
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onHeaderHeightChangedEvent = const EventHook<FrameworkEvent>('headerHeightChanged');
-  Stream<FrameworkEvent> get onHeaderHeightChanged => DataGrid.onHeaderHeightChangedEvent.forTarget(this);
   int _headerHeight = 24;
 
   int get headerHeight => _headerHeight;
@@ -246,8 +241,6 @@ class DataGrid extends ListBase {
   // rowHeight
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onRowHeightChangedEvent = const EventHook<FrameworkEvent>('rowHeightChanged');
-  Stream<FrameworkEvent> get onRowHeightChanged => DataGrid.onRowHeightChangedEvent.forTarget(this);
   int _rowHeight = 30;
 
   int get rowHeight => _rowHeight;
@@ -269,8 +262,6 @@ class DataGrid extends ListBase {
   // columnSpacing
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onColumnSpacingChangedEvent = const EventHook<FrameworkEvent>('columnSpacingChanged');
-  Stream<FrameworkEvent> get onColumnSpacingChanged => DataGrid.onColumnSpacingChangedEvent.forTarget(this);
   int _columnSpacing = 1;
 
   int get columnSpacing => _columnSpacing;
@@ -292,8 +283,6 @@ class DataGrid extends ListBase {
   // rowSpacing
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onRowSpacingChangedEvent = const EventHook<FrameworkEvent>('rowSpacingChanged');
-  Stream<FrameworkEvent> get onRowSpacingChanged => DataGrid.onRowSpacingChangedEvent.forTarget(this);
   int _rowSpacing = 1;
 
   int get rowSpacing => _rowSpacing;
@@ -314,9 +303,6 @@ class DataGrid extends ListBase {
   //---------------------------------
   // autoManageScrollBars
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onAutoManageScrollBarsChangedEvent = const EventHook<FrameworkEvent>('autoManageScrollBarsChanged');
-  Stream<FrameworkEvent> get onAutoManageScrollBarsChanged => DataGrid.onAutoManageScrollBarsChangedEvent.forTarget(this);
 
   bool _autoManageScrollBars = true;
 
@@ -340,9 +326,6 @@ class DataGrid extends ListBase {
   //---------------------------------
   // useSelectionEffects
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onUseSelectionEffectsChangedEvent = const EventHook<FrameworkEvent>('useSelectionEffectsChanged');
-  Stream<FrameworkEvent> get onUseSelectionEffectsChanged => DataGrid.onUseSelectionEffectsChangedEvent.forTarget(this);
   
   bool _useSelectionEffects = true;
 

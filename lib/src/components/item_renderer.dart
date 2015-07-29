@@ -1,5 +1,7 @@
 part of dart_flex;
 
+typedef String LabelHandler(dynamic data);
+
 @classFactoryTarget(ItemRendererFactory, 'constructorMethod')
 abstract class IItemRenderer<D> implements IUIWrapper {
   
@@ -49,8 +51,8 @@ abstract class IItemRenderer<D> implements IUIWrapper {
   List<Symbol> get fields;
   set fields(List<Symbol> value);
 
-  Function get labelHandler;
-  set labelHandler(Function value);
+  LabelHandler get labelHandler;
+  set labelHandler(LabelHandler value);
 
   bool get autoDrawBackground;
   set autoDrawBackground(bool value);
@@ -179,10 +181,10 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
   // labelHandler
   //---------------------------------
 
-  Function _labelHandler;
+  LabelHandler _labelHandler;
 
-  Function get labelHandler => _labelHandler;
-  set labelHandler(Function value) {
+  LabelHandler get labelHandler => _labelHandler;
+  set labelHandler(LabelHandler value) {
     if (value != _labelHandler) {
       _labelHandler = value;
       
@@ -438,11 +440,11 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
   
   void invalidateDataChangesListener() => _data_changesHandler(null);
   
-  void highlight() {
+  Future<bool> highlight() async {
     if (
         (_control == null) ||
         _isHighlightActivated
-    ) return;
+    ) return false;
     
     final String oldValue = _control.style.getPropertyValue('background-color');
     
@@ -450,16 +452,26 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
     
     _isHighlightActivated = true;
     
-    _reflowManager.invocationFrame.whenComplete(
-      () => _highlightTimer = new Timer(
-          new Duration(milliseconds: 350), 
-          () {
-            _control.style.setProperty('background-color', oldValue, 'important');
-            
-            _isHighlightActivated = false;
-          }
-      )
-    );
+    await _reflowManager.invocationFrame;
+    
+    return await _killHighlight(oldValue);
+  }
+  
+  Future<bool> _killHighlight(String oldBackgroundColor) {
+    Completer<bool> C = new Completer<bool>();
+    
+    if (_highlightTimer != null && _highlightTimer.isActive) _highlightTimer.cancel();
+    
+    _highlightTimer = new Timer(
+      const Duration(milliseconds: 350), () {
+        _control.style.setProperty('background-color', oldBackgroundColor, 'important');
+  
+        _isHighlightActivated = false;
+        
+        C.complete(true);
+    });
+    
+    return C.future;
   }
   
   dynamic getDataToObserve({dynamic dataOverride: null}) {

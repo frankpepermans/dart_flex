@@ -5,7 +5,7 @@ import 'src/dart_flex_test.dart';
 void main() {
   print('test'[0]);
         
-  ExampleView view = new ExampleView()
+  new ExampleView()
     ..wrapTarget(querySelector('#dart_flex_container'))
     ..useMatrixTransformations = true
     ..percentWidth = 100.0

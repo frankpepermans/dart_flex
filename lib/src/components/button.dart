@@ -1,6 +1,9 @@
 part of dart_flex;
 
 class Button extends UIWrapper {
+  
+  @event Stream<FrameworkEvent> onButtonClick;
+  @event Stream<FrameworkEvent> onLabelChanged;
 
   //---------------------------------
   //
@@ -11,16 +14,11 @@ class Button extends UIWrapper {
   Event lastClickEvent;
   
   bool _allowClick = true;
-  
-  static const EventHook<FrameworkEvent> onButtonClickEvent = const EventHook<FrameworkEvent>('buttonClick');
-  Stream<FrameworkEvent> get onButtonClick => Button.onButtonClickEvent.forTarget(this);
 
   //---------------------------------
   // label
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onLabelChangedEvent = const EventHook<FrameworkEvent>('labelChanged');
-  Stream<FrameworkEvent> get onLabelChanged => Button.onLabelChangedEvent.forTarget(this);
+  
   String _label;
 
   String get label => _label;

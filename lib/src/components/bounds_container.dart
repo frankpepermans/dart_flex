@@ -6,6 +6,11 @@ class BoundsContainer extends VGroup {
   Spacer _top, _bottom, _left, _right;
   String _orientation;
   
+  @event Stream<FrameworkEvent> onLeftChanged;
+  @event Stream<FrameworkEvent> onRightChanged;
+  @event Stream<FrameworkEvent> onTopChanged;
+  @event Stream<FrameworkEvent> onBottomChanged;
+  
   //---------------------------------
   // body
   //---------------------------------
@@ -16,8 +21,6 @@ class BoundsContainer extends VGroup {
   // left
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onLeftChangedEvent = const EventHook<FrameworkEvent>('leftChanged');
-  Stream<FrameworkEvent> get onLeftChanged => BoundsContainer.onLeftChangedEvent.forTarget(this);
   int _leftBounds = 0;
   
   int get left => _leftBounds;
@@ -39,8 +42,6 @@ class BoundsContainer extends VGroup {
   // right
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onRightChangedEvent = const EventHook<FrameworkEvent>('rightChanged');
-  Stream<FrameworkEvent> get onRightChanged => BoundsContainer.onRightChangedEvent.forTarget(this);
   int _rightBounds = 0;
   
   int get right => _rightBounds;
@@ -62,8 +63,6 @@ class BoundsContainer extends VGroup {
   // top
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onTopChangedEvent = const EventHook<FrameworkEvent>('topChanged');
-  Stream<FrameworkEvent> get onTopChanged => BoundsContainer.onTopChangedEvent.forTarget(this);
   int _topBounds = 0;
   
   int get top => _topBounds;
@@ -85,8 +84,6 @@ class BoundsContainer extends VGroup {
   // bottom
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onBottomChangedEvent = const EventHook<FrameworkEvent>('bottomChanged');
-  Stream<FrameworkEvent> get onBottomChanged => BoundsContainer.onBottomChangedEvent.forTarget(this);
   int _bottomBounds = 0;
   
   int get bottom => _bottomBounds;

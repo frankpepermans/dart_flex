@@ -11,3 +11,4 @@ dependencies:
   xml: any
 transformers:
 - observe/transformer
+- dart_flex/src/transformers/event_transformer

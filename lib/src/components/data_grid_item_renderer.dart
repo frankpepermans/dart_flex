@@ -1,6 +1,10 @@
 part of dart_flex;
 
 class DataGridItemRenderer<D> extends ItemRenderer {
+  
+  @event Stream<FrameworkEvent> onRendererAdded;
+  @event Stream<FrameworkEvent> onRendererRemoved;
+  @event Stream<FrameworkEvent> onColumnsChanged;
 
   //---------------------------------
   //
@@ -17,16 +21,10 @@ class DataGridItemRenderer<D> extends ItemRenderer {
   // Public properties
   //
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onRendererAddedEvent = const EventHook<FrameworkEvent>('rendererAdded');
-  Stream<FrameworkEvent> get onRendererAdded => DataGridItemRenderer.onRendererAddedEvent.forTarget(this);
 
   //---------------------------------
   // itemRenderers
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onColumnsChangedEvent = const EventHook<FrameworkEvent>('columnsChanged');
-  Stream<FrameworkEvent> get onColumnsChanged => DataGridItemRenderer.onColumnsChangedEvent.forTarget(this);
 
   ObservableList<DataGridColumn> _columns;
   bool _isColumnsChanged = false;
@@ -215,7 +213,16 @@ class DataGridItemRenderer<D> extends ItemRenderer {
       int rendererIndex = 0;
       
       if (_itemRendererInstances != null) _itemRendererInstances.forEach(
-          (ItemRenderer renderer) => removeComponent(renderer)
+          (ItemRenderer renderer) {
+            removeComponent(renderer);
+            
+            notify(
+                new FrameworkEvent<IItemRenderer>(
+                    'rendererRemoved',
+                    relatedObject: renderer
+                )
+            );
+          }
       );
       
       _itemRendererInstances = new List<IItemRenderer>();

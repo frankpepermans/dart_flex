@@ -62,6 +62,8 @@ class ImageItemRenderer extends ItemRenderer {
   }
   
   String obtainValue() {
+    if (_labelHandler != null) return _labelHandler(_data);
+    
     dynamic value = _data;
     
     if (value != null) {
@@ -74,8 +76,6 @@ class ImageItemRenderer extends ItemRenderer {
       }
       
       if (value != null) value = (_field != null) ? value[_field] : value;
-      
-      if (_labelHandler != null) return _labelHandler(value) as String;
       
       return (value != null) ? value.toString() : '';
     }

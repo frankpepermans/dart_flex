@@ -18,8 +18,7 @@ abstract class IHeaderItemRenderer extends IItemRenderer {
 
 class HeaderItemRenderer extends ItemRenderer implements IHeaderItemRenderer {
   
-  static const EventHook<FrameworkEvent> onButtonClickEvent = const EventHook<FrameworkEvent>('buttonClick');
-  Stream<FrameworkEvent> get onButtonClick => HeaderItemRenderer.onButtonClickEvent.forTarget(this);
+  @event Stream<FrameworkEvent> onButtonClick;
 
   //---------------------------------
   //

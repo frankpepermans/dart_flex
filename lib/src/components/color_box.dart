@@ -1,6 +1,8 @@
 part of dart_flex;
 
 class ColorBox extends UIWrapper {
+  
+  @event Stream<FrameworkEvent> onColorChanged;
 
   //---------------------------------
   //
@@ -12,8 +14,6 @@ class ColorBox extends UIWrapper {
   // color
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onColorChangedEvent = const EventHook<FrameworkEvent>('colorChanged');
-  Stream<FrameworkEvent> get onColorChanged => ColorBox.onColorChangedEvent.forTarget(this);
   String _color;
 
   String get color => _color;

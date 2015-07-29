@@ -18,18 +18,19 @@ class Accordion extends Group {
   //
   //---------------------------------
   
-  static const EventHook<FrameworkEvent<IItemRenderer>> onRendererAddedEvent = const EventHook<FrameworkEvent<IItemRenderer>>('rendererAdded');
-  Stream<FrameworkEvent<IItemRenderer>> get onRendererAdded => Accordion.onRendererAddedEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent<IItemRenderer>> onRendererRemovedEvent = const EventHook<FrameworkEvent<IItemRenderer>>('rendererRemoved');
-  Stream<FrameworkEvent<IItemRenderer>> get onRendererRemoved => Accordion.onRendererRemovedEvent.forTarget(this);
+  @event Stream<FrameworkEvent> onRendererAdded;
+  @event Stream<FrameworkEvent> onRendererRemoved;
+  @event Stream<FrameworkEvent> onOrientationChanged;
+  @event Stream<FrameworkEvent> onDataProviderChanged;
+  @event Stream<FrameworkEvent> onSelectedIndexChanged;
+  @event Stream<FrameworkEvent> onHeaderHeightChanged;
+  @event Stream<FrameworkEvent> onHeaderItemRendererFactoryChanged;
+  @event Stream<FrameworkEvent> onContentItemRendererFactoryChanged;
+  @event Stream<FrameworkEvent> onContentItemRendererFactoryHandlerChanged;
   
   //---------------------------------
   // orientation
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onOrientationChangedEvent = const EventHook<FrameworkEvent>('orientationChanged');
-  Stream<FrameworkEvent> get onOrientationChanged => Accordion.onOrientationChangedEvent.forTarget(this);
 
   String _orientation = 'vertical';
   bool _isOrientationChanged = true;
@@ -53,9 +54,6 @@ class Accordion extends Group {
   //---------------------------------
   // dataProvider
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onDataProviderChangedEvent = const EventHook<FrameworkEvent>('dataProviderChanged');
-  Stream<FrameworkEvent> get onDataProviderChanged => Accordion.onDataProviderChangedEvent.forTarget(this);
   
   ObservableList<dynamic> _dataProvider;
   
@@ -90,9 +88,7 @@ class Accordion extends Group {
   //---------------------------------
   // selectedIndex
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onSelectedIndexChangedEvent = const EventHook<FrameworkEvent>('selectedIndexChanged');
-  Stream<FrameworkEvent> get onSelectedIndexChanged => Accordion.onSelectedIndexChangedEvent.forTarget(this);
+  
   int _selectedIndex = 0;
 
   int get selectedIndex => _selectedIndex;
@@ -115,8 +111,6 @@ class Accordion extends Group {
   // headerHeight
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onHeaderHeightChangedEvent = const EventHook<FrameworkEvent>('headerHeightChanged');
-  Stream<FrameworkEvent> get onHeaderHeightChanged => Accordion.onHeaderHeightChangedEvent.forTarget(this);
   int _headerHeight = 24;
 
   int get headerHeight => _headerHeight;
@@ -139,8 +133,6 @@ class Accordion extends Group {
   // headerItemRendererFactory
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onHeaderItemRendererFactoryChangedEvent = const EventHook<FrameworkEvent>('headerItemRendererFactoryChanged');
-  Stream<FrameworkEvent> get onHeaderItemRendererFactoryChanged => Accordion.onHeaderItemRendererFactoryChangedEvent.forTarget(this);
   ItemRendererFactory<IAccordionHeaderItemRenderer> _headerItemRendererFactory;
 
   ItemRendererFactory<IAccordionHeaderItemRenderer> get headerItemRendererFactory => _headerItemRendererFactory;
@@ -192,8 +184,6 @@ class Accordion extends Group {
   // contentItemRendererFactory
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onContentItemRendererFactoryChangedEvent = const EventHook<FrameworkEvent>('contentItemRendererFactoryChanged');
-  Stream<FrameworkEvent> get onContentItemRendererFactoryChanged => Accordion.onContentItemRendererFactoryChangedEvent.forTarget(this);
   ClassFactory<IItemRenderer> _contentItemRendererFactory;
 
   ClassFactory<IItemRenderer> get contentItemRendererFactory => _contentItemRendererFactory;
@@ -217,8 +207,6 @@ class Accordion extends Group {
   // contentItemRendererFactoryHandler
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onContentItemRendererFactoryHandlerChangedEvent = const EventHook<FrameworkEvent>('contentItemRendererFactoryHandlerChanged');
-  Stream<FrameworkEvent> get onContentItemRendererFactoryHandlerChanged => Accordion.onContentItemRendererFactoryHandlerChangedEvent.forTarget(this);
   ItemRendererFactoryHandler _contentItemRendererFactoryHandler;
 
   ItemRendererFactoryHandler get contentItemRendererFactoryHandler => _contentItemRendererFactoryHandler;

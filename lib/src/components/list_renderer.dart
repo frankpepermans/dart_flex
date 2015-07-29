@@ -4,7 +4,6 @@ class ListRenderer extends ListBase {
 
   Group _scrollTarget;
   
-  bool _hasScrolled = false;
   int _firstIndex = 0, _previousFirstIndex = -1, _itemRendererLen = 0;
 
   //---------------------------------
@@ -921,8 +920,6 @@ class ListRenderer extends ListBase {
   void _container_scrollHandler(Event event) => _updateScrollPosition();
   
   void _updateScrollPosition() {
-    _hasScrolled = true;
-    
     if (_layout is VerticalLayout) {
       _control.scrollTop = scrollPosition = _rowHeight * (_control.scrollTop ~/ _rowHeight);
       headerScrollPosition = _control.scrollLeft;

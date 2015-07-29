@@ -61,10 +61,12 @@ class LabelItemRenderer extends ItemRenderer {
   void invalidateData() {
     super.invalidateData();
     
-    if (_label != null) _useHtmlText ? _label.richText = itemToLabel() : _label.text = itemToLabel();;
+    if (_label != null) _useHtmlText ? _label.richText = itemToLabel() : _label.text = itemToLabel();
   }
   
   String obtainValue() {
+    if (_labelHandler != null) return _labelHandler(_data);
+    
     dynamic value = _data;
     
     if (value != null) {
@@ -78,9 +80,7 @@ class LabelItemRenderer extends ItemRenderer {
       
       if (value != null) value = (_field != null) ? value[_field] : value;
       
-      if (_labelHandler != null) return _labelHandler(value) as String;
-      
-      return (value != null) ? value.toString() : '';
+      return (value != null) ? (value is String) ? value : value.toString() : '';
     }
     
     return '';

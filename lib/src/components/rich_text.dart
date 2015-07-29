@@ -174,9 +174,9 @@ class RichText extends UIWrapper {
   //---------------------------------
  
   RichText({String elementId: null}) : super(elementId: elementId) {
-       _className = 'RichText';
-      
-       _autoSize = false;
+   _className = 'RichText';
+  
+   _autoSize = false;
   }
  
   //---------------------------------
