@@ -747,7 +747,7 @@ class DataGrid extends ListBase {
     final DataGridItemRenderer renderer = event.relatedObject
       ..gap = _columnSpacing
       ..columns = _columns
-      .._grid = this;
+      ..grid = this;
     
     renderer._streamSubscriptionManager.add(
         'data_grid_rendererDataPropertyChanged', 
@@ -790,7 +790,7 @@ class DataGrid extends ListBase {
   void _list_headerScrollChangedHandler(FrameworkEvent event) {
     final String newValue = (_headerContainer.x - _list._headerScrollPosition).toString() + 'px';
     
-    if (_headerContainer._control.style.left != newValue) _headerContainer._control.style.left = newValue;
+    _reflowManager.invalidateCSS(_headerContainer._control, 'left', newValue);
   }
 
   void _columns_collectionChangedHandler(List<ListChangeRecord> changes) {

@@ -52,8 +52,21 @@ class DataGridItemRenderer<D> extends ItemRenderer {
   //---------------------------------
   
   DataGrid _grid;
+  StreamSubscription _gridListHeaderSubscription;
   
   DataGrid get grid => _grid;
+  void set grid(DataGrid value) {
+    if (value != _grid) {
+      if (_gridListHeaderSubscription != null) _gridListHeaderSubscription.cancel();
+      
+      _grid = value;
+      
+      if (value != null) 
+        _gridListHeaderSubscription = value._list.onHeaderScrollPositionChanged.listen(
+            (_) => invalidateData()
+        );
+    }
+  }
   
   //---------------------------------
   // selected
@@ -129,9 +142,16 @@ class DataGridItemRenderer<D> extends ItemRenderer {
     if (
         (_itemRendererInstances != null) &&
         _itemRendererInstances.isNotEmpty
-    ) _itemRendererInstances.forEach(
-        (IItemRenderer renderer) => renderer.data = _data
-    );
+    ) {
+      final int xMin = _grid._list._headerScrollPosition - _grid._headerContainer.x;
+      final int xMax = xMin + _grid._width;
+              
+      for (int i=0, len=_itemRendererInstances.length; i<len; i++) {
+        IItemRenderer renderer = _itemRendererInstances[i];
+        
+        if (renderer.x + renderer.width >= xMin && renderer.x - renderer.width <= xMax) renderer.data = _data;
+      }
+    }
   }
   
   @override
