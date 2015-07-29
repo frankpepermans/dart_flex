@@ -740,8 +740,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
     ) {
       _control.hidden = !_visible;
       
-      if (_control.style.display == 'none') _reflowManager.invalidateCSS(_control, 'display', (_visible ? 'block' : 'none'));
-      
       _reflowManager.invalidateCSS(_control, 'visibility', (_visible ? 'visible' : 'hidden'));
     }
   }
@@ -793,8 +791,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
 
   void _setControl(Element element) {
     _control = element;
-    
-    _control.style.visibility = 'none';
     
     if (_inheritsDefaultCSS) invokeLaterSingle('addDefaultClass', _addDefaultClass);
     
