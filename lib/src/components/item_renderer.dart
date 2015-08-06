@@ -360,6 +360,8 @@ class ItemRenderer<D extends dynamic> extends Component implements IItemRenderer
 
   ItemRenderer({String elementId: null, bool autoDrawBackground: true}) : super(elementId: null) {
   	_className = 'ItemRenderer';
+  	
+  	awaitLayoutBeforeRendering = true;
 	
     _autoDrawBackground = autoDrawBackground;
   }

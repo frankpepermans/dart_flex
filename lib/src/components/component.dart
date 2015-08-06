@@ -122,6 +122,8 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
   // Public properties
   //
   //---------------------------------
+  
+  bool awaitLayoutBeforeRendering = false;
 
   //---------------------------------
   // reflowManager
@@ -773,7 +775,25 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
   
   Node _prependControl(Element controlToPrepend) => _appendControl(controlToPrepend);
   
-  Node _appendControl(Element controlToAppend) => _control.append(controlToAppend);
+  Node _appendControl(Element controlToAppend) {
+    if (awaitLayoutBeforeRendering) _updateElementDisplay(controlToAppend);
+    
+    return _control.append(controlToAppend);
+  }
+  
+  Future<bool> _updateElementDisplay(Element control) async {
+    if (control.client.width == 0 || control.client.height == 0) {
+      control.style.display = 'none';
+      
+      await _reflowManager.invocationFrame;
+      
+      await _updateElementDisplay(control);
+      
+      return false;
+    } else control.style.display = 'block';
+    
+    return true;
+  }
 
   void _setControl(Element element) {
     _control = element;
