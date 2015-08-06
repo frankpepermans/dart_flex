@@ -2,6 +2,8 @@ part of dart_flex;
 
 class TileGroup extends Group {
   
+  @event Stream<FrameworkEvent> onGapChanged;
+  
   //---------------------------------
   //
   // Public properties
@@ -12,8 +14,6 @@ class TileGroup extends Group {
   // gap
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onGapChangedEvent = const EventHook<FrameworkEvent>('gapChanged');
-  Stream<FrameworkEvent> get onGapChanged => TileGroup.onGapChangedEvent.forTarget(this);
   int get gap => _layout.gap;
   
   set gap(int value) {

@@ -2,9 +2,6 @@ library dart_flex.codegen.event_transformer;
 
 /*
  * 
-  
-  static const EventHook<FrameworkEvent> onButtonClickEvent = const EventHook<FrameworkEvent>('buttonClick');
-  Stream<FrameworkEvent> get onButtonClick => HeaderItemRenderer.onButtonClickEvent.forTarget(this);
  */
 
 import 'dart:async';

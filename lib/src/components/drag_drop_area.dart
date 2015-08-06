@@ -2,6 +2,8 @@ part of dart_flex;
 
 class DragDropArea extends HGroup {
   
+  @event Stream<FrameworkEvent> onFilesReceived;
+  
   //---------------------------------
   //
   // Private properties
@@ -15,9 +17,6 @@ class DragDropArea extends HGroup {
   // Public properties
   //
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent<List<File>>> onFilesReceivedEvent = const EventHook<FrameworkEvent<List<File>>>('filesReceived');
-  Stream<FrameworkEvent<List<File>>> get onFilesReceived => DragDropArea.onFilesReceivedEvent.forTarget(this);
   
   //---------------------------------
   // label

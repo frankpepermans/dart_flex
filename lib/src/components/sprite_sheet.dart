@@ -1,6 +1,14 @@
 part of dart_flex;
 
 class SpriteSheet extends Group {
+  
+  @event Stream<FrameworkEvent> onButtonClick;
+  @event Stream<FrameworkEvent> onSourceChanged;
+  @event Stream<FrameworkEvent> onIndexChanged;
+  @event Stream<FrameworkEvent> onColumnSizeChanged;
+  @event Stream<FrameworkEvent> onRowSizeChanged;
+  @event Stream<FrameworkEvent> onSheetWidthChanged;
+  @event Stream<FrameworkEvent> onSheetHeightChanged;
 
   //---------------------------------
   //
@@ -15,16 +23,11 @@ class SpriteSheet extends Group {
   // Public properties
   //
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent<MouseEvent>> onButtonClickEvent = const EventHook<FrameworkEvent<MouseEvent>>('buttonClick');
-  Stream<FrameworkEvent<MouseEvent>> get onButtonClick => SpriteSheet.onButtonClickEvent.forTarget(this);
 
   //---------------------------------
   // source
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onSourceChangedEvent = const EventHook<FrameworkEvent>('sourceChanged');
-  Stream<FrameworkEvent> get onSourceChanged => SpriteSheet.onSourceChangedEvent.forTarget(this);
+  
   String _source;
 
   String get source => _source;
@@ -46,8 +49,6 @@ class SpriteSheet extends Group {
   // index
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onIndexChangedEvent = const EventHook<FrameworkEvent>('indexChanged');
-  Stream<FrameworkEvent> get onIndexChanged => SpriteSheet.onIndexChangedEvent.forTarget(this);
   int _index = 0;
 
   int get index => _index;
@@ -69,8 +70,6 @@ class SpriteSheet extends Group {
   // columnSize
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onColumnSizeChangedEvent = const EventHook<FrameworkEvent>('columnSizeChanged');
-  Stream<FrameworkEvent> get onColumnSizeChanged => SpriteSheet.onColumnSizeChangedEvent.forTarget(this);
   int _columnSize = 0;
 
   int get columnSize => _columnSize;
@@ -93,8 +92,6 @@ class SpriteSheet extends Group {
   // rowSize
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onRowSizeChangedEvent = const EventHook<FrameworkEvent>('rowSizeChanged');
-  Stream<FrameworkEvent> get onRowSizeChanged => SpriteSheet.onRowSizeChangedEvent.forTarget(this);
   int _rowSize = 0;
 
   int get rowSize => _rowSize;
@@ -117,8 +114,6 @@ class SpriteSheet extends Group {
   // sheetWidth
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onSheetWidthChangedEvent = const EventHook<FrameworkEvent>('sheetWidthChanged');
-  Stream<FrameworkEvent> get onSheetWidthChanged => SpriteSheet.onSheetWidthChangedEvent.forTarget(this);
   int _sheetWidth = 0;
 
   int get sheetWidth => _sheetWidth;
@@ -140,8 +135,6 @@ class SpriteSheet extends Group {
   // sheetHeight
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onSheetHeightChangedEvent = const EventHook<FrameworkEvent>('sheetHeightChanged');
-  Stream<FrameworkEvent> get onSheetHeightChanged => SpriteSheet.onSheetHeightChangedEvent.forTarget(this);
   int _sheetHeight = 0;
 
   int get sheetHeight => _sheetHeight;

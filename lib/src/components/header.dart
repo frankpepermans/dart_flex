@@ -2,6 +2,10 @@ part of dart_flex;
 
 class Header extends HGroup {
   
+  @event Stream<FrameworkEvent> onLabelChanged;
+  @event Stream<FrameworkEvent> onLeftSideItemsChanged;
+  @event Stream<FrameworkEvent> onRightSideItemsChanged;
+  
   //---------------------------------
   //
   // Private properties
@@ -19,9 +23,6 @@ class Header extends HGroup {
   //---------------------------------
   // label
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onLabelChangedEvent = const EventHook<FrameworkEvent>('labelChanged');
-  Stream<FrameworkEvent> get onLabelChanged => Header.onLabelChangedEvent.forTarget(this);
 
   String _label;
   bool _isLabelChanged = false;
@@ -76,9 +77,6 @@ class Header extends HGroup {
   //---------------------------------
   // leftSideItems
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onLeftSideItemsChangedEvent = const EventHook<FrameworkEvent>('leftSideItemsChanged');
-  Stream<FrameworkEvent> get onLeftSideItemsChanged => Header.onLeftSideItemsChangedEvent.forTarget(this);
 
   ObservableList _leftSideItems;
   bool _isLeftSideItemsChanged = false;
@@ -109,9 +107,6 @@ class Header extends HGroup {
   //---------------------------------
   // rightSideItems
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onRightSideItemsChangedEvent = const EventHook<FrameworkEvent>('rightSideItemsChanged');
-  Stream<FrameworkEvent> get onRightSideItemsChanged => Header.onRightSideItemsChangedEvent.forTarget(this);
 
   ObservableList _rightSideItems;
   bool _isRightSideItemsChanged = false;
@@ -236,7 +231,7 @@ class Header extends HGroup {
   
   void _updateItems(HGroup group, ObservableList dataProvider) {
     final int len = dataProvider.length;
-    IUIWrapper child;
+    BaseComponent child;
     int i = group.childWrappers.length;
     
     while (i > 0) {

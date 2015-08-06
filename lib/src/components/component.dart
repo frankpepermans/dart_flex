@@ -1,6 +1,6 @@
 part of dart_flex;
 
-abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILifeCycle {
+abstract class BaseComponent implements ComponentLifeCycle, ComponentLayout, EventDispatcher {
   
   //---------------------------------
   //
@@ -14,10 +14,13 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   Stream<FrameworkEvent> get onInheritsDefaultCSSChanged;
   Stream<FrameworkEvent<Element>> get onControlChanged;
   Stream<FrameworkEvent> get onInitializationComplete;
-  Stream<FrameworkEvent> get onOwnerChanged;
+  Stream<FrameworkEvent<BaseComponent>> get onOwnerChanged;
   Stream<FrameworkEvent<List<SkinState>>> get onCurrentSkinStatesChanged;
   Stream<FrameworkEvent<List<SkinState>>> get onIncludeInChanged;
   Stream<FrameworkEvent<List<SkinState>>> get onExcludeFromChanged;
+  Stream<FrameworkEvent> get onSkinPartAdded;
+  Stream<FrameworkEvent> get onSkinPartRemoved;
+  Stream<FrameworkEvent> get onClassNameChanged;
   
   //---------------------------------
   //
@@ -53,9 +56,9 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   bool get inheritsDefaultCSS;
   set inheritsDefaultCSS(bool value);
 
-  IUIWrapper get owner;
+  BaseComponent get owner;
 
-  List<IUIWrapper> get childWrappers;
+  List<BaseComponent> get childWrappers;
 
   String get elementId;
   
@@ -74,19 +77,33 @@ abstract class IUIWrapper implements IFlexLayout, IFrameworkEventDispatcher, ILi
   //---------------------------------
   
   void wrapTarget(Element target);
-  void addComponent(IUIWrapper element, {bool prepend: false});
-  void removeComponent(IUIWrapper element);
+  void addComponent(BaseComponent element, {bool prepend: false});
+  void removeComponent(BaseComponent element);
   void onComponentAdded();
   void removeAll();
   void flushHandler();
-  void transportComponents(IUIWrapper target);
-  void updateAfterSkinStateChanged(IUIWrapper recursiveChildWrapper);
+  void transportComponents(BaseComponent target);
+  void updateAfterSkinStateChanged(BaseComponent recursiveChildWrapper);
 
   void operator []=(String type, Function eventHandler) => observeEventType(type, eventHandler);
 
 }
 
-class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMixin implements IUIWrapper {
+class Component extends Object with BaseComponentMixin, EventDispatcherMixin implements BaseComponent {
+  
+  @event Stream<FrameworkEvent> onInitializationComplete;
+  @event Stream<FrameworkEvent> onSkinPartAdded;
+  @event Stream<FrameworkEvent> onSkinPartRemoved;
+  @event Stream<FrameworkEvent> onStylePrefixChanged;
+  @event Stream<FrameworkEvent<List<SkinState>>> onCurrentSkinStatesChanged;
+  @event Stream<FrameworkEvent<List<SkinState>>> onIncludeInChanged;
+  @event Stream<FrameworkEvent<List<SkinState>>> onExcludeFromChanged;
+  @event Stream<FrameworkEvent> onCSSClassesChanged;
+  @event Stream<FrameworkEvent> onVisibleChanged;
+  @event Stream<FrameworkEvent> onInheritsDefaultCSSChanged;
+  @event Stream<FrameworkEvent<BaseComponent>> onOwnerChanged;
+  @event Stream<FrameworkEvent> onClassNameChanged;
+  @event Stream<FrameworkEvent<Element>> onControlChanged;
   
   //---------------------------------
   //
@@ -105,12 +122,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   // Public properties
   //
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onInitializationCompleteEvent = const EventHook<FrameworkEvent>('initializationComplete');
-  Stream<FrameworkEvent> get onInitializationComplete => UIWrapper.onInitializationCompleteEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent<IUIWrapper>> onSkinPartAddedEvent = const EventHook<FrameworkEvent<IUIWrapper>>('skinPartAdded');
-  Stream<FrameworkEvent<IUIWrapper>> get onSkinPartAdded => UIWrapper.onSkinPartAddedEvent.forTarget(this);
 
   //---------------------------------
   // reflowManager
@@ -132,8 +143,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   // stylePrefix
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onStylePrefixChangedEvent = const EventHook<FrameworkEvent>('stylePrefixChanged');
-  Stream<FrameworkEvent> get onStylePrefixChanged => UIWrapper.onStylePrefixChangedEvent.forTarget(this);
   String _stylePrefix;
 
   String get stylePrefix => _stylePrefix;
@@ -164,7 +173,7 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
       _useMatrixTransformations = newValue;
       
       if (_childWrappers != null) _childWrappers.forEach(
-        (IUIWrapper W) => W.useMatrixTransformations = value    
+        (BaseComponent W) => W.useMatrixTransformations = value    
       );
       
       _updateControl(1);
@@ -177,9 +186,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   //---------------------------------
   // currentSkinStates
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent<List<SkinState>>> onCurrentSkinStatesChangedEvent = const EventHook<FrameworkEvent<List<SkinState>>>('currentSkinStatesChanged');
-  Stream<FrameworkEvent<List<SkinState>>> get onCurrentSkinStatesChanged => UIWrapper.onCurrentSkinStatesChangedEvent.forTarget(this);
   
   List<SkinState> _currentSkinStates;
   
@@ -201,9 +207,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   // includeIn
   //---------------------------------
   
-  static const EventHook<FrameworkEvent<List<SkinState>>> onIncludeInChangedEvent = const EventHook<FrameworkEvent<List<SkinState>>>('includeInChanged');
-  Stream<FrameworkEvent<List<SkinState>>> get onIncludeInChanged => UIWrapper.onIncludeInChangedEvent.forTarget(this);
-  
   List<SkinState> _includeIn;
   
   List<SkinState> get includeIn => _includeIn;
@@ -223,9 +226,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   //---------------------------------
   // excludeFrom
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent<List<SkinState>>> onExcludeFromChangedEvent = const EventHook<FrameworkEvent<List<SkinState>>>('excludeFromChanged');
-  Stream<FrameworkEvent<List<SkinState>>> get onExcludeFromChanged => UIWrapper.onExcludeFromChangedEvent.forTarget(this);
   
   List<SkinState> _excludeFrom;
   
@@ -277,8 +277,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   // classes
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onCSSClassesChangedEvent = const EventHook<FrameworkEvent>('cssClassesChanged');
-  Stream<FrameworkEvent> get onCSSClassesChanged => UIWrapper.onCSSClassesChangedEvent.forTarget(this);
   List<String> _cssClasses = <String>[];
   bool _isCSSClassesChanged = false;
 
@@ -324,8 +322,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   // visible
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onVisibleChangedEvent = const EventHook<FrameworkEvent>('visibleChanged');
-  Stream<FrameworkEvent> get onVisibleChanged => UIWrapper.onVisibleChangedEvent.forTarget(this);
   bool _visible = true;
 
   bool get visible => _visible;
@@ -346,8 +342,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   // inheritsDefaultCSS
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onInheritsDefaultCSSChangedEvent = const EventHook<FrameworkEvent>('inheritsDefaultCSSChanged');
-  Stream<FrameworkEvent> get onInheritsDefaultCSSChanged => UIWrapper.onInheritsDefaultCSSChangedEvent.forTarget(this);
   bool _inheritsDefaultCSS = true;
 
   bool get inheritsDefaultCSS => _inheritsDefaultCSS;
@@ -367,7 +361,7 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   // addLaterElements
   //---------------------------------
 
-  List<IUIWrapper> _addLaterElements = <IUIWrapper>[];
+  List<BaseComponent> _addLaterElements = <BaseComponent>[];
 
   //---------------------------------
   // isInitialized
@@ -381,19 +375,17 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   // owner
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onOwnerChangedEvent = const EventHook<FrameworkEvent>('ownerChanged');
-  Stream<FrameworkEvent> get onOwnerChanged => UIWrapper.onOwnerChangedEvent.forTarget(this);
-  IUIWrapper _owner;
+  BaseComponent _owner;
 
-  IUIWrapper get owner => _owner;
+  BaseComponent get owner => _owner;
 
   //---------------------------------
   // childWrappers
   //---------------------------------
 
-  List<IUIWrapper> _childWrappers = <IUIWrapper>[];
+  List<BaseComponent> _childWrappers = <BaseComponent>[];
 
-  List<IUIWrapper> get childWrappers => _childWrappers;
+  List<BaseComponent> get childWrappers => _childWrappers;
 
   //---------------------------------
   // elementId
@@ -407,8 +399,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   // className
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onClassNameChangedEvent = const EventHook<FrameworkEvent>('classNameChanged');
-  Stream<FrameworkEvent> get onClassNameChanged => UIWrapper.onClassNameChangedEvent.forTarget(this);
   String _className = 'UIWrapper';
 
   String get className => _className;
@@ -428,8 +418,6 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   // control
   //---------------------------------
 
-  static const EventHook<FrameworkEvent<Element>> onControlChangedEvent = const EventHook<FrameworkEvent<Element>>('controlChanged');
-  Stream<FrameworkEvent<Element>> get onControlChanged => UIWrapper.onControlChangedEvent.forTarget(this);
   Element _control;
 
   Element get control => _control;
@@ -440,8 +428,8 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   //
   //---------------------------------
 
-  UIWrapper({String elementId: null}) {
-    _eventDispatcher = new FrameworkEventDispatcher(dispatcher: this);
+  Component({String elementId: null}) {
+    _eventDispatcher = new EventDispatcherImpl(dispatcher: this);
 
     _elementId = elementId;
 
@@ -467,11 +455,11 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   
   void wrapTarget(Element target) => _wrapDOMTarget(target: target);
   
-  void preInitialize(IUIWrapper forOwner) {
+  void preInitialize(BaseComponent forOwner) {
     _owner = forOwner;
     
     notify(
-        new FrameworkEvent<IUIWrapper>(
+        new FrameworkEvent<BaseComponent>(
             'ownerChanged',
             relatedObject: forOwner
         )
@@ -492,15 +480,13 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   
   void invalidateSize(Event event) => invokeLaterSingle('updateSize', updateSize);
 
-  void onComponentAdded() => _childWrappers.forEach((IUIWrapper child) => child.onComponentAdded());
+  void onComponentAdded() => _childWrappers.forEach((BaseComponent child) => child.onComponentAdded());
   
   void initialize() {
     if (!_isInitialized) {
       _isInitialized = true;
       
       createChildren();
-      
-      if (_control != null) invokeLaterSingle('updateVisibility', updateVisibility);
       
       notify(
           new FrameworkEvent(
@@ -518,7 +504,7 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
 
   void createChildren() {}
   
-  void updateAfterSkinStateChanged(IUIWrapper recursiveChildWrapper) {
+  void updateAfterSkinStateChanged(BaseComponent recursiveChildWrapper) {
     if (_currentSkinStates == null || recursiveChildWrapper.includeIn == null) return;
     
     int lenA, i;
@@ -579,10 +565,10 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
     _skinStates.add(state);
   }
 
-  void addComponent(IUIWrapper element, {bool prepend: false}) {
+  void addComponent(BaseComponent element, {bool prepend: false}) {
     if (_childWrappers.indexOf(element) >= 0) return;
     
-    final UIWrapper elementCast = element as UIWrapper;
+    final Component elementCast = element as Component;
     
     elementCast._useMatrixTransformations = _useMatrixTransformations;
 
@@ -593,7 +579,7 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
         elementCast._owner = this;
         
         elementCast.notify(
-            new FrameworkEvent<IUIWrapper>(
+            new FrameworkEvent<BaseComponent>(
                 'ownerChanged',
                 relatedObject: this
             )
@@ -625,7 +611,7 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
     }
   }
 
-  void removeComponent(IUIWrapper element, {bool flush: true}) {
+  void removeComponent(BaseComponent element, {bool flush: true}) {
     if (_disableRemoveComponents) return;
     
     if (
@@ -654,7 +640,7 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
     
     while (i > 0) removeComponent(_childWrappers[--i]);
     
-    _childWrappers = <IUIWrapper>[];
+    _childWrappers = <BaseComponent>[];
   }
   
   void flushHandler() => _streamSubscriptionManager.flushAll();
@@ -690,7 +676,7 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
         
         if ((_layout.layoutWidth != dw || _layout.layoutHeight != dh) && owner != null) owner.invalidateLayout();
       } else _childWrappers.forEach(
-          (IFlexLayout element) {
+          (ComponentLayout element) {
             element.x = element.paddingLeft;
             element.y = element.paddingRight;
             element.width = _width - element.paddingLeft - element.paddingRight;
@@ -748,10 +734,10 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
     if (_control != null && _enabled != null) reflowManager.invalidateCSS(_control, 'pointer-events', (_enabled ? 'auto' : 'none'));
   }
   
-  void transportComponents(IUIWrapper target) {
+  void transportComponents(BaseComponent target) {
     if (_childWrappers != null) {
-      final List<IUIWrapper> list = <IUIWrapper>[];
-      IUIWrapper element;
+      final List<BaseComponent> list = <BaseComponent>[];
+      BaseComponent element;
       int i = _childWrappers.length;
       
       _disableRemoveComponents = false;
@@ -765,7 +751,7 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
       }
       
       list.forEach(
-        (IUIWrapper wrapper) => target.addComponent(wrapper) 
+        (BaseComponent wrapper) => target.addComponent(wrapper) 
       );
     }
   }
@@ -923,12 +909,12 @@ class UIWrapper extends Object with FlexLayoutMixin, FrameworkEventDispatcherMix
   }
 
   void _addAllPendingElements() {
-    final List<IUIWrapper> listClone = new List<IUIWrapper>.from(_addLaterElements, growable:false);
+    final List<BaseComponent> listClone = new List<BaseComponent>.from(_addLaterElements, growable:false);
     
-    _addLaterElements = <IUIWrapper>[];
+    _addLaterElements = <BaseComponent>[];
     
     listClone.forEach(
-        (IUIWrapper element) => addComponent(element)
+        (BaseComponent element) => addComponent(element)
     );
   }
 }

@@ -4,6 +4,15 @@ typedef bool InactiveHandler(dynamic data);
 typedef bool InvalidHandler(dynamic data);
 
 class ListBase extends Group {
+  
+  @event Stream<FrameworkEvent> onDataProviderChanged;
+  @event Stream<FrameworkEvent> onFieldChanged;
+  @event Stream<FrameworkEvent> onLabelFunctionChanged;
+  @event Stream<FrameworkEvent> onAllowMultipleSelectionChanged;
+  @event Stream<FrameworkEvent> onSelectedIndexChanged;
+  @event Stream<FrameworkEvent> onSelectedIndicesChanged;
+  @event Stream<FrameworkEvent> onSelectedItemChanged;
+  @event Stream<FrameworkEvent> onSelectedItemsChanged;
 
   bool _isElementUpdateRequired = false;
   bool _skipPresentationUpdate = false;
@@ -31,8 +40,6 @@ class ListBase extends Group {
   // dataProvider
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onDataProviderChangedEvent = const EventHook<FrameworkEvent>('dataProviderChanged');
-  Stream<FrameworkEvent> get onDataProviderChanged => ListBase.onDataProviderChangedEvent.forTarget(this);
   ObservableList<dynamic> _dataProvider;
 
   ObservableList<dynamic> get dataProvider => _dataProvider;
@@ -79,9 +86,7 @@ class ListBase extends Group {
   //---------------------------------
   // labelField
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onFieldChangedEvent = const EventHook<FrameworkEvent>('fieldChanged');
-  Stream<FrameworkEvent> get onFieldChanged => ListBase.onFieldChangedEvent.forTarget(this);
+  
   Symbol _field;
 
   Symbol get field => _field;
@@ -101,8 +106,6 @@ class ListBase extends Group {
   // labelFunction
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onLabelFunctionChangedEvent = const EventHook<FrameworkEvent>('labelFunctionChanged');
-  Stream<FrameworkEvent> get onLabelFunctionChanged => ListBase.onLabelFunctionChangedEvent.forTarget(this);
   Function _labelFunction;
 
   Function get labelFunction => _labelFunction;
@@ -122,8 +125,6 @@ class ListBase extends Group {
   // allowMultipleSelection
   //---------------------------------
   
-  static const EventHook<FrameworkEvent<bool>> onAllowMultipleSelectionChangedEvent = const EventHook<FrameworkEvent<bool>>('allowMultipleSelectionChanged');
-  Stream<FrameworkEvent<bool>> get onAllowMultipleSelectionChanged => ListBase.onAllowMultipleSelectionChangedEvent.forTarget(this);
   bool _allowMultipleSelection = false;
   
   bool get allowMultipleSelection => _allowMultipleSelection;
@@ -144,8 +145,6 @@ class ListBase extends Group {
   // selectedIndex
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onSelectedIndexChangedEvent = const EventHook<FrameworkEvent>('selectedIndexChanged');
-  Stream<FrameworkEvent> get onSelectedIndexChanged => ListBase.onSelectedIndexChangedEvent.forTarget(this);
   int _selectedIndex = -1;
 
   int get selectedIndex => _selectedIndex;
@@ -182,9 +181,7 @@ class ListBase extends Group {
   //---------------------------------
   // selectedIndices
   //---------------------------------
-
-  static const EventHook<FrameworkEvent<ObservableList<int>>> onSelectedIndicesChangedEvent = const EventHook<FrameworkEvent<ObservableList<int>>>('selectedIndicesChanged');
-  Stream<FrameworkEvent<ObservableList<int>>> get onSelectedIndicesChanged => ListBase.onSelectedIndicesChangedEvent.forTarget(this);
+  
   ObservableList<int> _selectedIndices = new ObservableList<int>();
 
   ObservableList<int> get selectedIndices => _selectedIndices;
@@ -223,8 +220,6 @@ class ListBase extends Group {
   // selectedItem
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onSelectedItemChangedEvent = const EventHook<FrameworkEvent>('selectedItemChanged');
-  Stream<FrameworkEvent> get onSelectedItemChanged => ListBase.onSelectedItemChangedEvent.forTarget(this);
   dynamic _selectedItem;
 
   dynamic get selectedItem => _selectedItem;
@@ -258,8 +253,6 @@ class ListBase extends Group {
   // selectedItems
   //---------------------------------
   
-  static const EventHook<FrameworkEvent<ObservableList<dynamic>>> onSelectedItemsChangedEvent = const EventHook<FrameworkEvent<ObservableList<dynamic>>>('selectedItemsChanged');
-  Stream<FrameworkEvent<ObservableList<dynamic>>> get onSelectedItemsChanged => ListBase.onSelectedItemsChangedEvent.forTarget(this);
   ObservableList<dynamic> _selectedItems = new ObservableList<dynamic>();
   
   ObservableList<dynamic> get selectedItems => _selectedItems;
@@ -379,7 +372,7 @@ class ListBase extends Group {
   void _removeAllElements() {
     if (_control != null) while (_control.children.length > 0) _control.children.removeLast();
 
-    _childWrappers = <IUIWrapper>[];
+    _childWrappers = <BaseComponent>[];
   }
   
   void _updateAfterScrollPositionChanged() {}

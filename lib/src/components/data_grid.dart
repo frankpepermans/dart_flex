@@ -748,7 +748,7 @@ class DataGrid extends ListBase {
     );
   }
   
-  void _list_rendererRemovedHandler(FrameworkEvent<IUIWrapper> event) {
+  void _list_rendererRemovedHandler(FrameworkEvent<BaseComponent> event) {
     if (event.relatedObject is DataGridItemRenderer) {
       final DataGridItemRenderer renderer = (event.relatedObject as DataGridItemRenderer)
           ..columns = null

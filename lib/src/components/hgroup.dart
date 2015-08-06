@@ -2,6 +2,9 @@ part of dart_flex;
 
 class HGroup extends Group {
   
+  @event Stream<FrameworkEvent> onGapChanged;
+  @event Stream<FrameworkEvent> onAlignChanged;
+  
   //---------------------------------
   //
   // Public properties
@@ -11,9 +14,6 @@ class HGroup extends Group {
   //---------------------------------
   // gap
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onGapChangedEvent = const EventHook<FrameworkEvent>('gapChanged');
-  Stream<FrameworkEvent> get onGapChanged => HGroup.onGapChangedEvent.forTarget(this);
 
   int get gap => _layout.gap;
   
@@ -32,9 +32,6 @@ class HGroup extends Group {
   //---------------------------------
   // align
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onAlignChangedEvent = const EventHook<FrameworkEvent>('alignChanged');
-  Stream<FrameworkEvent> get onAlignChanged => HGroup.onAlignChangedEvent.forTarget(this);
 
   String get align => _layout.align;
   

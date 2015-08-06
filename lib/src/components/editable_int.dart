@@ -1,6 +1,11 @@
 part of dart_flex;
 
-class EditableInt extends UIWrapper {
+class EditableInt extends Component {
+  
+  @event Stream<FrameworkEvent> onValueChanged;
+  @event Stream<FrameworkEvent> onInput;
+  @event Stream<FrameworkEvent> onMinChanged;
+  @event Stream<FrameworkEvent> onMaxChanged;
   
   //---------------------------------
   //
@@ -21,11 +26,6 @@ class EditableInt extends UIWrapper {
   //---------------------------------
   // value
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onValueChangedEvent = const EventHook<FrameworkEvent>('valueChanged');
-  Stream<FrameworkEvent> get onValueChanged => EditableInt.onValueChangedEvent.forTarget(this);
-  static const EventHook<FrameworkEvent> onInputEvent = const EventHook<FrameworkEvent>('input');
-  Stream<FrameworkEvent> get onInput => EditableInt.onInputEvent.forTarget(this);
   
   int _value;
 
@@ -47,9 +47,7 @@ class EditableInt extends UIWrapper {
   //---------------------------------
   // min
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onMinChangedEvent = const EventHook<FrameworkEvent>('minChanged');
-  Stream<FrameworkEvent> get onMinChanged => EditableInt.onMinChangedEvent.forTarget(this);
+  
   int _min = 0;
 
   int get min => _min;
@@ -70,9 +68,7 @@ class EditableInt extends UIWrapper {
   //---------------------------------
   // max
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onMaxChangedEvent = const EventHook<FrameworkEvent>('maxChanged');
-  Stream<FrameworkEvent> get onMaxChanged => EditableInt.onMaxChangedEvent.forTarget(this);
+  
   int _max = 100;
 
   int get max => _max;

@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class Button extends UIWrapper {
+class Button extends Component {
   
   @event Stream<FrameworkEvent> onButtonClick;
   @event Stream<FrameworkEvent> onLabelChanged;

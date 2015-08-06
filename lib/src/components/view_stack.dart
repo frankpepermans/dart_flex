@@ -1,6 +1,6 @@
 part of dart_flex;
 
-abstract class IViewStackElement implements IUIWrapper {
+class ViewStackElement extends Component {
   
   //---------------------------------
   //
@@ -8,11 +8,13 @@ abstract class IViewStackElement implements IUIWrapper {
   //
   //---------------------------------
   
-  Stream<FrameworkEvent> get onRequestViewChange;
+  @event Stream<FrameworkEvent> onRequestViewChange;
 
 }
 
 class ViewStack extends Group {
+  
+  @event Stream<FrameworkEvent> onViewChanged;
 
   //---------------------------------
   //
@@ -28,9 +30,6 @@ class ViewStack extends Group {
   // Public properties
   //
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent<ViewStackElementData>> onViewChangedEvent = const EventHook<FrameworkEvent<ViewStackElementData>>('viewChanged');
-  Stream<FrameworkEvent<ViewStackElementData>> get onViewChanged => ViewStack.onViewChangedEvent.forTarget(this);
   
   //---------------------------------
   // registeredViews
@@ -77,7 +76,7 @@ class ViewStack extends Group {
     }
   }
   
-  void addView(String uniqueId, IViewStackElement element) {
+  void addView(String uniqueId, ViewStackElement element) {
     ViewStackElementData viewStackElement = _registeredViews.firstWhere(
       (ViewStackElementData data) => (data.uniqueId == uniqueId),
       orElse: () => null
@@ -210,7 +209,7 @@ class ViewStack extends Group {
 
 class ViewStackElementData {
   
-  final IUIWrapper element;
+  final Component element;
   final String uniqueId;
   
   ViewStackElementData(this.element, this.uniqueId);

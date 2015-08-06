@@ -80,8 +80,8 @@ class HorizontalLayout implements ILayout {
   //
   //---------------------------------
 
-  void doLayout(int width, int height, int pageItemSize, int pageOffset, int pageSize, List<IFlexLayout> elements) {
-    UIWrapper element;
+  void doLayout(int width, int height, int pageItemSize, int pageOffset, int pageSize, List<ComponentLayout> elements) {
+    Component element;
     int percWidth = width;
     final int percWidthFloored = (pageItemSize == 0) ? 0 : (pageOffset ~/ pageItemSize * pageItemSize);
     int offset = _useVirtualLayout ? percWidthFloored : 0;
@@ -90,7 +90,7 @@ class HorizontalLayout implements ILayout {
     final int len = elements.length;
     
     for (i=0; i<len; i++) {
-      element = elements[i] as UIWrapper;
+      element = elements[i] as Component;
       
       element.reflowManager.invalidateCSS(element.control, 'position', 'absolute');
 

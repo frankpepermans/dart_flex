@@ -1,6 +1,21 @@
 part of dart_flex;
 
 class ListRenderer extends ListBase {
+  
+  @event Stream<FrameworkEvent> onRedraw;
+  @event Stream<FrameworkEvent> onOrientationChanged;
+  @event Stream<FrameworkEvent> onAutoManageScrollBarsChanged;
+  @event Stream<FrameworkEvent> onUseSelectionEffectsChanged;
+  @event Stream<FrameworkEvent> onUseEvenOddChanged;
+  @event Stream<FrameworkEvent> onItemRendererFactoryChanged;
+  @event Stream<FrameworkEvent> onColWidthChanged;
+  @event Stream<FrameworkEvent> onColPercentWidthChanged;
+  @event Stream<FrameworkEvent> onRowHeightChanged;
+  @event Stream<FrameworkEvent> onRowPercentHeightChanged;
+  @event Stream<FrameworkEvent> onListScrollPositionChanged;
+  @event Stream<FrameworkEvent> onHeaderScrollPositionChanged;
+  @event Stream<FrameworkEvent> onRendererAdded;
+  @event Stream<FrameworkEvent> onRendererRemoved;
 
   Group _scrollTarget;
   
@@ -11,9 +26,6 @@ class ListRenderer extends ListBase {
   // Public properties
   //
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onRedrawEvent = const EventHook<FrameworkEvent>('redraw');
-  Stream<FrameworkEvent> get onRedraw => ListRenderer.onRedrawEvent.forTarget(this);
   
   //---------------------------------
   // inactiveHandler
@@ -105,9 +117,6 @@ class ListRenderer extends ListBase {
   //---------------------------------
   // orientation
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onOrientationChangedEvent = const EventHook<FrameworkEvent>('orientationChanged');
-  Stream<FrameworkEvent> get onOrientationChanged => ListRenderer.onOrientationChangedEvent.forTarget(this);
 
   String _orientation;
   bool _isOrientationChanged = false;
@@ -138,9 +147,6 @@ class ListRenderer extends ListBase {
   //---------------------------------
   // autoManageScrollBars
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onAutoManageScrollBarsChangedEvent = const EventHook<FrameworkEvent>('autoManageScrollBarsChanged');
-  Stream<FrameworkEvent> get onAutoManageScrollBarsChanged => ListRenderer.onAutoManageScrollBarsChangedEvent.forTarget(this);
 
   bool _autoManageScrollBars = true;
 
@@ -163,9 +169,6 @@ class ListRenderer extends ListBase {
   //---------------------------------
   // useSelectionEffects
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent> onUseSelectionEffectsChangedEvent = const EventHook<FrameworkEvent>('useSelectionEffectsChanged');
-  Stream<FrameworkEvent> get onUseSelectionEffectsChanged => ListRenderer.onUseSelectionEffectsChangedEvent.forTarget(this);
 
   bool _useSelectionEffects = true;
   bool _isUseSelectionEffectsChanged = false;
@@ -190,9 +193,6 @@ class ListRenderer extends ListBase {
   // useEvenOdd
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onUseEvenOddChangedEvent = const EventHook<FrameworkEvent>('useEvenOddChanged');
-  Stream<FrameworkEvent> get onUseEvenOddChanged => ListRenderer.onUseEvenOddChangedEvent.forTarget(this);
-  
   bool _useEvenOdd = false;
   bool _isUseEvenOddChanged = false;
   
@@ -216,8 +216,6 @@ class ListRenderer extends ListBase {
   // itemRenderer
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onItemRendererFactoryChangedEvent = const EventHook<FrameworkEvent>('itemRendererFactoryChanged');
-  Stream<FrameworkEvent> get onItemRendererFactoryChanged => ListRenderer.onItemRendererFactoryChangedEvent.forTarget(this);
   ItemRendererFactory _itemRendererFactory;
 
   ItemRendererFactory get itemRendererFactory => _itemRendererFactory;
@@ -242,9 +240,7 @@ class ListRenderer extends ListBase {
   //---------------------------------
   // colWidth
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onColWidthChangedEvent = const EventHook<FrameworkEvent>('colWidthChanged');
-  Stream<FrameworkEvent> get onColWidthChanged => ListRenderer.onColWidthChangedEvent.forTarget(this);
+  
   int _colWidth = 0;
 
   int get colWidth => _colWidth;
@@ -265,9 +261,7 @@ class ListRenderer extends ListBase {
   //---------------------------------
   // colPercentWidth
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onColPercentWidthChangedEvent = const EventHook<FrameworkEvent>('colPercentWidthChanged');
-  Stream<FrameworkEvent> get onColPercentWidthChanged => ListRenderer.onColPercentWidthChangedEvent.forTarget(this);
+  
   double _colPercentWidth = .0;
 
   double get colPercentWidth => _colPercentWidth;
@@ -288,9 +282,7 @@ class ListRenderer extends ListBase {
   //---------------------------------
   // rowHeight
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onRowHeightChangedEvent = const EventHook<FrameworkEvent>('rowHeightChanged');
-  Stream<FrameworkEvent> get onRowHeightChanged => ListRenderer.onRowHeightChangedEvent.forTarget(this);
+  
   int _rowHeight = 0;
 
   int get rowHeight => _rowHeight;
@@ -311,9 +303,7 @@ class ListRenderer extends ListBase {
   //---------------------------------
   // rowPercentHeight
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onRowPercentHeightChangedEvent = const EventHook<FrameworkEvent>('rowPercentHeightChanged');
-  Stream<FrameworkEvent> get onRowPercentHeightChanged => ListRenderer.onRowPercentHeightChangedEvent.forTarget(this);
+  
   double _rowPercentHeight = .0;
 
   double get rowPercentHeight => _rowPercentHeight;
@@ -335,8 +325,6 @@ class ListRenderer extends ListBase {
   // scrollPosition
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onListScrollPositionChangedEvent = const EventHook<FrameworkEvent>('listScrollPositionChanged');
-  Stream<FrameworkEvent> get onListScrollPositionChanged => ListRenderer.onListScrollPositionChangedEvent.forTarget(this);
   int _scrollPosition = 0;
   
   void setScrollPositionExternally(int value) {
@@ -369,8 +357,6 @@ class ListRenderer extends ListBase {
   // headerScrollPosition
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onHeaderScrollPositionChangedEvent = const EventHook<FrameworkEvent>('headerScrollPositionChanged');
-  Stream<FrameworkEvent> get onHeaderScrollPositionChanged => ListRenderer.onHeaderScrollPositionChangedEvent.forTarget(this);
   int _headerScrollPosition = 0;
 
   int get headerScrollPosition => _headerScrollPosition;
@@ -596,12 +582,6 @@ class ListRenderer extends ListBase {
     if (_rowHeight > 0) renderer.height = _rowHeight;
     else if (_rowPercentHeight > .0) renderer.percentHeight = _rowPercentHeight;
   }
-
-  static const EventHook<FrameworkEvent> onRendererAddedEvent = const EventHook<FrameworkEvent>('rendererAdded');
-  Stream<FrameworkEvent> get onRendererAdded => ListRenderer.onRendererAddedEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent> onRendererRemovedEvent = const EventHook<FrameworkEvent>('rendererRemoved');
-  Stream<FrameworkEvent> get onRendererRemoved => ListRenderer.onRendererRemovedEvent.forTarget(this);
   
   void _createElement(dynamic item, int index) {
     if (_itemRenderers == null) _itemRenderers = new List<IItemRenderer>();
@@ -672,13 +652,13 @@ class ListRenderer extends ListBase {
   int _getPageSize() => (_dataProvider != null) ? ((_dataProvider.length * _getPageItemSize())) : 0;
   
   @override
-  void removeComponent(IUIWrapper element, {bool flush: true}) {
+  void removeComponent(BaseComponent element, {bool flush: true}) {
     super.removeComponent(element, flush:flush);
 
     if (_itemRenderers != null) _itemRenderers.remove(element);
     
     notify(
-      new FrameworkEvent<IUIWrapper>(
+      new FrameworkEvent<BaseComponent>(
           'rendererRemoved',
           relatedObject: element
       )    

@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class ColorBox extends UIWrapper {
+class ColorBox extends Component {
   
   @event Stream<FrameworkEvent> onColorChanged;
 

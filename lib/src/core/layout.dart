@@ -1,6 +1,6 @@
 part of dart_flex;
 
-abstract class IFlexLayout {
+abstract class ComponentLayout {
   
   Stream<FrameworkEvent> get onXChanged;
   Stream<FrameworkEvent> get onYChanged;
@@ -62,14 +62,29 @@ abstract class IFlexLayout {
   
 }
 
-abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher {
+abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle, EventDispatcher {
+  
+  @event Stream<FrameworkEvent> onIncludeInLayoutChanged;
+  @event Stream<FrameworkEvent> onAllowLayoutUpdateChanged;
+  @event Stream<FrameworkEvent> onAutoSizeChanged;
+  @event Stream<FrameworkEvent> onXChanged;
+  @event Stream<FrameworkEvent> onYChanged;
+  @event Stream<FrameworkEvent> onLayoutWidthChanged;
+  @event Stream<FrameworkEvent> onWidthChanged;
+  @event Stream<FrameworkEvent> onPercentWidthChanged;
+  @event Stream<FrameworkEvent> onLayoutHeightChanged;
+  @event Stream<FrameworkEvent> onHeightChanged;
+  @event Stream<FrameworkEvent> onPercentHeightChanged;
+  @event Stream<FrameworkEvent> onPaddingLeftChanged;
+  @event Stream<FrameworkEvent> onPaddingRightChanged;
+  @event Stream<FrameworkEvent> onPaddingTopChanged;
+  @event Stream<FrameworkEvent> onPaddingBottomChanged;
+  @event Stream<FrameworkEvent> onLayoutChanged;
   
   //---------------------------------
   // includeInLayout
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onIncludeInLayoutChangedEvent = const EventHook<FrameworkEvent>('includeInLayoutChanged');
-  Stream<FrameworkEvent> get onIncludeInLayoutChanged => FlexLayoutMixin.onIncludeInLayoutChangedEvent.forTarget(this);
   bool _includeInLayout = true;
 
   bool get includeInLayout => _includeInLayout;
@@ -92,8 +107,6 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   // allowLayoutUpdate
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onAllowLayoutUpdateChangedEvent = const EventHook<FrameworkEvent>('allowLayoutUpdateChanged');
-  Stream<FrameworkEvent> get onAllowLayoutUpdateChanged => FlexLayoutMixin.onAllowLayoutUpdateChangedEvent.forTarget(this);
   bool _allowLayoutUpdate = true;
 
   bool get allowLayoutUpdate => _allowLayoutUpdate;
@@ -116,8 +129,6 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   // autoSize
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onAutoSizeChangedEvent = const EventHook<FrameworkEvent>('autoSizeChanged');
-  Stream<FrameworkEvent> get onAutoSizeChanged => FlexLayoutMixin.onAutoSizeChangedEvent.forTarget(this);
   bool _autoSize = true;
 
   bool get autoSize => _autoSize;
@@ -140,8 +151,6 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   // x
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onXChangedEvent = const EventHook<FrameworkEvent>('xChanged');
-  Stream<FrameworkEvent> get onXChanged => FlexLayoutMixin.onXChangedEvent.forTarget(this);
   int _x = 0;
 
   int get x => _x;
@@ -161,9 +170,7 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   //---------------------------------
   // y
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onYChangedEvent = const EventHook<FrameworkEvent>('yChanged');
-  Stream<FrameworkEvent> get onYChanged => FlexLayoutMixin.onYChangedEvent.forTarget(this);
+  
   int _y = 0;
 
   int get y => _y;
@@ -184,11 +191,6 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   // width
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onLayoutWidthChangedEvent = const EventHook<FrameworkEvent>('layoutWidthChanged');
-  Stream<FrameworkEvent> get onLayoutWidthChanged => FlexLayoutMixin.onLayoutWidthChangedEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent> onWidthChangedEvent = const EventHook<FrameworkEvent>('widthChanged');
-  Stream<FrameworkEvent> get onWidthChanged => FlexLayoutMixin.onWidthChangedEvent.forTarget(this);
   int _width = 0;
 
   int get width => _width;
@@ -211,9 +213,7 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   //---------------------------------
   // percentWidth
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onPercentWidthChangedEvent = const EventHook<FrameworkEvent>('percentWidthChanged');
-  Stream<FrameworkEvent> get onPercentWidthChanged => FlexLayoutMixin.onPercentWidthChangedEvent.forTarget(this);
+  
   double _percentWidth = 0.0;
 
   double get percentWidth => _percentWidth;
@@ -234,11 +234,6 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   // height
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onLayoutHeightChangedEvent = const EventHook<FrameworkEvent>('layoutHeightChanged');
-  Stream<FrameworkEvent> get onLayoutHeightChanged => FlexLayoutMixin.onLayoutHeightChangedEvent.forTarget(this);
-
-  static const EventHook<FrameworkEvent> onHeightChangedEvent = const EventHook<FrameworkEvent>('heightChanged');
-  Stream<FrameworkEvent> get onHeightChanged => FlexLayoutMixin.onHeightChangedEvent.forTarget(this);
   int _height = 0;
 
   int get height => _height;
@@ -262,8 +257,6 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   // percentHeight
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onPercentHeightChangedEvent = const EventHook<FrameworkEvent>('percentHeightChanged');
-  Stream<FrameworkEvent> get onPercentHeightChanged => FlexLayoutMixin.onPercentHeightChangedEvent.forTarget(this);
   double _percentHeight = 0.0;
 
   double get percentHeight => _percentHeight;
@@ -284,8 +277,6 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   // paddingLeft
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onPaddingLeftChangedEvent = const EventHook<FrameworkEvent>('paddingLeftChanged');
-  Stream<FrameworkEvent> get onPaddingLeftChanged => FlexLayoutMixin.onPaddingLeftChangedEvent.forTarget(this);
   int _paddingLeft = 0;
 
   int get paddingLeft => _paddingLeft;
@@ -306,8 +297,6 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   // paddingRight
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onPaddingRightChangedEvent = const EventHook<FrameworkEvent>('paddingRightChanged');
-  Stream<FrameworkEvent> get onPaddingRightChanged => FlexLayoutMixin.onPaddingRightChangedEvent.forTarget(this);
   int _paddingRight = 0;
 
   int get paddingRight => _paddingRight;
@@ -328,8 +317,6 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   // paddingTop
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onPaddingTopChangedEvent = const EventHook<FrameworkEvent>('paddingTopChanged');
-  Stream<FrameworkEvent> get onPaddingTopChanged => FlexLayoutMixin.onPaddingTopChangedEvent.forTarget(this);
   int _paddingTop = 0;
 
   int get paddingTop => _paddingTop;
@@ -350,8 +337,6 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   // paddingBottom
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onPaddingBottomChangedEvent = const EventHook<FrameworkEvent>('paddingBottomChanged');
-  Stream<FrameworkEvent> get onPaddingBottomChanged => FlexLayoutMixin.onPaddingBottomChangedEvent.forTarget(this);
   int _paddingBottom = 0;
 
   int get paddingBottom => _paddingBottom;
@@ -371,9 +356,7 @@ abstract class FlexLayoutMixin implements ILifeCycle, IFrameworkEventDispatcher 
   //---------------------------------
   // layout
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onLayoutChangedEvent = const EventHook<FrameworkEvent>('layoutChanged');
-  Stream<FrameworkEvent> get onLayoutChanged => FlexLayoutMixin.onLayoutChangedEvent.forTarget(this);
+  
   ILayout _layout;
 
   ILayout get layout => _layout;

@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class Graphics extends UIWrapper {
+class Graphics extends Component {
 
   //---------------------------------
   //

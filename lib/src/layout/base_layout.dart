@@ -17,6 +17,6 @@ abstract class ILayout {
   int get layoutWidth;
   int get layoutHeight;
 
-  void doLayout(int width, int height, int pageItemSize, int pageOffset, int pageSize, List<IFlexLayout> elements);
+  void doLayout(int width, int height, int pageItemSize, int pageOffset, int pageSize, List<ComponentLayout> elements);
 
 }

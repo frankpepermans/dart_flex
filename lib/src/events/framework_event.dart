@@ -36,10 +36,10 @@ class FrameworkEvent<T> {
   // currentTarget
   //-----------------------------------
 
-  IFrameworkEventDispatcher _currentTarget;
+  EventDispatcher _currentTarget;
 
-  IFrameworkEventDispatcher get currentTarget => _currentTarget;
-  set currentTarget(IFrameworkEventDispatcher value) => _currentTarget = value;
+  EventDispatcher get currentTarget => _currentTarget;
+  set currentTarget(EventDispatcher value) => _currentTarget = value;
 
   //-----------------------------------
   //

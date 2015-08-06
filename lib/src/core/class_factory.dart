@@ -20,7 +20,7 @@ class classFactoryTarget {
 }
 
 @classFactory(IItemRenderer)
-class ClassFactory<T extends IUIWrapper> {
+class ClassFactory<T extends BaseComponent> {
   
   //---------------------------------
   //

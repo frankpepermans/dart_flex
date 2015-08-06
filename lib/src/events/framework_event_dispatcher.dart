@@ -1,6 +1,6 @@
 part of dart_flex;
 
-abstract class IFrameworkEventDispatcher {
+abstract class EventDispatcher {
 
   //-----------------------------------
   //
@@ -15,9 +15,9 @@ abstract class IFrameworkEventDispatcher {
 
 }
 
-class FrameworkEventDispatcherMixin implements IFrameworkEventDispatcher {
+class EventDispatcherMixin implements EventDispatcher {
   
-  FrameworkEventDispatcher _eventDispatcher;
+  EventDispatcherImpl _eventDispatcher;
   
   bool hasObserver(String type) => _eventDispatcher.hasObserver(type);
 
@@ -29,7 +29,7 @@ class FrameworkEventDispatcherMixin implements IFrameworkEventDispatcher {
   
 }
 
-class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
+class EventDispatcherImpl implements EventDispatcher {
 
   //-----------------------------------
   //
@@ -37,7 +37,7 @@ class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
   //
   //-----------------------------------
 
-  IFrameworkEventDispatcher _dispatcher;
+  EventDispatcher _dispatcher;
 
   Map<String, List<Function>> _observers = <String, List<Function>>{};
 
@@ -47,7 +47,7 @@ class FrameworkEventDispatcher implements IFrameworkEventDispatcher {
   //
   //-----------------------------------
 
-  FrameworkEventDispatcher({IFrameworkEventDispatcher dispatcher: null}) {
+  EventDispatcherImpl({EventDispatcher dispatcher: null}) {
     if (dispatcher == null) _dispatcher = this;
     else _dispatcher = dispatcher;
   }

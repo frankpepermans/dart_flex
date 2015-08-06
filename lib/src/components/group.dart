@@ -1,6 +1,16 @@
 part of dart_flex;
 
-class Group extends UIWrapper {
+enum ScrollPolicy {
+  DISABLED,
+  NONE,
+  AUTO,
+  ON
+}
+
+class Group extends Component {
+  
+  @event Stream<FrameworkEvent> onHorizontalScrollPolicyChanged;
+  @event Stream<FrameworkEvent> onVerticalScrollPolicyChanged;
 
   //---------------------------------
   //
@@ -20,12 +30,10 @@ class Group extends UIWrapper {
   // horizontalScrollPolicy
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onHorizontalScrollPolicyChangedEvent = const EventHook<FrameworkEvent>('horizontalScrollPolicyChanged');
-  Stream<FrameworkEvent> get onHorizontalScrollPolicyChanged => Group.onHorizontalScrollPolicyChangedEvent.forTarget(this);
-  String _horizontalScrollPolicy = ScrollPolicy.NONE;
+  ScrollPolicy _horizontalScrollPolicy = ScrollPolicy.NONE;
 
-  String get horizontalScrollPolicy => _horizontalScrollPolicy;
-  set horizontalScrollPolicy(String value) {
+  ScrollPolicy get horizontalScrollPolicy => _horizontalScrollPolicy;
+  set horizontalScrollPolicy(ScrollPolicy value) {
     if (value != _horizontalScrollPolicy) {
       _horizontalScrollPolicy = value;
 
@@ -44,13 +52,11 @@ class Group extends UIWrapper {
   //---------------------------------
   // verticalScrollPolicy
   //---------------------------------
+  
+  ScrollPolicy _verticalScrollPolicy = ScrollPolicy.NONE;
 
-  static const EventHook<FrameworkEvent> onVerticalScrollPolicyChangedEvent = const EventHook<FrameworkEvent>('verticalScrollPolicyChanged');
-  Stream<FrameworkEvent> get onVerticalScrollPolicyChanged => Group.onVerticalScrollPolicyChangedEvent.forTarget(this);
-  String _verticalScrollPolicy = ScrollPolicy.NONE;
-
-  String get verticalScrollPolicy => _verticalScrollPolicy;
-  set verticalScrollPolicy(String value) {
+  ScrollPolicy get verticalScrollPolicy => _verticalScrollPolicy;
+  set verticalScrollPolicy(ScrollPolicy value) {
     if (value != _verticalScrollPolicy) {
       _verticalScrollPolicy = value;
 
@@ -115,24 +121,26 @@ class Group extends UIWrapper {
   }
 
   void _updateScrollPolicy() {
-    if (_horizontalScrollPolicy == ScrollPolicy.NONE) {
-      _reflowManager.invalidateCSS(_control, 'overflow-x', 'hidden');
-    } else if (_horizontalScrollPolicy == ScrollPolicy.AUTO) {
-      _reflowManager.invalidateCSS(_control, 'overflow-x', 'auto');
-    } else if (_horizontalScrollPolicy == ScrollPolicy.ON) {
-      _reflowManager.invalidateCSS(_control, 'overflow-x', 'scroll');
-    } else if (_horizontalScrollPolicy == ScrollPolicy.DISABLED) {
-      _reflowManager.invalidateCSS(_control, 'overflow-x', 'visible');
+    switch (_horizontalScrollPolicy) {
+      case ScrollPolicy.NONE:
+        _reflowManager.invalidateCSS(_control, 'overflow-x', 'hidden');   break;
+      case ScrollPolicy.AUTO:
+        _reflowManager.invalidateCSS(_control, 'overflow-x', 'auto');     break;
+      case ScrollPolicy.ON:
+        _reflowManager.invalidateCSS(_control, 'overflow-x', 'scroll');   break;
+      case ScrollPolicy.DISABLED:
+        _reflowManager.invalidateCSS(_control, 'overflow-x', 'visible');  break;
     }
-
-    if (_verticalScrollPolicy == ScrollPolicy.NONE) {
-      _reflowManager.invalidateCSS(_control, 'overflow-y', 'hidden');
-    } else if (_verticalScrollPolicy == ScrollPolicy.AUTO) {
-      _reflowManager.invalidateCSS(_control, 'overflow-y', 'auto');
-    } else if (_verticalScrollPolicy == ScrollPolicy.ON) {
-      _reflowManager.invalidateCSS(_control, 'overflow-y', 'scroll');
-    } else if (_verticalScrollPolicy == ScrollPolicy.DISABLED) {
-      _reflowManager.invalidateCSS(_control, 'overflow-y', 'visible');
+    
+    switch (_verticalScrollPolicy) {
+      case ScrollPolicy.NONE:
+        _reflowManager.invalidateCSS(_control, 'overflow-y', 'hidden');   break;
+      case ScrollPolicy.AUTO:
+        _reflowManager.invalidateCSS(_control, 'overflow-y', 'auto');     break;
+      case ScrollPolicy.ON:
+        _reflowManager.invalidateCSS(_control, 'overflow-y', 'scroll');   break;
+      case ScrollPolicy.DISABLED:
+        _reflowManager.invalidateCSS(_control, 'overflow-y', 'visible');  break;
     }
   }
 }

@@ -1,6 +1,14 @@
 part of dart_flex;
 
-class EditableText extends UIWrapper {
+class EditableText extends Component {
+  
+  @event Stream<FrameworkEvent> onTextChanged;
+  @event Stream<FrameworkEvent> onInput;
+  @event Stream<FrameworkEvent> onAlignChanged;
+  @event Stream<FrameworkEvent> onPatternChanged;
+  @event Stream<FrameworkEvent> onVerticalAlignChanged;
+  @event Stream<FrameworkEvent> onDataChanged;
+  @event Stream<FrameworkEvent> onDataFinalized;
   
   //---------------------------------
   //
@@ -21,11 +29,6 @@ class EditableText extends UIWrapper {
   //---------------------------------
   // text
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onTextChangedEvent = const EventHook<FrameworkEvent>('textChanged');
-  Stream<FrameworkEvent> get onTextChanged => EditableText.onTextChangedEvent.forTarget(this);
-  static const EventHook<FrameworkEvent> onInputEvent = const EventHook<FrameworkEvent>('input');
-  Stream<FrameworkEvent> get onInput => EditableText.onInputEvent.forTarget(this);
   
   String _text;
 
@@ -48,8 +51,6 @@ class EditableText extends UIWrapper {
   // align
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onAlignChangedEvent = const EventHook<FrameworkEvent>('alignChanged');
-  Stream<FrameworkEvent> get onAlignChanged => EditableText.onAlignChangedEvent.forTarget(this);
   String _align = 'left';
 
   String get align => _align;
@@ -71,8 +72,6 @@ class EditableText extends UIWrapper {
   // pattern
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onPatternChangedEvent = const EventHook<FrameworkEvent>('patternChanged');
-  Stream<FrameworkEvent> get onPatternChanged => EditableText.onPatternChangedEvent.forTarget(this);
   String _pattern;
 
   String get pattern => _pattern;
@@ -94,8 +93,6 @@ class EditableText extends UIWrapper {
   // verticalAlign
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onVerticalAlignChangedEvent = const EventHook<FrameworkEvent>('verticalAlignChanged');
-  Stream<FrameworkEvent> get onVerticalAlignChanged => EditableText.onVerticalAlignChangedEvent.forTarget(this);
   String _verticalAlign = 'text-top';
 
   String get verticalAlign => _verticalAlign;
@@ -240,12 +237,6 @@ class EditableTextMask<T extends DateTime> extends EditableText {
   //---------------------------------
   // data
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onDataChangedEvent = const EventHook<FrameworkEvent>('dataChanged');
-  Stream<FrameworkEvent> get onDataChanged => EditableTextMask.onDataChangedEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent> onDataFinalizedEvent = const EventHook<FrameworkEvent>('dataFinalized');
-  Stream<FrameworkEvent> get onDataFinalized => EditableTextMask.onDataFinalizedEvent.forTarget(this);
   
   T _data;
 

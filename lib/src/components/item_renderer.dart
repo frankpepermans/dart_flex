@@ -3,7 +3,7 @@ part of dart_flex;
 typedef String LabelHandler(dynamic data);
 
 @classFactoryTarget(ItemRendererFactory, 'constructorMethod')
-abstract class IItemRenderer<D> implements IUIWrapper {
+abstract class IItemRenderer<D> implements BaseComponent {
   
   Stream<FrameworkEvent> get onDataChanged;
   Stream<FrameworkEvent> get onFieldChanged;
@@ -69,7 +69,15 @@ abstract class IItemRenderer<D> implements IUIWrapper {
 
 }
 
-class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer {
+class ItemRenderer<D extends dynamic> extends Component implements IItemRenderer {
+  
+  @event Stream<FrameworkEvent> onDataChanged;
+  @event Stream<FrameworkEvent> onFieldChanged;
+  @event Stream<FrameworkEvent> onFieldsChanged;
+  @event Stream<FrameworkEvent> onClick;
+  @event Stream<FrameworkEvent> onMouseOver;
+  @event Stream<FrameworkEvent> onMouseOut;
+  @event Stream<FrameworkEvent> onDataPropertyChanged;
 
   //---------------------------------
   //
@@ -86,27 +94,6 @@ class ItemRenderer<D extends dynamic> extends UIWrapper implements IItemRenderer
   // Public properties
   //
   //---------------------------------
-  
-  static const EventHook<FrameworkEvent<dynamic>> onDataChangedEvent = const EventHook<FrameworkEvent<dynamic>>('dataChanged');
-  Stream<FrameworkEvent> get onDataChanged => ItemRenderer.onDataChangedEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent> onFieldChangedEvent = const EventHook<FrameworkEvent>('fieldChanged');
-  Stream<FrameworkEvent> get onFieldChanged => ItemRenderer.onFieldChangedEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent> onFieldsChangedEvent = const EventHook<FrameworkEvent>('fieldsChanged');
-  Stream<FrameworkEvent> get onFieldsChanged => ItemRenderer.onFieldsChangedEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent<MouseEvent>> onClickEvent = const EventHook<FrameworkEvent<MouseEvent>>('click');
-  Stream<FrameworkEvent<MouseEvent>> get onClick => ItemRenderer.onClickEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent<MouseEvent>> onMouseOverEvent = const EventHook<FrameworkEvent<MouseEvent>>('mouseOver');
-  Stream<FrameworkEvent<MouseEvent>> get onMouseOver => ItemRenderer.onMouseOverEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent<MouseEvent>> onMouseOutEvent = const EventHook<FrameworkEvent<MouseEvent>>('mouseOut');
-  Stream<FrameworkEvent<MouseEvent>> get onMouseOut => ItemRenderer.onMouseOutEvent.forTarget(this);
-  
-  static const EventHook<FrameworkEvent<dynamic>> onDataPropertyChangedEvent = const EventHook<FrameworkEvent<dynamic>>('dataPropertyChanged');
-  Stream<FrameworkEvent> get onDataPropertyChanged => ItemRenderer.onDataPropertyChangedEvent.forTarget(this);
 
   //---------------------------------
   // index

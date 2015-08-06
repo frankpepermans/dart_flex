@@ -1,6 +1,11 @@
 part of dart_flex;
 
-class Slider extends UIWrapper {
+class Slider extends Component {
+  
+  @event Stream<FrameworkEvent> onValueChanged;
+  @event Stream<FrameworkEvent> onMinChanged;
+  @event Stream<FrameworkEvent> onMaxChanged;
+  @event Stream<FrameworkEvent> onStepChanged;
   
   //---------------------------------
   //
@@ -20,8 +25,6 @@ class Slider extends UIWrapper {
   // value
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onValueChangedEvent = const EventHook<FrameworkEvent>('valueChanged');
-  Stream<FrameworkEvent> get onValueChanged => Slider.onValueChangedEvent.forTarget(this);
   num _value = 0;
 
   num get value => _value;
@@ -42,9 +45,7 @@ class Slider extends UIWrapper {
   //---------------------------------
   // min
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onMinChangedEvent = const EventHook<FrameworkEvent>('minChanged');
-  Stream<FrameworkEvent> get onMinChanged => Slider.onMinChangedEvent.forTarget(this);
+  
   num _min = 0;
 
   num get min => _min;
@@ -65,9 +66,7 @@ class Slider extends UIWrapper {
   //---------------------------------
   // max
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onMaxChangedEvent = const EventHook<FrameworkEvent>('maxChanged');
-  Stream<FrameworkEvent> get onMaxChanged => Slider.onMaxChangedEvent.forTarget(this);
+  
   num _max = 0;
 
   num get max => _max;
@@ -89,8 +88,6 @@ class Slider extends UIWrapper {
   // step
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onStepChangedEvent = const EventHook<FrameworkEvent>('stepChanged');
-  Stream<FrameworkEvent> get onStepChanged => Slider.onStepChangedEvent.forTarget(this);
   num _step = 0;
 
   num get step => _step;

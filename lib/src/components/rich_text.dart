@@ -2,7 +2,15 @@ part of dart_flex;
 
 typedef String TitleHandler(String S);
  
-class RichText extends UIWrapper {
+class RichText extends Component {
+  
+  @event Stream<FrameworkEvent> onClick;
+  @event Stream<FrameworkEvent> onTextChanged;
+  @event Stream<FrameworkEvent> onRichTextChanged;
+  @event Stream<FrameworkEvent> onAlignChanged;
+  @event Stream<FrameworkEvent> onVerticalAlignChanged;
+  @event Stream<FrameworkEvent> onAutoTruncateChanged;
+  @event Stream<FrameworkEvent> onTitleHandlerChanged;
  
   //---------------------------------
   //
@@ -16,9 +24,6 @@ class RichText extends UIWrapper {
   //
   //---------------------------------
  
-  static const EventHook<FrameworkEvent> onClickEvent = const EventHook<FrameworkEvent>('click');
-  Stream<FrameworkEvent> get onClick => RichText.onClickEvent.forTarget(this);
- 
   //---------------------------------
   // label
   //---------------------------------
@@ -31,8 +36,6 @@ class RichText extends UIWrapper {
   // text
   //---------------------------------
  
-  static const EventHook<FrameworkEvent> onTextChangedEvent = const EventHook<FrameworkEvent>('textChanged');
-  Stream<FrameworkEvent> get onTextChanged => RichText.onTextChangedEvent.forTarget(this);
   String _text;
  
   String get text => _text;
@@ -54,9 +57,7 @@ class RichText extends UIWrapper {
   //---------------------------------
   // richText
   //---------------------------------
- 
-  static const EventHook<FrameworkEvent> onRichTextChangedEvent = const EventHook<FrameworkEvent>('richTextChanged');
-  Stream<FrameworkEvent> get onRichTextChanged => RichText.onRichTextChangedEvent.forTarget(this);
+  
   String _richText;
  
   String get richText => _richText;
@@ -78,9 +79,7 @@ class RichText extends UIWrapper {
   //---------------------------------
   // align
   //---------------------------------
- 
-  static const EventHook<FrameworkEvent> onAlignChangedEvent = const EventHook<FrameworkEvent>('alignChanged');
-  Stream<FrameworkEvent> get onAlignChanged => RichText.onAlignChangedEvent.forTarget(this);
+  
   String _align = 'left';
  
   String get align => _align;
@@ -102,8 +101,6 @@ class RichText extends UIWrapper {
   // verticalAlign
   //---------------------------------
  
-  static const EventHook<FrameworkEvent> onVerticalAlignChangedEvent = const EventHook<FrameworkEvent>('verticalAlignChanged');
-  Stream<FrameworkEvent> get onVerticalAlignChanged => RichText.onVerticalAlignChangedEvent.forTarget(this);
   String _verticalAlign = 'text-top';
  
   String get verticalAlign => _verticalAlign;
@@ -125,8 +122,6 @@ class RichText extends UIWrapper {
   // autoTruncate
   //---------------------------------
  
-  static const EventHook<FrameworkEvent> onAutoTruncateChangedEvent = const EventHook<FrameworkEvent>('autoTruncateChangedEvent');
-  Stream<FrameworkEvent> get onAutoTruncateChanged => RichText.onAutoTruncateChangedEvent.forTarget(this);
   bool _autoTruncate = false;
  
   bool get autoTruncate => _autoTruncate;
@@ -148,8 +143,6 @@ class RichText extends UIWrapper {
   // titleHandler
   //---------------------------------
  
-  static const EventHook<FrameworkEvent> onTitleHandlerChangedEvent = const EventHook<FrameworkEvent>('titleHandlerChangedEvent');
-  Stream<FrameworkEvent> get onTitleHandlerChanged => RichText.onTitleHandlerChangedEvent.forTarget(this);
   TitleHandler _titleHandler;
  
   TitleHandler get titleHandler => _titleHandler;

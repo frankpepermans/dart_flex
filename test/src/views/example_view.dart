@@ -1,6 +1,6 @@
 part of dart_flex_test;
 
-class ExampleView extends UIWrapper {
+class ExampleView extends Component {
   
   VGroup verticalContainer, masterTables;
   HGroup horizontalContainer, centerContainer;
@@ -11,7 +11,7 @@ class ExampleView extends UIWrapper {
   
   ExampleView({String elementId: null}) : super(elementId: elementId) {
     onSkinPartAdded.listen(
-      (FrameworkEvent<IUIWrapper> event) {
+      (FrameworkEvent<BaseComponent> event) {
         if (event.relatedObject == dataGrid) dataGrid.onRendererAdded.listen(_dataGrid_rendererAddedHandler);
       }    
     );

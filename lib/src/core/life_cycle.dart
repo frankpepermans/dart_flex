@@ -1,6 +1,6 @@
 part of dart_flex;
 
-abstract class ILifeCycle {
+abstract class ComponentLifeCycle {
   
   bool get isInitialized;
   
@@ -17,7 +17,7 @@ abstract class ILifeCycle {
   void updateVisibility();
   void updateEnabledStatus();
   
-  void preInitialize(IUIWrapper forOwner);
+  void preInitialize(BaseComponent forOwner);
   void initialize();
   
   void createChildren();

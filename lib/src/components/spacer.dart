@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class Spacer extends UIWrapper {
+class Spacer extends Component {
 
   //---------------------------------
   //

@@ -5,13 +5,13 @@ class EventHook<T extends FrameworkEvent> {
 
   const EventHook(this._eventType);
 
-  Stream<T> forTarget(IFrameworkEventDispatcher e) => new _EventStream(e, _eventType);
+  Stream<T> forTarget(EventDispatcher e) => new _EventStream(e, _eventType);
   
-  String getEventType(IFrameworkEventDispatcher target) => _eventType;
+  String getEventType(EventDispatcher target) => _eventType;
 }
 
 class _EventStream<T extends FrameworkEvent> extends Stream<T> {
-  final IFrameworkEventDispatcher _target;
+  final EventDispatcher _target;
   final String _eventType;
 
   _EventStream(this._target, this._eventType);
@@ -45,7 +45,7 @@ class _EventStream<T extends FrameworkEvent> extends Stream<T> {
 
 class _EventStreamSubscription<T extends FrameworkEvent> extends StreamSubscription<T> {
   int _pauseCount = 0;
-  IFrameworkEventDispatcher _target;
+  EventDispatcher _target;
   final String _eventType;
   var _onData;
 

@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class DartFlexRootContainer extends UIWrapper {
+class DartFlexRootContainer extends Component {
   
   //---------------------------------
   //

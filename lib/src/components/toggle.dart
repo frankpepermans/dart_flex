@@ -1,6 +1,8 @@
 part of dart_flex;
 
-class Toggle extends UIWrapper {
+class Toggle extends Component {
+  
+  @event Stream<FrameworkEvent> onIsToggledChanged;
   
   //---------------------------------
   //
@@ -20,8 +22,6 @@ class Toggle extends UIWrapper {
   // isToggled
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onIsToggledChangedEvent = const EventHook<FrameworkEvent>('isToggledChanged');
-  Stream<FrameworkEvent> get onIsToggledChanged => Toggle.onIsToggledChangedEvent.forTarget(this);
   bool _isToggled = false;
 
   bool get isToggled => _isToggled;

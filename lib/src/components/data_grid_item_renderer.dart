@@ -2,8 +2,8 @@ part of dart_flex;
 
 class DataGridItemRenderer<D> extends ItemRenderer {
   
-  @event Stream<FrameworkEvent> onRendererAdded;
-  @event Stream<FrameworkEvent> onRendererRemoved;
+  @event Stream<FrameworkEvent<IItemRenderer>> onRendererAdded;
+  @event Stream<FrameworkEvent<IItemRenderer>> onRendererRemoved;
   @event Stream<FrameworkEvent> onColumnsChanged;
 
   //---------------------------------
@@ -143,12 +143,9 @@ class DataGridItemRenderer<D> extends ItemRenderer {
     ) {
       final int xMin = _grid._list._headerScrollPosition - _grid._headerContainer.x;
       final int xMax = xMin + _grid._width;
-              
-      for (int i=0, len=_itemRendererInstances.length; i<len; i++) {
-        IItemRenderer renderer = _itemRendererInstances[i];
-        
-        if (renderer.x + renderer.width >= xMin && renderer.x - renderer.width <= xMax) renderer.data = _data;
-      }
+      
+      _itemRendererInstances.where((IItemRenderer renderer) => (renderer.x + renderer.width >= xMin && renderer.x - renderer.width <= xMax))
+        .forEach((IItemRenderer renderer) => renderer.data = _data);
     }
   }
   

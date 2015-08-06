@@ -1,8 +1,12 @@
 part of dart_flex;
 
-typedef IUIWrapper CreationHandler();
+typedef BaseComponent CreationHandler();
 
-class Repeater extends UIWrapper {
+class Repeater extends Component {
+  
+  @event Stream<FrameworkEvent> onFromChanged;
+  @event Stream<FrameworkEvent> onToChanged;
+  @event Stream<FrameworkEvent> onCreationHandler;
   
   //---------------------------------
   //
@@ -24,8 +28,6 @@ class Repeater extends UIWrapper {
   // from
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onFromChangedEvent = const EventHook<FrameworkEvent>('fromChanged');
-  Stream<FrameworkEvent> get onFromChanged => Repeater.onFromChangedEvent.forTarget(this);
   int _from;
   
   int get from => _from;
@@ -49,8 +51,6 @@ class Repeater extends UIWrapper {
   // to
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onToChangedEvent = const EventHook<FrameworkEvent>('toChanged');
-  Stream<FrameworkEvent> get onToChanged => Repeater.onToChangedEvent.forTarget(this);
   int _to;
   
   int get to => _to;
@@ -74,8 +74,6 @@ class Repeater extends UIWrapper {
   // creationHandler
   //---------------------------------
   
-  static const EventHook<FrameworkEvent> onCreationHandlerEvent = const EventHook<FrameworkEvent>('creationHandlerChanged');
-  Stream<FrameworkEvent> get onCreationHandler => Repeater.onCreationHandlerEvent.forTarget(this);
   CreationHandler _creationHandler;
   
   CreationHandler get creationHandler => _creationHandler;
@@ -132,13 +130,13 @@ class Repeater extends UIWrapper {
   }
   
   @override
-  void addComponent(IUIWrapper element, {bool prepend: false}) {
+  void addComponent(BaseComponent element, {bool prepend: false}) {
     _isIterationInvalid = true;
     
     invalidateProperties();
   }
   
-  dynamic getCurrentValueFor(IUIWrapper target) => _from + _currentIndex;
+  dynamic getCurrentValueFor(BaseComponent target) => _from + _currentIndex;
   
   //---------------------------------
   //
@@ -154,7 +152,7 @@ class Repeater extends UIWrapper {
     _currentIndex = 0;
     
     for (int i=_from; i<=_to; i++) {
-      final IUIWrapper instance = _creationHandler();
+      final BaseComponent instance = _creationHandler();
       
       _currentIndex++;
       

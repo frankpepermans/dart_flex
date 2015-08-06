@@ -2,6 +2,8 @@ part of dart_flex;
 
 class FileUploadButton extends Button {
   
+  @event Stream<FrameworkEvent> onContentChanged;
+  
   //---------------------------------
   //
   // Private properties
@@ -28,8 +30,6 @@ class FileUploadButton extends Button {
   // content
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onContentChangedEvent = const EventHook<FrameworkEvent>('contentChanged');
-  Stream<FrameworkEvent> get onContentChanged => FileUploadButton.onContentChangedEvent.forTarget(this);
   String _content;
 
   String get content => _content;

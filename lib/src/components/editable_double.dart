@@ -1,6 +1,11 @@
 part of dart_flex;
 
-class EditableDouble extends UIWrapper {
+class EditableDouble extends Component {
+  
+  @event Stream<FrameworkEvent> onValueChanged;
+  @event Stream<FrameworkEvent> onInput;
+  @event Stream<FrameworkEvent> onMinChanged;
+  @event Stream<FrameworkEvent> onMaxChanged;
   
   //---------------------------------
   //
@@ -20,8 +25,6 @@ class EditableDouble extends UIWrapper {
   // value
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onValueChangedEvent = const EventHook<FrameworkEvent>('valueChanged');
-  Stream<FrameworkEvent> get onValueChanged => EditableDouble.onValueChangedEvent.forTarget(this);
   double _value;
 
   double get value => _value;
@@ -43,8 +46,6 @@ class EditableDouble extends UIWrapper {
   // min
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onMinChangedEvent = const EventHook<FrameworkEvent>('minChanged');
-  Stream<FrameworkEvent> get onMinChanged => EditableDouble.onMinChangedEvent.forTarget(this);
   double _min = .0;
 
   double get min => _min;
@@ -66,8 +67,6 @@ class EditableDouble extends UIWrapper {
   // max
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onMaxChangedEvent = const EventHook<FrameworkEvent>('maxChanged');
-  Stream<FrameworkEvent> get onMaxChanged => EditableDouble.onMaxChangedEvent.forTarget(this);
   double _max = 100.0;
 
   double get max => _max;
@@ -157,6 +156,12 @@ class EditableDouble extends UIWrapper {
     else value = null;
   
     _commitValue();
+    
+    notify(
+        new FrameworkEvent(
+            'input'
+        )
+    );
   }
   
   double _valueAsNumber(String value) => double.parse(value, (_) => .0);

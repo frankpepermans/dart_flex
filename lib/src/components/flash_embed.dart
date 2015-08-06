@@ -1,6 +1,8 @@
 part of dart_flex;
 
-class FlashEmbed extends UIWrapper {
+class FlashEmbed extends Component {
+  
+  @event Stream<FrameworkEvent> onSourceChanged;
   
   static final Random _RND = new Random(new DateTime.now().millisecondsSinceEpoch);
   
@@ -19,8 +21,6 @@ class FlashEmbed extends UIWrapper {
   // source
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onSourceChangedEvent = const EventHook<FrameworkEvent>('sourceChanged');
-  Stream<FrameworkEvent> get onSourceChanged => FlashEmbed.onSourceChangedEvent.forTarget(this);
   String _source;
 
   String get source => _source;

@@ -1,6 +1,10 @@
 part of dart_flex;
 
-class EditableTextArea extends UIWrapper {
+class EditableTextArea extends Component {
+  
+  @event Stream<FrameworkEvent> onTextChanged;
+  @event Stream<FrameworkEvent> onAlignChanged;
+  @event Stream<FrameworkEvent> onVerticalAlignChanged;
   
   //---------------------------------
   //
@@ -19,9 +23,7 @@ class EditableTextArea extends UIWrapper {
   //---------------------------------
   // text
   //---------------------------------
-
-  static const EventHook<FrameworkEvent> onTextChangedEvent = const EventHook<FrameworkEvent>('textChanged');
-  Stream<FrameworkEvent> get onTextChanged => EditableTextArea.onTextChangedEvent.forTarget(this);
+  
   String _text;
 
   String get text => _text;
@@ -43,8 +45,6 @@ class EditableTextArea extends UIWrapper {
   // align
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onAlignChangedEvent = const EventHook<FrameworkEvent>('alignChanged');
-  Stream<FrameworkEvent> get onAlignChanged => EditableTextArea.onAlignChangedEvent.forTarget(this);
   String _align = 'left';
 
   String get align => _align;
@@ -66,8 +66,6 @@ class EditableTextArea extends UIWrapper {
   // verticalAlign
   //---------------------------------
 
-  static const EventHook<FrameworkEvent> onVerticalAlignChangedEvent = const EventHook<FrameworkEvent>('verticalAlignChanged');
-  Stream<FrameworkEvent> get onVerticalAlignChanged => EditableTextArea.onVerticalAlignChangedEvent.forTarget(this);
   String _verticalAlign = 'text-top';
 
   String get verticalAlign => _verticalAlign;
