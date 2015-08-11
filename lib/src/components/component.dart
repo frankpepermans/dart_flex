@@ -169,7 +169,13 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
   
   bool get useMatrixTransformations => _useMatrixTransformations;
   set useMatrixTransformations(bool value) {
-    final bool newValue = (window.css.supports('${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)')) ? value : false;
+    bool newValue;
+    
+    try {
+      newValue = (window.css.supports('${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)')) ? value : false;
+    } catch (error) {
+      newValue = false;
+    }
     
     if (newValue != _useMatrixTransformations) {
       _useMatrixTransformations = newValue;
