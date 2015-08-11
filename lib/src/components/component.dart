@@ -477,6 +477,8 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
   }
 
   void invalidateProperties() {
+    if (!_isInitialized) return;
+    
     if (!_isLayoutUpdateRequired) invalidateLayout();
   }
   
