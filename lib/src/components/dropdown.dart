@@ -104,7 +104,9 @@ class Dropdown extends ListBase {
   set dataProvider(ObservableList<dynamic> value) {
     super.dataProvider = value;
     
-    if (_list != null) _list.dataProvider = value;
+    if (_list != null) {
+      _list.dataProvider = value;
+    }
   }
   
   //---------------------------------
@@ -213,13 +215,15 @@ class Dropdown extends ListBase {
     
     _input = new EditableText()
       ..className = 'dropdown-input'
+      ..cssClasses = const <String>['closed']
       ..percentWidth = 100.0
       ..percentHeight = 100.0
-      ..onTextChanged.listen((_) => open());
+      ..onTextChanged.listen((_) => handleInput());
     
     _handle = new Button()
       ..className = 'dropdown-handle'
-      ..width = 26
+      ..cssClasses = const <String>['closed']
+      ..width = 17
       ..percentHeight = 100.0
       ..onButtonClick.listen((_) => toggle());
     
@@ -247,9 +251,10 @@ class Dropdown extends ListBase {
       _list.itemRendererFactory = _itemRendererFactory;
       _list.rowHeight = _rowHeight;
       _list.labelFunction = _labelFunction;
-      _list.dataProvider = _dataProvider;
       _list.field = _field;
       _list.allowMultipleSelection = _allowMultipleSelection;
+      
+      updateListDataProvider();
     }
   }
   
@@ -280,6 +285,14 @@ class Dropdown extends ListBase {
     if (_isDropdownShown) addComponent(_list);
     else removeComponent(_list, flush: false);
     
+    if (_isDropdownShown) {
+      _list._control.style.opacity = '.0';
+      
+      reflowManager.invalidateCSS(_list._control, 'opacity', '1.0');
+    }
+    
+    _handle.cssClasses = _isDropdownShown ? const <String>['open'] : const <String>['closed'];
+    
     commitListPosition();
     
     invalidateListPosition();
@@ -295,25 +308,64 @@ class Dropdown extends ListBase {
   
   void commitListPosition() {
     final Point P = control.documentOffset;
+    final int h = min(_numRowsDisplayed, _list.dataProvider.length) * _rowHeight;
+    int y = P.y + _input.height + 2;
+    
+    if (y + h > window.innerHeight) y = P.y - h;
     
     _list.paddingLeft = P.x + 2;
-    _list.paddingTop = P.y + _input.height + 2;
+    _list.paddingTop = y;
     _list.width = width;
-    _list.height = _numRowsDisplayed * _rowHeight;
+    _list.height = h;
     
-    invalidateLayout();
+    invokeLaterSingle('updateLayout', updateLayout);
   }
   
   void handleListSelection(dynamic item) {
-    _input.text = itemToLabel(item);
+    _input._text = itemToLabel(item);
+    _input._commitText();
     
-    toggle();
+    close();
+  }
+  
+  void handleInput() {
+    _list._selectedItem = null;
+    
+    open();
+    
+    updateListDataProvider();
   }
   
   String itemToLabel(dynamic item) {
     if (labelFunction != null) return labelFunction(item);
     
     return item.toString();
+  }
+  
+  void updateListDataProvider() {
+    final dynamic exactMatch = _dataProvider.firstWhere((dynamic item) {
+      if (_input.text == null || _input.text.isEmpty) return true;
+      
+      if (item == null) return false;
+      
+      final String strValue = itemToLabel(item);
+      
+      if (strValue == null) return false;
+          
+      return (strValue.toLowerCase() == _input.text.toLowerCase());
+    }, orElse: () => null);
+    
+    _list.dataProvider = (exactMatch != null) ? _dataProvider : new ObservableList<dynamic>.from(_dataProvider.where((dynamic item) {
+      if (_input.text == null || _input.text.isEmpty) return true;
+      
+      if (item == null) return false;
+      
+      final String strValue = itemToLabel(item);
+      
+      if (strValue == null) return false;
+          
+      return strValue.toLowerCase().contains(_input.text.toLowerCase()); 
+    }));
   }
   
   @override

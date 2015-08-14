@@ -855,7 +855,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
       }
     };
     
-    if (!areListsUnequal) {
+    if (areListsUnequal) {
       _control.classes.clear();
       _control.classes.addAll(newClasses);
     }
