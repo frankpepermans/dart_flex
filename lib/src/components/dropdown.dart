@@ -218,13 +218,15 @@ class Dropdown extends ListBase {
       ..cssClasses = const <String>['closed']
       ..percentWidth = 100.0
       ..percentHeight = 100.0
-      ..onTextChanged.listen((_) => handleInput());
+      ..onTextChanged.listen((_) => handleInput())
+      ..onControlChanged.listen((FrameworkEvent<Element> event) => event.relatedObject.onClick.listen((_) => open()));
     
     _handle = new Button()
       ..className = 'dropdown-handle'
       ..cssClasses = const <String>['closed']
       ..width = 17
       ..percentHeight = 100.0
+      ..label = '▼'
       ..onButtonClick.listen((_) => toggle());
     
     _list = new ListRenderer()
@@ -237,10 +239,12 @@ class Dropdown extends ListBase {
       ..useSelectionEffects = true
       ..autoManageScrollBars = true
       ..allowMultipleSelection = false
-      ..onSelectedItemChanged.listen((FrameworkEvent<dynamic> event) => handleListSelection(event.relatedObject));
+      ..onSelectedItemChanged.listen((FrameworkEvent<dynamic> event) => handleListSelection(event.relatedObject))
+      ..visible = false;
     
     addComponent(_input);
     addComponent(_handle);
+    addComponent(_list);
   }
   
   @override 
@@ -282,13 +286,22 @@ class Dropdown extends ListBase {
   void toggle() {
     _isDropdownShown = !_isDropdownShown;
     
-    if (_isDropdownShown) addComponent(_list);
-    else removeComponent(_list, flush: false);
+    if (_isDropdownShown) _list.visible = true;
+    else _list.visible = false;
     
     if (_isDropdownShown) {
-      _list._control.style.opacity = '.0';
-      
-      reflowManager.invalidateCSS(_list._control, 'opacity', '1.0');
+      window.onMouseDown.listen((MouseEvent event) {
+        final Element E = event.target;
+        Element e = E;
+        
+        while (e.parent != null) {
+          if (e == _list._control || e == _input._control || e == _handle._control) return;
+          
+          e = e.parent;
+        }
+        
+        close();
+      });
     }
     
     _handle.cssClasses = _isDropdownShown ? const <String>['open'] : const <String>['closed'];
@@ -307,9 +320,18 @@ class Dropdown extends ListBase {
   }
   
   void commitListPosition() {
+    BaseComponent parent = owner;
+    int offset = 0;
+    
+    while (parent.owner != null) {
+      if (parent is ListRenderer) offset -= parent.scrollPosition;
+      
+      parent = parent.owner;
+    }
+    
     final Point P = control.documentOffset;
     final int h = min(_numRowsDisplayed, _list.dataProvider.length) * _rowHeight;
-    int y = P.y + _input.height + 2;
+    int y = P.y + offset + _input.height + 2;
     
     if (y + h > window.innerHeight) y = P.y - h;
     
@@ -324,6 +346,8 @@ class Dropdown extends ListBase {
   void handleListSelection(dynamic item) {
     _input._text = itemToLabel(item);
     _input._commitText();
+    
+    selectedItem = item;
     
     close();
   }
