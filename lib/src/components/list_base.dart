@@ -33,6 +33,8 @@ class ListBase extends Group {
   set inactiveHandler(InactiveHandler value) {
     if (value != _inactiveHandler) {
       _inactiveHandler = value;
+      
+      invalidateProperties();
     }
   }
 
@@ -80,6 +82,8 @@ class ListBase extends Group {
       _presentationHandler = value;
       
       invalidatePresentation();
+      
+      invalidateProperties();
     }
   }
   
@@ -99,6 +103,8 @@ class ListBase extends Group {
             'fieldChanged'
           )
       );
+      
+      invalidateProperties();
     }
   }
 
@@ -118,6 +124,8 @@ class ListBase extends Group {
             'labelFunctionChanged'
           )
       );
+      
+      invalidateProperties();
     }
   }
   
@@ -138,6 +146,8 @@ class ListBase extends Group {
             relatedObject: value
           )
       );
+      
+      invalidateProperties();
     }
   }
 

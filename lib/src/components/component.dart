@@ -640,6 +640,8 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
       element.removeAll();
     }
     
+    if (element is Component) element._owner = null;
+    
     invalidateLayout();
   }
 
