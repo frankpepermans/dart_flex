@@ -359,7 +359,7 @@ class ItemRenderer<D extends dynamic> extends Component implements IItemRenderer
   //---------------------------------
 
   ItemRenderer({String elementId: null, bool autoDrawBackground: true}) : super(elementId: null) {
-  	_className = 'ItemRenderer';
+  	_className = 'item-renderer';
   	
   	awaitLayoutBeforeRendering = true;
 	
@@ -530,7 +530,7 @@ class ItemRenderer<D extends dynamic> extends Component implements IItemRenderer
     
     final String mainClassName = className.split(' ').first;
     final List<String> newClasses = <String>[];
-    final List<String> cssList = '_${_className}'.split(' ');
+    final List<String> cssList = _className.split(' ');
     
     cssList.forEach(
       (String C) {

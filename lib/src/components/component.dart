@@ -825,7 +825,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
     }
     
     final List<String> newClasses = <String>[];
-    final List<String> cssList = '_${_className}'.split(' ');
+    final List<String> cssList = _className.split(' ');
     
     cssList.forEach(
       (String C) {
@@ -851,7 +851,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
     }
   }
   
-  void _addDefaultClass() => _control.classes.addAll('_$_className'.split(' '));
+  void _addDefaultClass() => _control.classes.addAll(_className.split(' '));
   
   void _addAllPendingClasses() {
     if (_cssClasses != null && _cssClasses.isNotEmpty) _control.classes.addAll(_cssClasses);

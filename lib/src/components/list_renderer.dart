@@ -464,7 +464,7 @@ class ListRenderer extends ListBase {
   //---------------------------------
 
   ListRenderer({String orientation: 'vertical'}) : super(elementId: null) {
-  	_className = 'ListRenderer';
+  	_className = 'list-renderer';
 	
     this.orientation = orientation;
   }
@@ -498,7 +498,7 @@ class ListRenderer extends ListBase {
     _scrollTarget.autoSize = false;
     _scrollTarget.includeInLayout = false;
     
-    _scrollTarget.className = 'ListScrollTarget';
+    _scrollTarget.className = 'list-scroll-target';
 
     addComponent(_scrollTarget);
 
@@ -597,6 +597,8 @@ class ListRenderer extends ListBase {
         ..index = index
         ..enableHighlight = true
         ..autoDrawBackground = _useSelectionEffects;
+      
+      if (renderer.className == null) renderer.className = 'list-renderer-item-renderer';
       
       renderer.streamSubscriptionManager.add(
           'list_base_rendererControlChanged', 

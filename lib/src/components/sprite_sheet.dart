@@ -159,7 +159,7 @@ class SpriteSheet extends Group {
   //---------------------------------
 
   SpriteSheet() : super() {
-  	_className = 'SpriteSheet';
+  	_className = 'sprite-sheet';
   	
   	onControlChanged.listen(
   	 (FrameworkEvent event) => _updateIndex()

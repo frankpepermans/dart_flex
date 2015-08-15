@@ -43,7 +43,7 @@ class Button extends Component {
   //---------------------------------
 
   Button({String elementId: null}) : super(elementId: elementId) {
-    _className = 'Button';
+    _className = 'button';
   }
 
   //---------------------------------

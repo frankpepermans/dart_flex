@@ -394,7 +394,7 @@ class DataGrid extends ListBase {
   //---------------------------------
 
   DataGrid() : super(elementId: null) {
-	   _className = 'DataGrid';
+	   _className = 'data-grid';
 	   
 	   _horizontalScrollPolicy = ScrollPolicy.AUTO;
 	   _verticalScrollPolicy = ScrollPolicy.AUTO;
@@ -478,9 +478,11 @@ class DataGrid extends ListBase {
     ..height = _headerHeight
     ..visible = !_headless
     ..includeInLayout = !_headless
+    ..className = 'data-grid-header-bounds'
     ..addComponent(_headerContainer);
 
     _list = new ListRenderer(orientation: 'grid')
+    ..className = 'data-grid-list-renderer'
     ..cssClasses = _listCssClasses
     ..useEvenOdd = true
     ..percentWidth = 100.0
@@ -728,6 +730,7 @@ class DataGrid extends ListBase {
 
   void _list_rendererAddedHandler(FrameworkEvent<DataGridItemRenderer> event) {
     final DataGridItemRenderer renderer = event.relatedObject
+      ..className = 'data-grid-list-renderer-item-renderer'
       ..gap = _columnSpacing
       ..columns = _columns
       ..grid = this;
