@@ -169,7 +169,13 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
   
   bool get useMatrixTransformations => _useMatrixTransformations;
   set useMatrixTransformations(bool value) {
-    final bool newValue = (window.css.supports('${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)')) ? value : false;
+    bool newValue;
+    
+    try {
+      newValue = (window.css.supports('${Device.cssPrefix}transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)')) ? value : false;
+    } catch (error) {
+      newValue = false;
+    }
     
     if (newValue != _useMatrixTransformations) {
       _useMatrixTransformations = newValue;
@@ -477,6 +483,8 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
   }
 
   void invalidateProperties() {
+    if (!_isInitialized) return;
+    
     if (!_isLayoutUpdateRequired) invalidateLayout();
   }
   
@@ -631,6 +639,8 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
       
       element.removeAll();
     }
+    
+    if (element is Component) element._owner = null;
     
     invalidateLayout();
   }
@@ -845,7 +855,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
       }
     };
     
-    if (!areListsUnequal) {
+    if (areListsUnequal) {
       _control.classes.clear();
       _control.classes.addAll(newClasses);
     }

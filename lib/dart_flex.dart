@@ -22,6 +22,7 @@ part "src/components/data_grid.dart";
 part "src/components/data_grid_column.dart";
 part "src/components/data_grid_item_renderer.dart";
 part "src/components/drag_drop_area.dart";
+part "src/components/dropdown.dart";
 part "src/components/editable_date.dart";
 part "src/components/editable_date_time.dart";
 part "src/components/editable_double.dart";
