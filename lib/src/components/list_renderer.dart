@@ -606,18 +606,7 @@ class ListRenderer extends ListBase {
       
       renderer.streamSubscriptionManager.add(
           'list_base_rendererControlChanged', 
-          renderer.onControlChanged.listen(
-            (FrameworkEvent event) {
-              final target = event.currentTarget as IItemRenderer;
-              
-              target.streamSubscriptionManager.flushIdent('list_base_rendererControlChanged');
-              
-              target.streamSubscriptionManager.add(
-                  'list_base_rendererMouseDown', 
-                  event.relatedObject.onMouseDown.listen(_handleMouseInteraction)
-              );
-            }
-          )
+          renderer.onControlChanged.listen(_rendererControlChangedHandler)
       );
     }
 
@@ -632,6 +621,17 @@ class ListRenderer extends ListBase {
             'rendererAdded',
             relatedObject: renderer
         )
+    );
+  }
+  
+  void _rendererControlChangedHandler(FrameworkEvent event) {
+    final target = event.currentTarget as IItemRenderer;
+    
+    target.streamSubscriptionManager.flushIdent('list_base_rendererControlChanged');
+    
+    target.streamSubscriptionManager.add(
+        'list_base_rendererMouseDown', 
+        event.relatedObject.onMouseDown.listen(_handleMouseInteraction)
     );
   }
   

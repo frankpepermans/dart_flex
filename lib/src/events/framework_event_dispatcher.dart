@@ -73,8 +73,6 @@ class EventDispatcherImpl implements EventDispatcher {
       final List<Function> handlers = _observers[type];
 
       i = handlers.length;
-      
-      if (i == 1) return handlers.clear();
 
       while (i > 0) {
         if (FunctionEqualityUtil.equals(handlers[--i], eventHandler)) {
