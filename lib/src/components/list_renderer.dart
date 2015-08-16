@@ -486,29 +486,33 @@ class ListRenderer extends ListBase {
   
   @override
   void createChildren() {
-    final DivElement container = new DivElement();
-    
-    _streamSubscriptionManager.add(
-        'list_base_containerScroll', 
-        container.onScroll.listen(_container_scrollHandler)
-    );
-
     _scrollTarget = new Group();
-    
-    _scrollTarget.autoSize = false;
-    _scrollTarget.includeInLayout = false;
-    
-    _scrollTarget.className = 'list-scroll-target';
 
     addComponent(_scrollTarget);
 
-    _setControl(container);
+    _setControl(new DivElement());
+    
+    _setupListListeners();
 
     super.createChildren();
   }
   
+  void _setupListListeners() {
+    _streamSubscriptionManager.add(
+        'list_base_containerScroll', 
+        _control.onScroll.listen(_container_scrollHandler)
+    );
+  }
+  
   @override
   void commitProperties() {
+    if (_scrollTarget != null) {
+      _scrollTarget.autoSize = false;
+      _scrollTarget.includeInLayout = false;
+      
+      _scrollTarget.className = 'list-scroll-target';
+    }
+    
     _updateOrientationIfNeeded();
 
     if (_layout != null) _layout.gap = _rowSpacing;

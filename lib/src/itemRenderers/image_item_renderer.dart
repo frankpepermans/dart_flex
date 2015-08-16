@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class ImageItemRenderer extends ItemRenderer {
+class ImageItemRenderer<D extends dynamic> extends ItemRenderer<D> {
 
   //---------------------------------
   //

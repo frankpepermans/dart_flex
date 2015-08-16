@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class DataGridItemRenderer<D> extends ItemRenderer {
+class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
   
   @event Stream<FrameworkEvent<IItemRenderer>> onRendererAdded;
   @event Stream<FrameworkEvent<IItemRenderer>> onRendererRemoved;

@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class EditableTime<T extends DateTime> extends EditableTextMask {
+class EditableTime<T extends DateTime> extends EditableTextMask<T> {
   
   //---------------------------------
   //

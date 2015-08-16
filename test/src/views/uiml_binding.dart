@@ -9,6 +9,6 @@ class BaseClass extends VGroup {
 
 class UIMLBinding extends BaseClass {
   
-  @Skin('dart_flex|test/src/views/uiml_binding.xml')
+  @skin('dart_flex|test/src/views/uiml_binding.xml')
   UIMLBinding() : super();
 }

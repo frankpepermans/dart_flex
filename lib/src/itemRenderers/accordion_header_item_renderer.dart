@@ -4,7 +4,7 @@ abstract class IAccordionHeaderItemRenderer extends IItemRenderer {
   
 }
 
-class AccordionHeaderItemRenderer extends LabelItemRenderer implements IAccordionHeaderItemRenderer {
+class AccordionHeaderItemRenderer<D extends dynamic> extends LabelItemRenderer<D> implements IAccordionHeaderItemRenderer {
   
   //---------------------------------
   //

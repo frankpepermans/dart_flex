@@ -82,7 +82,7 @@ class DataGrid extends ListBase {
     if (value != _dataGridItemRendererFactory) {
       _dataGridItemRendererFactory = value;
       
-      if (_list != null) _list.itemRendererFactory = value;
+      invalidateProperties();
     }
   }
   
@@ -97,12 +97,12 @@ class DataGrid extends ListBase {
   set listCssClasses(List<String> value) {
     if (value != _listCssClasses) {
       _listCssClasses = value;
-      
-      if (_list != null) _list.cssClasses = _listCssClasses;
 
       notify(
         new FrameworkEvent('listCssClassesChanged')
       );
+      
+      invalidateProperties();
     }
   }
   
@@ -179,7 +179,7 @@ class DataGrid extends ListBase {
   set allowMultipleSelection(bool value) {
     super.allowMultipleSelection = value;
     
-    if (_list != null) _list.allowMultipleSelection = value;
+    invalidateProperties();
   }
   
   //---------------------------------
@@ -189,7 +189,7 @@ class DataGrid extends ListBase {
   set inactiveHandler(InactiveHandler value) {
     super.inactiveHandler = value;
     
-    if (_list != null) _list.inactiveHandler = value;
+    invalidateProperties();
   }
   
   //---------------------------------
@@ -310,8 +310,6 @@ class DataGrid extends ListBase {
   set autoManageScrollBars(bool value) {
     if (value != _autoManageScrollBars) {
       _autoManageScrollBars = value;
-      
-      if (_list != null) _list.autoManageScrollBars = value;
 
       notify(
         new FrameworkEvent(
@@ -333,8 +331,6 @@ class DataGrid extends ListBase {
   set useSelectionEffects(bool value) {
     if (value != _useSelectionEffects) {
       _useSelectionEffects = value;
-      
-      if (_list != null) _list.useSelectionEffects = value;
 
       notify(
         new FrameworkEvent(
@@ -357,7 +353,7 @@ class DataGrid extends ListBase {
     if (value != _autoScrollSelectionIntoView) {
       _autoScrollSelectionIntoView = value;
 
-      if (_list != null) _list.autoScrollSelectionIntoView = value;
+      invalidateProperties();
     }
   }
   
@@ -383,7 +379,22 @@ class DataGrid extends ListBase {
     if (value != _disableRecycling) {
       _disableRecycling = value;
   
-      if (_list != null) _list.disableRecycling = value;
+      invalidateProperties();
+    }
+  }
+  
+  //---------------------------------
+  // useEvenOdd
+  //---------------------------------
+  
+  bool _useEvenOdd = true;
+  
+  bool get useEvenOdd => _useEvenOdd;
+  set useEvenOdd(bool value) {
+    if (value != _useEvenOdd) {
+      _useEvenOdd = value;
+  
+      invalidateProperties();
     }
   }
 
@@ -409,6 +420,49 @@ class DataGrid extends ListBase {
   @override
   void commitProperties() {
     super.commitProperties();
+    
+    if (_gridContainer != null) {
+      _gridContainer.gap = 0;
+      _gridContainer.percentWidth = 100.0;
+      _gridContainer.percentHeight = 100.0;
+      _gridContainer.className = 'data-grid-container';
+    }
+    
+    if (_headerContainer != null) {
+      _headerContainer.gap = _columnSpacing;
+      _headerContainer.percentWidth = 100.0;
+      _headerContainer.height = _headerHeight;
+      _headerContainer.visible = _headerContainer.includeInLayout = !_headless;
+      _headerContainer.autoSize = false;
+      _headerContainer.className = 'data-grid-header-container';
+    }
+    
+    if (_headerBounds != null) {
+      _headerBounds.percentWidth = 100.0;
+      _headerBounds.height = _headerHeight;
+      _headerBounds.visible = _headerBounds.includeInLayout = !_headless;
+      _headerBounds.autoSize = false;
+      _headerBounds.className = 'data-grid-header-bounds';
+    }
+    
+    if (_list != null) {
+      _list.orientation = 'grid';
+      _list.percentWidth = 100.0;
+      _list.percentHeight = 100.0;
+      _list.colPercentWidth = 100.0;
+      _list.useEvenOdd = _useEvenOdd;
+      _list.disableRecycling = _disableRecycling;
+      _list.autoScrollSelectionIntoView = _autoScrollSelectionIntoView;
+      _list.inactiveHandler = _inactiveHandler;
+      _list.rowSpacing = _rowSpacing;
+      _list.rowHeight = _rowHeight;
+      _list.dataProvider = _dataProvider;
+      _list.itemRendererFactory = _dataGridItemRendererFactory;
+      _list.useSelectionEffects = _useSelectionEffects;
+      _list.autoManageScrollBars = _autoManageScrollBars;
+      _list.allowMultipleSelection = _allowMultipleSelection;
+      _list.className = 'data-grid-list-renderer';
+    }
 
     if (
         _isColumnsChanged &&
@@ -458,47 +512,28 @@ class DataGrid extends ListBase {
   
   @override
   void createChildren() {
-    final DivElement container = new DivElement();
-
-    _gridContainer = new VGroup(gap: 0)
-    ..percentWidth = 100.0
-    ..percentHeight = 100.0
-    ..className = 'data-grid-container';
-
-    _headerContainer = new HGroup(gap: _columnSpacing)
-    ..visible = !_headless
-    ..includeInLayout = !_headless
-    ..percentWidth = 100.0
-    ..height = _headerHeight
-    ..autoSize = false
-    ..className = 'data-grid-header-container';
+    _gridContainer = new VGroup();
+    _headerContainer = new HGroup();
+    _headerBounds = new HGroup();
+    _list = new ListRenderer();
     
-    _headerBounds = new HGroup()
-    ..percentWidth = 100.0
-    ..height = _headerHeight
-    ..visible = !_headless
-    ..includeInLayout = !_headless
-    ..className = 'data-grid-header-bounds'
-    ..addComponent(_headerContainer);
-
-    _list = new ListRenderer(orientation: 'grid')
-    ..className = 'data-grid-list-renderer'
-    ..cssClasses = _listCssClasses
-    ..useEvenOdd = true
-    ..percentWidth = 100.0
-    ..percentHeight = 100.0
-    ..disableRecycling = _disableRecycling
-    ..colPercentWidth = 100.0
-    ..autoScrollSelectionIntoView = _autoScrollSelectionIntoView
-    ..inactiveHandler = _inactiveHandler
-    ..rowSpacing = _rowSpacing
-    ..rowHeight = _rowHeight
-    ..dataProvider = _dataProvider
-    ..itemRendererFactory = _dataGridItemRendererFactory
-    ..useSelectionEffects = _useSelectionEffects
-    ..autoManageScrollBars = _autoManageScrollBars
-    ..allowMultipleSelection = _allowMultipleSelection;
+    _setupListListeners();
     
+    _headerBounds.addComponent(_headerContainer);
+
+    _gridContainer.addComponent(_headerBounds);
+    _gridContainer.addComponent(_list);
+
+    addComponent(_gridContainer);
+
+    _setControl(new DivElement());
+    
+    invokeLaterSingle('updateScrollPolicy', _updateScrollPolicy);
+
+    super.createChildren();
+  }
+  
+  void _setupListListeners() {
     _list._streamSubscriptionManager.add(
         'data_grid_listScrollPositionChange', 
         _list.onListScrollPositionChanged.listen(
@@ -509,13 +544,6 @@ class DataGrid extends ListBase {
           )
         )
     );
-
-    _gridContainer.addComponent(_headerBounds);
-    _gridContainer.addComponent(_list);
-
-    addComponent(_gridContainer);
-
-    _setControl(container);
     
     _list._streamSubscriptionManager.add(
         'data_grid_listRendererAdded', 
@@ -536,10 +564,6 @@ class DataGrid extends ListBase {
         'data_grid_listSelectedItemChanged', 
         _list.onSelectedItemChanged.listen(_list_selectedItemChangedHandler)
     );
-    
-    invokeLaterSingle('updateScrollPolicy', _updateScrollPolicy);
-
-    super.createChildren();
   }
   
   @override

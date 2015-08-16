@@ -111,14 +111,11 @@ class BoundsContainer extends VGroup {
     _className = 'BoundsContainer';
     _orientation = orientation;
     
-    if (_orientation == 'vertical') _actualContainer = new VGroup()
-      ..cssClasses = const <String>['bounds-container-body']
-      ..percentWidth = 100.0
-      ..percentHeight = 100.0;
-    else _actualContainer = new HGroup()
-    ..cssClasses = const <String>['bounds-container-body']
-    ..percentWidth = 100.0
-    ..percentHeight = 100.0;
+    if (_orientation == 'vertical') _actualContainer = new VGroup();
+    else _actualContainer = new HGroup();
+    
+    _actualContainer.percentWidth = _actualContainer.percentHeight = 100.0;
+    _actualContainer.cssClasses = const <String>['bounds-container-body'];
   }
 
   //---------------------------------

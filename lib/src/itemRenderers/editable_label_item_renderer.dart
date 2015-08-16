@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class EditableLabelItemRenderer extends ItemRenderer {
+class EditableLabelItemRenderer<D extends dynamic> extends ItemRenderer<D> {
 
   //---------------------------------
   //

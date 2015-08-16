@@ -2,7 +2,7 @@ part of dart_flex;
 
 typedef int SortHandler(dynamic a, dynamic b, DataGridColumn column, IHeaderData headerData);
 
-abstract class IHeaderItemRenderer extends IItemRenderer {
+abstract class IHeaderItemRenderer<D extends dynamic> extends IItemRenderer<D> {
   
   Event lastClickEvent;
   
@@ -16,7 +16,7 @@ abstract class IHeaderItemRenderer extends IItemRenderer {
   
 }
 
-class HeaderItemRenderer extends ItemRenderer implements IHeaderItemRenderer {
+class HeaderItemRenderer<D extends dynamic> extends ItemRenderer<D> implements IHeaderItemRenderer {
   
   @event Stream<FrameworkEvent> onButtonClick;
 

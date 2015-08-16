@@ -3,7 +3,7 @@ part of dart_flex;
 typedef String LabelHandler(dynamic data);
 
 @classFactoryTarget(ItemRendererFactory, 'constructorMethod')
-abstract class IItemRenderer<D> implements BaseComponent {
+abstract class IItemRenderer<D extends dynamic> implements BaseComponent {
   
   Stream<FrameworkEvent> get onDataChanged;
   Stream<FrameworkEvent> get onFieldChanged;

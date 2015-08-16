@@ -17,7 +17,7 @@ class ExampleView extends Component {
     );
   }
   
-  @Skin('dart_flex|test/src/views/example_view.xml')
+  @skin('dart_flex|test/src/views/example_view.xml')
   
   // data modelling, using SYMBOL as key
   static const Symbol taskNameSymbol = const Symbol('task.task.name');

@@ -1,6 +1,6 @@
 part of dart_flex;
 
-class LabelItemRenderer extends ItemRenderer {
+class LabelItemRenderer<D extends dynamic> extends ItemRenderer<D> {
 
   //---------------------------------
   //
@@ -80,7 +80,7 @@ class LabelItemRenderer extends ItemRenderer {
       
       if (value != null) value = (_field != null) ? value[_field] : value;
       
-      return (value != null) ? (value is String) ? value : value.toString() : '';
+      return (value != null) ? (value is String) ? value : '${value}' : '';
     }
     
     return '';
@@ -89,7 +89,7 @@ class LabelItemRenderer extends ItemRenderer {
   String itemToLabel() => obtainValue();
 }
 
-class HTMLLabelItemRenderer extends LabelItemRenderer {
+class HTMLLabelItemRenderer<D extends dynamic> extends LabelItemRenderer<D> {
   
   //---------------------------------
   //
