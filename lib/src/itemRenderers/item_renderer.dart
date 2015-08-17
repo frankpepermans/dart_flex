@@ -9,8 +9,11 @@ abstract class IItemRenderer<D extends dynamic> implements BaseComponent {
   Stream<FrameworkEvent> get onFieldChanged;
   Stream<FrameworkEvent> get onFieldsChanged;
   Stream<FrameworkEvent> get onClick;
+  Stream<FrameworkEvent> get onMouseUp;
+  Stream<FrameworkEvent> get onMouseDown;
   Stream<FrameworkEvent> get onMouseOver;
   Stream<FrameworkEvent> get onMouseOut;
+  Stream<FrameworkEvent> get onMouseMove;
   Stream<FrameworkEvent> get onDataPropertyChanged;
 
   int get index;
@@ -75,8 +78,11 @@ class ItemRenderer<D extends dynamic> extends Component implements IItemRenderer
   @event Stream<FrameworkEvent> onFieldChanged;
   @event Stream<FrameworkEvent> onFieldsChanged;
   @event Stream<FrameworkEvent> onClick;
+  @event Stream<FrameworkEvent> onMouseUp;
+  @event Stream<FrameworkEvent> onMouseDown;
   @event Stream<FrameworkEvent> onMouseOver;
   @event Stream<FrameworkEvent> onMouseOut;
+  @event Stream<FrameworkEvent> onMouseMove;
   @event Stream<FrameworkEvent> onDataPropertyChanged;
 
   //---------------------------------
@@ -384,41 +390,93 @@ class ItemRenderer<D extends dynamic> extends Component implements IItemRenderer
     
     _streamSubscriptionManager.add(
         'item_renderer_containerClick', 
-        container.onClick.listen(
-            (MouseEvent event) => notify(
-                new FrameworkEvent<MouseEvent>(
-                    'click',
-                    relatedObject: event
-                )
-            )
-        )
+        container.onClick.listen(_clickHandler)
+    );
+    
+    _streamSubscriptionManager.add(
+        'item_renderer_containerMouseDown', 
+        container.onMouseDown.listen(_mouseDownHandler)
+    );
+    
+    _streamSubscriptionManager.add(
+        'item_renderer_containerMouseUp', 
+        container.onMouseUp.listen(_mouseUpHandler)
     );
     
     _streamSubscriptionManager.add(
         'item_renderer_containerMouseOver', 
-        container.onMouseOver.listen(
-            (MouseEvent event) => notify(
-                new FrameworkEvent<MouseEvent>(
-                    'mouseOver',
-                    relatedObject: event
-                )
-            )
-        )
+        container.onMouseOver.listen(_mouseOverHandler)
     );
     
     _streamSubscriptionManager.add(
         'item_renderer_containerMouseOut', 
-        container.onMouseOut.listen(
-            (MouseEvent event) => notify(
-                new FrameworkEvent<MouseEvent>(
-                    'mouseOut',
-                    relatedObject: event
-                )
-            )
-        )
+        container.onMouseOut.listen(_mouseOutHandler)
     );
 
     invokeLaterSingle('invalidateData', invalidateData);
+  }
+  
+  void _clickHandler(MouseEvent event) {
+    notify(
+        new FrameworkEvent<MouseEvent>(
+            'click',
+            relatedObject: event
+        )
+    );
+  }
+  
+  void _mouseUpHandler(MouseEvent event) {
+    notify(
+        new FrameworkEvent<MouseEvent>(
+            'mouseUp',
+            relatedObject: event
+        )
+    );
+  }
+  
+  void _mouseDownHandler(MouseEvent event) {
+    notify(
+        new FrameworkEvent<MouseEvent>(
+            'mouseDown',
+            relatedObject: event
+        )
+    );
+  }
+  
+  void _mouseOverHandler(MouseEvent event) {
+    final Element container = event.target;
+    
+    _streamSubscriptionManager.add(
+        'item_renderer_containerMouseMove', 
+        container.onMouseMove.listen(_mouseMoveHandler)
+    );
+    
+    notify(
+        new FrameworkEvent<MouseEvent>(
+            'mouseOver',
+            relatedObject: event
+        )
+    );
+  }
+  
+  void _mouseOutHandler(MouseEvent event) {
+    _streamSubscriptionManager.flushIdent('item_renderer_containerMouseMove');
+    
+    notify(
+        new FrameworkEvent<MouseEvent>(
+            'mouseOut',
+            relatedObject: event
+        )
+    );
+  }
+  
+  void _mouseMoveHandler(MouseEvent event) {
+    notify(
+        new FrameworkEvent<MouseEvent>(
+            'mouseMove',
+            relatedObject: event
+        )
+    );
   }
 
   void invalidateData() {}

@@ -1,6 +1,20 @@
 part of dart_flex;
 
-class DataGridColumn {
+class DataGridColumn extends EventDispatcherImpl {
+  
+  @event Stream<FrameworkEvent> onWidthChanged;
+  @event Stream<FrameworkEvent> onPercentWidthChanged;
+  @event Stream<FrameworkEvent> onMinWidthChanged;
+  @event Stream<FrameworkEvent> onHeaderDataChanged;
+  @event Stream<FrameworkEvent> onFieldChanged;
+  @event Stream<FrameworkEvent> onFieldsChanged;
+  @event Stream<FrameworkEvent> onColumnItemRendererFactoryChanged;
+  @event Stream<FrameworkEvent> onHeaderItemRendererFactoryChanged;
+  @event Stream<FrameworkEvent> onPropertyChanged;
+  @event Stream<FrameworkEvent> onIsActiveChanged;
+  @event Stream<FrameworkEvent> onIsVisibleChanged;
+  @event Stream<FrameworkEvent> onLabelHandlerChanged;
+  @event Stream<FrameworkEvent> onCssClassesChanged;
 
   //---------------------------------
   //
@@ -25,6 +39,10 @@ class DataGridColumn {
   set width(int value) {
     if (value != _width) {
       _width = value;
+      
+      notify(
+        new FrameworkEvent('widthChanged')    
+      );
     }
   }
 
@@ -39,6 +57,10 @@ class DataGridColumn {
   set percentWidth(double value) {
     if (value != _percentWidth) {
       _percentWidth = value;
+      
+      notify(
+        new FrameworkEvent('percentWidthChanged')    
+      );
     }
   }
 
@@ -53,6 +75,10 @@ class DataGridColumn {
   set minWidth(int value) {
     if (value != _minWidth) {
       _minWidth = value;
+      
+      notify(
+        new FrameworkEvent('minWidthChanged')    
+      );
     }
   }
 
@@ -67,6 +93,10 @@ class DataGridColumn {
   set headerData(IHeaderData value) {
     if (value != _headerData) {
       _headerData = value;
+      
+      notify(
+        new FrameworkEvent('headerDataChanged')    
+      );
     }
   }
   
@@ -80,6 +110,10 @@ class DataGridColumn {
   set field(Symbol value) {
     if (value != _field) {
       _field = value;
+      
+      notify(
+        new FrameworkEvent('fieldChanged')    
+      );
     }
   }
   
@@ -93,6 +127,10 @@ class DataGridColumn {
   set fields(List<Symbol> value) {
     if (value != _fields) {
       _fields = value;
+      
+      notify(
+        new FrameworkEvent('fieldsChanged')    
+      );
     }
   }
 
@@ -106,6 +144,10 @@ class DataGridColumn {
   set columnItemRendererFactory(ItemRendererFactory value) {
     if (value != _columnItemRendererFactory) {
       _columnItemRendererFactory = value;
+      
+      notify(
+        new FrameworkEvent('columnItemRendererFactoryChanged')    
+      );
     }
   }
 
@@ -119,6 +161,10 @@ class DataGridColumn {
   set headerItemRendererFactory(ItemRendererFactory<IHeaderItemRenderer> value) {
     if (value != _headerItemRendererFactory) {
       _headerItemRendererFactory = value;
+      
+      notify(
+        new FrameworkEvent('headerItemRendererFactoryChanged')    
+      );
     }
   }
 
@@ -132,6 +178,10 @@ class DataGridColumn {
   set property(String value) {
     if (value != _property) {
       _property = value;
+      
+      notify(
+        new FrameworkEvent('propertyChanged')    
+      );
     }
   }
   
@@ -145,6 +195,10 @@ class DataGridColumn {
   set isActive(bool value) {
     if (value != _isActive) {
       _isActive = value;
+      
+      notify(
+        new FrameworkEvent('isActiveChanged')    
+      );
     }
   }
   
@@ -158,6 +212,10 @@ class DataGridColumn {
   set isVisible(bool value) {
     if (value != _isVisible) {
       _isVisible = value;
+      
+      notify(
+        new FrameworkEvent('isVisibleChanged')    
+      );
     }
   }
   
@@ -171,6 +229,10 @@ class DataGridColumn {
   set labelHandler(Function value) {
     if (value != _labelHandler) {
       _labelHandler = value;
+      
+      notify(
+        new FrameworkEvent('labelHandlerChanged')    
+      );
     }
   }
   
@@ -184,6 +246,10 @@ class DataGridColumn {
   set cssClasses(List<String> value) {
     if (value != _cssClasses) {
       _cssClasses = value;
+      
+      notify(
+        new FrameworkEvent('cssClassesChanged')    
+      );
     }
   }
 

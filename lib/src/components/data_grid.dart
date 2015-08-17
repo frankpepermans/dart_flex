@@ -593,7 +593,9 @@ class DataGrid extends ListBase {
     int i, len;
 
     _removeAllElements();
-
+    
+    if (_headerItemRenderers != null) _headerItemRenderers.forEach((IHeaderItemRenderer header) => _removeHeaderListeners(header));
+ 
     _headerItemRenderers = new List<IHeaderItemRenderer>();
 
     if (_columns != null) {
@@ -609,13 +611,20 @@ class DataGrid extends ListBase {
             ..height = _headerHeight
             ..data =  column.headerData;
           
-          header.streamSubscriptionManager.add(
-              'data_grid_headerButtonClick', 
-              header.onButtonClick.listen(_header_clickHandler)
-          );
+          _setupHeaderListeners(header, column);
 
           if (column.width > 0) header.width = column.width;
           else header.percentWidth = column.percentWidth;
+          
+          column.onWidthChanged.listen(
+            (FrameworkEvent event) {
+              header.width = (event.currentTarget as DataGridColumn).width;
+            }
+          );
+          
+          column.onPercentWidthChanged.listen(
+            (FrameworkEvent event) => header.percentWidth = (event.currentTarget as DataGridColumn).percentWidth
+          );
           
           _headerItemRenderers.add(header);
 
@@ -640,6 +649,37 @@ class DataGrid extends ListBase {
   }
   
   List<IHeaderItemRenderer> _sortHandlers = <IHeaderItemRenderer>[];
+  
+  void _setupHeaderListeners(IHeaderItemRenderer header, DataGridColumn column) {
+    header.streamSubscriptionManager.add(
+        'data_grid_headerButtonClick', 
+        header.onButtonClick.listen(_header_clickHandler)
+    );
+    
+    header.streamSubscriptionManager.add(
+        'data_grid_headerWidthChanged', 
+        column.onWidthChanged.listen(
+          (FrameworkEvent event) {
+            header.width = column.width;
+            
+            _headerContainer.invalidateLayout();
+          }
+        )
+    );
+    
+    header.streamSubscriptionManager.add(
+        'data_grid_headerPercentWidthChanged', 
+        column.onPercentWidthChanged.listen(
+          (FrameworkEvent event) {
+            header.percentWidth = column.percentWidth;
+            
+            _headerContainer.invalidateLayout();
+          }
+        )
+    );
+  }
+  
+  void _removeHeaderListeners(IHeaderItemRenderer header) => header.streamSubscriptionManager.flushAll();
 
   void _header_clickHandler(FrameworkEvent<IHeaderData> event) {
     if (!_allowHeaderColumnSorting) return;

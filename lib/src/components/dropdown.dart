@@ -289,20 +289,12 @@ class Dropdown extends ListBase {
     if (_isDropdownShown) _list.visible = true;
     else _list.visible = false;
     
-    if (_isDropdownShown) {
-      window.onMouseDown.listen((MouseEvent event) {
-        final Element E = event.target;
-        Element e = E;
-        
-        while (e.parent != null) {
-          if (e == _list._control || e == _input._control || e == _handle._control) return;
-          
-          e = e.parent;
-        }
-        
-        close();
-      });
-    }
+    streamSubscriptionManager.flushIdent('mouseDownOutsideHandler');
+    
+    if (_isDropdownShown) streamSubscriptionManager.add(
+      'mouseDownOutsideHandler',
+      window.onMouseDown.listen(_mouseDownOutsideHandler)
+    );
     
     _handle.cssClasses = _isDropdownShown ? const <String>['open'] : const <String>['closed'];
     
@@ -320,22 +312,17 @@ class Dropdown extends ListBase {
   }
   
   void commitListPosition() {
-    BaseComponent parent = owner;
-    int offset = 0;
-    
-    while (parent.owner != null) {
-      if (parent is ListRenderer) offset -= parent.scrollPosition;
-      
-      parent = parent.owner;
-    }
-    
-    final Point P = control.documentOffset;
+    final docElem = document.documentElement;
+    final box = _control.getBoundingClientRect();
+    final int offsetX = box.left + window.pageXOffset - docElem.clientLeft;
+    final int offsetY = box.top  + window.pageYOffset - docElem.clientTop;
     final int h = min(_numRowsDisplayed, _list.dataProvider.length) * _rowHeight;
-    int y = P.y + offset + _input.height + 2;
+    int x = offsetX;
+    int y = offsetY + _input.height;
     
-    if (y + h > window.innerHeight) y = P.y - h;
+    if (y + h > window.innerHeight) y = offsetY - h;
     
-    _list.paddingLeft = P.x + 2;
+    _list.paddingLeft = x;
     _list.paddingTop = y;
     _list.width = width;
     _list.height = h;
@@ -367,8 +354,10 @@ class Dropdown extends ListBase {
   }
   
   void updateListDataProvider() {
+    final String f = (_input.text == null) ? null : _input.text.toLowerCase();
+    
     final dynamic exactMatch = _dataProvider.firstWhere((dynamic item) {
-      if (_input.text == null || _input.text.isEmpty) return true;
+      if (f == null || f.isEmpty) return true;
       
       if (item == null) return false;
       
@@ -376,22 +365,37 @@ class Dropdown extends ListBase {
       
       if (strValue == null) return false;
           
-      return (strValue.toLowerCase() == _input.text.toLowerCase());
+      return (strValue.toLowerCase() == f);
     }, orElse: () => null);
     
-    _list.dataProvider = (exactMatch != null) ? _dataProvider : new ObservableList<dynamic>.from(_dataProvider.where((dynamic item) {
-      if (_input.text == null || _input.text.isEmpty) return true;
-      
-      if (item == null) return false;
-      
-      final String strValue = itemToLabel(item);
-      
-      if (strValue == null) return false;
-          
-      return strValue.toLowerCase().contains(_input.text.toLowerCase()); 
-    }));
+    _list.dataProvider = (exactMatch != null) ? _dataProvider : _getFilteredDataProvider(f);
   }
+  
+  ObservableList<dynamic> _getFilteredDataProvider(String filterValue) => new ObservableList<dynamic>.from(_dataProvider.where((dynamic item) {
+    if (filterValue == null || filterValue.isEmpty) return true;
+    
+    if (item == null) return false;
+    
+    final String strValue = itemToLabel(item);
+    
+    if (strValue == null) return false;
+        
+    return strValue.toLowerCase().contains(filterValue); 
+  }));
   
   @override
   void _updateElements() {}
+  
+  void _mouseDownOutsideHandler(MouseEvent event) {
+    final Element E = event.target;
+    Element e = E;
+    
+    while (e.parent != null) {
+      if (e == _list._control || e == _input._control || e == _handle._control) return;
+      
+      e = e.parent;
+    }
+    
+    close();
+  }
 }

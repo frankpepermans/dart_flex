@@ -184,7 +184,27 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
       ..labelHandler = column.labelHandler
       ..height = _grid.rowHeight;
     
+    _setupHeaderListeners(renderer, column);
+    
     return renderer;
+  }
+  
+  void _setupHeaderListeners(IItemRenderer renderer, DataGridColumn column) {
+    column.onWidthChanged.listen(
+      (FrameworkEvent event) {
+        renderer.width = column.width;
+        
+        _updateLayout();
+      }
+    );
+    
+    column.onPercentWidthChanged.listen(
+      (FrameworkEvent event) {
+        renderer.percentWidth = column.percentWidth;
+        
+        _updateLayout();
+      }
+    );
   }
   
   void refreshColumns() {
@@ -204,6 +224,23 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
   // Protected methods
   //
   //---------------------------------
+  
+  void _updateLayout() {
+    if (_grid != null && _columns != null) {
+      _itemRendererInstances.forEach(
+        (IItemRenderer renderer) {
+          final DataGridColumn column = getColumn(renderer);
+          
+          if (column._isActive) {
+            if (column.percentWidth > .0) renderer.percentWidth = column.percentWidth;
+            else renderer.width = column.width;
+          }
+        }
+      );
+      
+      invalidateLayout();
+    }
+  }
   
   void _updateItemRenderers() {
     if (_grid != null && _columns != null) {
