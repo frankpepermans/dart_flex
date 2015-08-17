@@ -190,21 +190,9 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
   }
   
   void _setupHeaderListeners(IItemRenderer renderer, DataGridColumn column) {
-    column.onWidthChanged.listen(
-      (FrameworkEvent event) {
-        renderer.width = column.width;
-        
-        _updateLayout();
-      }
-    );
+    column.onWidthChanged.listen(_updateLayout);
     
-    column.onPercentWidthChanged.listen(
-      (FrameworkEvent event) {
-        renderer.percentWidth = column.percentWidth;
-        
-        _updateLayout();
-      }
-    );
+    column.onPercentWidthChanged.listen(_updateLayout);
   }
   
   void refreshColumns() {
@@ -225,7 +213,7 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
   //
   //---------------------------------
   
-  void _updateLayout() {
+  void _updateLayout(FrameworkEvent event) {
     if (_grid != null && _columns != null) {
       _itemRendererInstances.forEach(
         (IItemRenderer renderer) {

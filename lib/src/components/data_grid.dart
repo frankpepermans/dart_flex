@@ -612,19 +612,6 @@ class DataGrid extends ListBase {
             ..data =  column.headerData;
           
           _setupHeaderListeners(header, column);
-
-          if (column.width > 0) header.width = column.width;
-          else header.percentWidth = column.percentWidth;
-          
-          column.onWidthChanged.listen(
-            (FrameworkEvent event) {
-              header.width = (event.currentTarget as DataGridColumn).width;
-            }
-          );
-          
-          column.onPercentWidthChanged.listen(
-            (FrameworkEvent event) => header.percentWidth = (event.currentTarget as DataGridColumn).percentWidth
-          );
           
           _headerItemRenderers.add(header);
 
@@ -646,6 +633,8 @@ class DataGrid extends ListBase {
         );
       }
     }
+    
+    invalidateLayout();
   }
   
   List<IHeaderItemRenderer> _sortHandlers = <IHeaderItemRenderer>[];
@@ -659,22 +648,14 @@ class DataGrid extends ListBase {
     header.streamSubscriptionManager.add(
         'data_grid_headerWidthChanged', 
         column.onWidthChanged.listen(
-          (FrameworkEvent event) {
-            header.width = column.width;
-            
-            _headerContainer.invalidateLayout();
-          }
+          (FrameworkEvent event) => invalidateLayout()
         )
     );
     
     header.streamSubscriptionManager.add(
         'data_grid_headerPercentWidthChanged', 
         column.onPercentWidthChanged.listen(
-          (FrameworkEvent event) {
-            header.percentWidth = column.percentWidth;
-            
-            _headerContainer.invalidateLayout();
-          }
+          (FrameworkEvent event) => invalidateLayout()
         )
     );
   }
@@ -731,14 +712,14 @@ class DataGrid extends ListBase {
         (_columns != null)
     ) {
       DataGridColumn column;
-      int i = _columns.length;
+      int i;
       int w = 0;
       int tw = 0;
       int remainingWidth = 0;
       double procCount = .0;
 
-      while (i > 0) {
-        column = _columns[--i];
+      for (i=0; i<_columns.length; i++) {
+        column = _columns[i];
         
         if (column._isActive && column._isVisible) {
           if (column.percentWidth > .0) {
@@ -750,8 +731,17 @@ class DataGrid extends ListBase {
           }
         }
       }
-
-      i = _columns.length;
+      
+      if (_headerItemRenderers != null) {
+        _headerItemRenderers.forEach((IHeaderItemRenderer header) {
+          column = _columns[_headerItemRenderers.indexOf(header)];
+          
+          if (column.width > 0) header.width = column.width;
+          else header.percentWidth = column.percentWidth;
+        });
+        
+        _headerContainer.invalidateLayout();
+      }
 
       tw += w;
 
@@ -760,15 +750,13 @@ class DataGrid extends ListBase {
       remainingWidth = (remainingWidth < 0) ? 0 : remainingWidth;
 
       if (procCount > .0) {
-        while (i > 0) {
-          column = _columns[--i];
-
+        for (i=0; i<_columns.length; i++) {
+          column = _columns[i];
+          
           if (
               column._isActive &&
               (column.percentWidth > .0)
-          ) {
-            w += max(column.minWidth, (remainingWidth * column.percentWidth ~/ procCount));
-          }
+          ) w += max(column.minWidth, (remainingWidth * column.percentWidth ~/ procCount));
         }
       }
       
