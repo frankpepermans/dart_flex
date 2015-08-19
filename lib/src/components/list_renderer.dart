@@ -913,6 +913,8 @@ class ListRenderer extends ListBase {
       _control.scrollLeft = scrollPosition = _colWidth * (_control.scrollLeft ~/ _colWidth);
       headerScrollPosition = _control.scrollTop;
     }
+    
+    if (document.activeElement != null) document.activeElement.blur();
   }
   
   void _updateSelection() {

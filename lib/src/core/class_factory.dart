@@ -80,7 +80,7 @@ class ClassFactory<T extends BaseComponent> {
   }*/
 }
 
-class ItemRendererFactory<T extends IItemRenderer> extends ClassFactory {
+class ItemRendererFactory<T extends IItemRenderer> extends ClassFactory<IItemRenderer> {
   
   //---------------------------------
   //
@@ -108,6 +108,8 @@ class ItemRendererFactory<T extends IItemRenderer> extends ClassFactory {
     
     renderer.inactiveHandler = _inactiveHandler;
     renderer.validationHandler = _validationHandler;
+    
+    if (_className != null) renderer.className = _className;
     
     return renderer;
   }

@@ -145,7 +145,7 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
       final int xMax = xMin + _grid._width;
       
       _itemRendererInstances.where((IItemRenderer renderer) => (renderer.x + renderer.width >= xMin && renderer.x - renderer.width <= xMax))
-        .forEach((IItemRenderer renderer) => renderer.data = _data);
+        .forEach((IItemRenderer renderer) => renderer.data = (_data is Iterable) ? (_data as Iterable).elementAt(renderer.index) : _data);
     }
   }
   
@@ -176,7 +176,7 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
   IItemRenderer createItemRenderer(DataGridColumn column, int index) {
     final IItemRenderer renderer = column.columnItemRendererFactory.immediateInstance()
       ..index = index
-      ..data = _data
+      ..data = (_data is Iterable) ? (_data as Iterable).elementAt(index) : _data
       ..enableHighlight = true
       ..field = column._field
       ..fields = column._fields

@@ -75,10 +75,10 @@ class EventDispatcherImpl implements EventDispatcher {
       i = handlers.length;
 
       while (i > 0) {
-        if (FunctionEqualityUtil.equals(handlers[--i], eventHandler)) {
+        if (handlers[--i] == eventHandler) {
           handlers.removeAt(i);
 
-          break;
+          return;
         }
       }
     }
