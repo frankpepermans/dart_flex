@@ -39,7 +39,6 @@ part 'src/components/group.dart';
 part 'src/components/header.dart';
 part 'src/components/hgroup.dart';
 part 'src/components/image.dart';
-part 'src/components/spreadsheet.dart';
 part 'src/itemRenderers/item_renderer.dart';
 part 'src/components/list_renderer.dart';
 part 'src/components/list_base.dart';

@@ -4,9 +4,13 @@ typedef int SortHandler(dynamic a, dynamic b, DataGridColumn column, IHeaderData
 
 abstract class IHeaderItemRenderer<D extends dynamic> extends IItemRenderer<D> {
   
+  bool get highlighted;
+  void set highlighted(bool value);
+  
   Event lastClickEvent;
   
   Stream<FrameworkEvent> get onButtonClick;
+  Stream<FrameworkEvent> get onHighlightedChanged;
   
   SortHandler sortHandler;
   
@@ -19,6 +23,7 @@ abstract class IHeaderItemRenderer<D extends dynamic> extends IItemRenderer<D> {
 class HeaderItemRenderer<D extends dynamic> extends ItemRenderer<D> implements IHeaderItemRenderer {
   
   @event Stream<FrameworkEvent> onButtonClick;
+  @event Stream<FrameworkEvent> onHighlightedChanged;
 
   //---------------------------------
   //
@@ -43,6 +48,23 @@ class HeaderItemRenderer<D extends dynamic> extends ItemRenderer<D> implements I
   bool isSortedAsc = true;
   
   IHeaderData get headerData => _data as IHeaderData;
+  
+  //---------------------------------
+  // highlighted
+  //---------------------------------
+  
+  bool _highlighted = false;
+  
+  bool get highlighted => _highlighted;
+  void set highlighted(bool value) {
+    if (value != _highlighted) {
+      _highlighted = value;
+      
+      cssClasses = value ? const <String>['header-highlighted'] : null;
+      
+      notify(new FrameworkEvent<bool>('highlightedChanged', relatedObject: value));
+    }
+  }
 
   //---------------------------------
   //

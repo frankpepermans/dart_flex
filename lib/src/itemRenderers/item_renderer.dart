@@ -126,7 +126,7 @@ class ItemRenderer<D extends dynamic> extends Component implements IItemRenderer
         new FrameworkEvent<D>('dataChanged', relatedObject: value)
       );
 
-      invokeLaterSingle('invalidateData', invalidateData);
+      invalidateData();//invokeLaterSingle('invalidateData', invalidateData);
     }
   }
   

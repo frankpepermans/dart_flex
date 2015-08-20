@@ -8,6 +8,7 @@ class DataGrid extends ListBase {
   
   @event Stream<FrameworkEvent> onRendererAdded;
   @event Stream<FrameworkEvent> onRendererRemoved;
+  @event Stream<FrameworkEvent> onHeaderRendererAdded;
   @event Stream<FrameworkEvent> onColumnsChanged;
   @event Stream<FrameworkEvent> onDataGridItemRendererFactoryChanged;
   @event Stream<FrameworkEvent> onListCSSClassesChanged;
@@ -606,6 +607,7 @@ class DataGrid extends ListBase {
         
         if (column._isActive) {
           header = column.headerItemRendererFactory.immediateInstance()
+            ..index = i
             ..visible = !_headless
             ..includeInLayout = !_headless
             ..height = _headerHeight
@@ -616,6 +618,8 @@ class DataGrid extends ListBase {
           _headerItemRenderers.add(header);
 
           _headerContainer.addComponent(header);
+          
+          notify(new FrameworkEvent<IHeaderItemRenderer>('headerRendererAdded', relatedObject: header));
         }
       }
 
