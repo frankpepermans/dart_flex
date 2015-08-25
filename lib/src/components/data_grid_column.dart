@@ -267,6 +267,8 @@ class DataGridColumn extends EventDispatcherImpl {
   //
   //---------------------------------
   
+  dynamic getItemRendererData(dynamic data, int index) => data;
+  
   String toString() => '$_property => $_headerData';
 }
 

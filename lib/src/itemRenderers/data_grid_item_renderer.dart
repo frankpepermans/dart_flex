@@ -144,8 +144,14 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
       final int xMin = _grid._list._headerScrollPosition - _grid._headerContainer.x;
       final int xMax = xMin + _grid._width;
       
+      
       _itemRendererInstances.where((IItemRenderer renderer) => (renderer.x + renderer.width >= xMin && renderer.x - renderer.width <= xMax))
-        .forEach((IItemRenderer renderer) => renderer.data = (_data is Iterable) ? (_data as Iterable).elementAt(renderer.index) : _data);
+        .forEach((IItemRenderer renderer) {
+          final DataGridColumn column = getColumn(renderer);
+          final dynamic D = (column != null) ? column.getItemRendererData(_data, renderer.index) : null;
+          
+          renderer.data = D;
+        });
     }
   }
   
@@ -174,9 +180,10 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
   }
   
   IItemRenderer createItemRenderer(DataGridColumn column, int index) {
+    final dynamic D = column.getItemRendererData(_data, index);
     final IItemRenderer renderer = column.columnItemRendererFactory.immediateInstance()
       ..index = index
-      ..data = (_data is Iterable) ? (_data as Iterable).elementAt(index) : _data
+      ..data = D
       ..enableHighlight = true
       ..field = column._field
       ..fields = column._fields

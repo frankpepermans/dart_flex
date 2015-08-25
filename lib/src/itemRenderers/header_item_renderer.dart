@@ -2,15 +2,11 @@ part of dart_flex;
 
 typedef int SortHandler(dynamic a, dynamic b, DataGridColumn column, IHeaderData headerData);
 
-abstract class IHeaderItemRenderer<D extends dynamic> extends IItemRenderer<D> {
-  
-  bool get highlighted;
-  void set highlighted(bool value);
+abstract class IHeaderItemRenderer<D extends IHeaderData> extends IItemRenderer<IHeaderData> {
   
   Event lastClickEvent;
   
   Stream<FrameworkEvent> get onButtonClick;
-  Stream<FrameworkEvent> get onHighlightedChanged;
   
   SortHandler sortHandler;
   
@@ -20,10 +16,9 @@ abstract class IHeaderItemRenderer<D extends dynamic> extends IItemRenderer<D> {
   
 }
 
-class HeaderItemRenderer<D extends dynamic> extends ItemRenderer<D> implements IHeaderItemRenderer {
+class HeaderItemRenderer<D extends IHeaderData> extends ItemRenderer<IHeaderData> implements IHeaderItemRenderer {
   
   @event Stream<FrameworkEvent> onButtonClick;
-  @event Stream<FrameworkEvent> onHighlightedChanged;
 
   //---------------------------------
   //
@@ -49,21 +44,13 @@ class HeaderItemRenderer<D extends dynamic> extends ItemRenderer<D> implements I
   
   IHeaderData get headerData => _data as IHeaderData;
   
-  //---------------------------------
-  // highlighted
-  //---------------------------------
-  
-  bool _highlighted = false;
-  
-  bool get highlighted => _highlighted;
-  void set highlighted(bool value) {
-    if (value != _highlighted) {
-      _highlighted = value;
-      
-      cssClasses = value ? const <String>['header-highlighted'] : null;
-      
-      notify(new FrameworkEvent<bool>('highlightedChanged', relatedObject: value));
-    }
+  @override
+  void set data(D value) {
+    streamSubscriptionManager.flushIdent('highlight-listener');
+    
+    super.data = value;
+    
+    if (value != null) streamSubscriptionManager.add('highlight-listener', value.onHighlightedChanged.listen((_) => invalidateData()));
   }
 
   //---------------------------------
@@ -110,6 +97,8 @@ class HeaderItemRenderer<D extends dynamic> extends ItemRenderer<D> implements I
        (_button != null) &&
        (_data != null)
     ) _button.label = headerData.label;
+    
+    cssClasses = (headerData != null && headerData.highlighted) ? const <String>['header-highlighted'] : null;
   }
   
   //---------------------------------
@@ -130,7 +119,12 @@ class HeaderItemRenderer<D extends dynamic> extends ItemRenderer<D> implements I
   }
 }
 
-abstract class IHeaderData {
+abstract class IHeaderData extends EventDispatcher {
+  
+  Stream<FrameworkEvent> onHighlightedChanged;
+  
+  bool get highlighted;
+  void set highlighted(bool value);
   
   final String label = '', labelLong = '', identifier = '';
   final Symbol field = null;
@@ -138,26 +132,60 @@ abstract class IHeaderData {
   
 }
 
-class HeaderData implements IHeaderData {
+class HeaderData extends EventDispatcherImpl implements IHeaderData {
+  
+  @event Stream<FrameworkEvent> onHighlightedChanged;
   
   final String label, labelLong, identifier;
   final Symbol field;
   final dynamic data = null;
   
-  const HeaderData(this.identifier, this.field, this.label, this.labelLong);
+  //---------------------------------
+  // highlighted
+  //---------------------------------
+  
+  bool _highlighted = false;
+  
+  bool get highlighted => _highlighted;
+  void set highlighted(bool value) {
+    if (value != _highlighted) {
+      _highlighted = value;
+      
+      notify(new FrameworkEvent<bool>('highlightedChanged', relatedObject: value));
+    }
+  }
+  
+  HeaderData(this.identifier, this.field, this.label, this.labelLong);
   
   static HeaderData createSimple(String simpleName) => new HeaderData(simpleName, new Symbol(simpleName), simpleName, simpleName);
   
   String toString() => '$label : $field';
 }
 
-class DynamicHeaderData implements IHeaderData {
+class DynamicHeaderData extends EventDispatcherImpl implements IHeaderData {
+  
+  @event Stream<FrameworkEvent> onHighlightedChanged;
   
   final String label, labelLong, identifier;
   final Symbol field;
   final dynamic data;
   
-  const DynamicHeaderData(this.identifier, this.field, this.label, this.labelLong, this.data);
+  //---------------------------------
+  // highlighted
+  //---------------------------------
+  
+  bool _highlighted = false;
+  
+  bool get highlighted => _highlighted;
+  void set highlighted(bool value) {
+    if (value != _highlighted) {
+      _highlighted = value;
+      
+      notify(new FrameworkEvent<bool>('highlightedChanged', relatedObject: value));
+    }
+  }
+  
+  DynamicHeaderData(this.identifier, this.field, this.label, this.labelLong, this.data);
   
   static DynamicHeaderData createSimple(String simpleName, dynamic simpleData) => new DynamicHeaderData(simpleName, new Symbol(simpleName), simpleName, simpleName, simpleData);
   
