@@ -86,11 +86,11 @@ class DataGridColumn extends EventDispatcherImpl {
   // headerData
   //---------------------------------
 
-  IHeaderData _headerData;
+  HeaderData _headerData;
 
-  IHeaderData get headerData => _headerData;
+  HeaderData get headerData => _headerData;
 
-  set headerData(IHeaderData value) {
+  set headerData(HeaderData value) {
     if (value != _headerData) {
       _headerData = value;
       

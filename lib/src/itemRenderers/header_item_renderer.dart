@@ -1,8 +1,8 @@
 part of dart_flex;
 
-typedef int SortHandler(dynamic a, dynamic b, DataGridColumn column, IHeaderData headerData);
+typedef int SortHandler(dynamic a, dynamic b, DataGridColumn column, HeaderData headerData);
 
-abstract class IHeaderItemRenderer<D extends IHeaderData> extends IItemRenderer<IHeaderData> {
+abstract class IHeaderItemRenderer<D extends HeaderData> extends IItemRenderer<HeaderData> {
   
   Event lastClickEvent;
   
@@ -12,11 +12,11 @@ abstract class IHeaderItemRenderer<D extends IHeaderData> extends IItemRenderer<
   
   bool isSortedAsc = true;
   
-  IHeaderData get headerData;
+  HeaderData get headerData;
   
 }
 
-class HeaderItemRenderer<D extends IHeaderData> extends ItemRenderer<IHeaderData> implements IHeaderItemRenderer {
+class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> implements IHeaderItemRenderer {
   
   @event Stream<FrameworkEvent> onButtonClick;
 
@@ -42,7 +42,7 @@ class HeaderItemRenderer<D extends IHeaderData> extends ItemRenderer<IHeaderData
   
   bool isSortedAsc = true;
   
-  IHeaderData get headerData => _data as IHeaderData;
+  HeaderData get headerData => _data as HeaderData;
   
   @override
   void set data(D value) {
@@ -111,7 +111,7 @@ class HeaderItemRenderer<D extends IHeaderData> extends ItemRenderer<IHeaderData
     lastClickEvent = _button.lastClickEvent;
     
     notify(
-        new FrameworkEvent<IHeaderData>(
+        new FrameworkEvent<HeaderData>(
             'buttonClick',
             relatedObject: headerData
         )
@@ -119,7 +119,7 @@ class HeaderItemRenderer<D extends IHeaderData> extends ItemRenderer<IHeaderData
   }
 }
 
-abstract class IHeaderData extends EventDispatcher {
+abstract class HeaderData extends EventDispatcher {
   
   Stream<FrameworkEvent> onHighlightedChanged;
   
@@ -132,7 +132,7 @@ abstract class IHeaderData extends EventDispatcher {
   
 }
 
-class HeaderData extends EventDispatcherImpl implements IHeaderData {
+class HeaderDataImpl extends EventDispatcherImpl implements HeaderData {
   
   @event Stream<FrameworkEvent> onHighlightedChanged;
   
@@ -155,39 +155,18 @@ class HeaderData extends EventDispatcherImpl implements IHeaderData {
     }
   }
   
-  HeaderData(this.identifier, this.field, this.label, this.labelLong);
+  HeaderDataImpl(this.identifier, this.field, this.label, this.labelLong);
   
-  static HeaderData createSimple(String simpleName) => new HeaderData(simpleName, new Symbol(simpleName), simpleName, simpleName);
+  static HeaderDataImpl createSimple(String simpleName) => new HeaderDataImpl(simpleName, new Symbol(simpleName), simpleName, simpleName);
   
   String toString() => '$label : $field';
 }
 
-class DynamicHeaderData extends EventDispatcherImpl implements IHeaderData {
+class DynamicHeaderDataImpl extends HeaderDataImpl {
   
-  @event Stream<FrameworkEvent> onHighlightedChanged;
-  
-  final String label, labelLong, identifier;
-  final Symbol field;
   final dynamic data;
   
-  //---------------------------------
-  // highlighted
-  //---------------------------------
+  DynamicHeaderDataImpl(String identifier, Symbol field, String label, String labelLong, this.data) : super(identifier, field, label, labelLong);
   
-  bool _highlighted = false;
-  
-  bool get highlighted => _highlighted;
-  void set highlighted(bool value) {
-    if (value != _highlighted) {
-      _highlighted = value;
-      
-      notify(new FrameworkEvent<bool>('highlightedChanged', relatedObject: value));
-    }
-  }
-  
-  DynamicHeaderData(this.identifier, this.field, this.label, this.labelLong, this.data);
-  
-  static DynamicHeaderData createSimple(String simpleName, dynamic simpleData) => new DynamicHeaderData(simpleName, new Symbol(simpleName), simpleName, simpleName, simpleData);
-  
-  String toString() => '$label : $field';
+  static DynamicHeaderDataImpl createSimple(String simpleName, dynamic simpleData) => new DynamicHeaderDataImpl(simpleName, new Symbol(simpleName), simpleName, simpleName, simpleData);
 }

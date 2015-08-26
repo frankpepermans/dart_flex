@@ -666,7 +666,7 @@ class DataGrid extends ListBase {
   
   void _removeHeaderListeners(IHeaderItemRenderer header) => header.streamSubscriptionManager.flushAll();
 
-  void _header_clickHandler(FrameworkEvent<IHeaderData> event) {
+  void _header_clickHandler(FrameworkEvent<HeaderData> event) {
     if (!_allowHeaderColumnSorting) return;
     
     final IHeaderItemRenderer renderer = event.currentTarget as IHeaderItemRenderer;
