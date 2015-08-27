@@ -6,19 +6,21 @@ abstract class IHeaderItemRenderer<D extends HeaderData> extends IItemRenderer<H
   
   Event lastClickEvent;
   
-  Stream<FrameworkEvent> get onButtonClick;
+  Stream<FrameworkEvent<D>> get onButtonClick;
+  Stream<FrameworkEvent<int>> get onHeaderResize;
   
   SortHandler sortHandler;
   
   bool isSortedAsc = true;
   
-  HeaderData get headerData;
+  D get headerData;
   
 }
 
 class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> implements IHeaderItemRenderer {
   
-  @event Stream<FrameworkEvent> onButtonClick;
+  @event Stream<FrameworkEvent<D>> onButtonClick;
+  @event Stream<FrameworkEvent<int>> onHeaderResize;
 
   //---------------------------------
   //
@@ -29,6 +31,21 @@ class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> 
   Button _button;
   
   Button get button => _button;
+  
+  bool _isResizeTargetHovered = false;
+  int _resizeStartOffset = 0;
+  
+  bool get isResizeTargetHovered => _isResizeTargetHovered;
+  void set isResizeTargetHovered(bool value) {
+    if (value != _isResizeTargetHovered) {
+      _isResizeTargetHovered = value;
+      
+      if (value) streamSubscriptionManager.add('mouse-down', window.onMouseDown.listen(_mouseDown_handler));
+      
+      invalidateData();
+    }
+  }
+  
 
   //---------------------------------
   //
@@ -42,7 +59,7 @@ class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> 
   
   bool isSortedAsc = true;
   
-  HeaderData get headerData => _data as HeaderData;
+  D get headerData => _data;
   
   @override
   void set data(D value) {
@@ -85,6 +102,8 @@ class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> 
     );
 
     invalidateData();
+    
+    streamSubscriptionManager.add('mouse-move', _control.onMouseMove.listen(_mouseMove_handler));
 
     addComponent(_button);
   }
@@ -98,7 +117,13 @@ class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> 
        (_data != null)
     ) _button.label = headerData.label;
     
-    cssClasses = (headerData != null && headerData.highlighted) ? const <String>['header-highlighted'] : null;
+    cssClasses = _isResizeTargetHovered ? 
+                    const <String>['header-highlighted', 'header-in-resize-mode'] : 
+                    (
+                      (headerData != null && headerData.highlighted) ? 
+                        const <String>['header-highlighted'] : 
+                        null
+                    );
   }
   
   //---------------------------------
@@ -111,9 +136,41 @@ class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> 
     lastClickEvent = _button.lastClickEvent;
     
     notify(
-        new FrameworkEvent<HeaderData>(
+        new FrameworkEvent<D>(
             'buttonClick',
             relatedObject: headerData
+        )
+    );
+  }
+  
+  void _mouseMove_handler(MouseEvent event) {
+    _resizeStartOffset = width - event.offset.x;
+    
+    isResizeTargetHovered = (_resizeStartOffset <= 7);
+  }
+  
+  void _mouseDown_handler(MouseEvent event) {
+    streamSubscriptionManager.flushIdent('mouse-move');
+    streamSubscriptionManager.flushIdent('mouse-down');
+    streamSubscriptionManager.flushIdent('resize-mouse-end');
+    streamSubscriptionManager.flushIdent('resize-mouse-move');
+    
+    streamSubscriptionManager.add('resize-mouse-end', window.onMouseUp.listen(_resizeEnd_handler));
+    streamSubscriptionManager.add('resize-mouse-move', window.onMouseMove.listen(_resize_handler));
+  }
+  
+  void _resizeEnd_handler(MouseEvent event) {
+    streamSubscriptionManager.flushIdent('resize-mouse-end');
+    streamSubscriptionManager.flushIdent('resize-mouse-move');
+    
+    streamSubscriptionManager.add('mouse-move', _control.onMouseMove.listen(_mouseMove_handler));
+  }
+  
+  void _resize_handler(MouseEvent event) {
+    notify(
+        new FrameworkEvent<int>(
+            'headerResize',
+            relatedObject: event.movement.x
         )
     );
   }

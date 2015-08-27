@@ -652,15 +652,20 @@ class DataGrid extends ListBase {
     header.streamSubscriptionManager.add(
         'data_grid_headerWidthChanged', 
         column.onWidthChanged.listen(
-          (FrameworkEvent event) => invalidateLayout()
+          (FrameworkEvent event) => invalidateLayout(true)
         )
     );
     
     header.streamSubscriptionManager.add(
         'data_grid_headerPercentWidthChanged', 
         column.onPercentWidthChanged.listen(
-          (FrameworkEvent event) => invalidateLayout()
+          (FrameworkEvent event) => invalidateLayout(true)
         )
+    );
+    
+    header.streamSubscriptionManager.add(
+        'data_grid_headerResizeHandler', 
+        header.onHeaderResize.listen((FrameworkEvent<int> event) => _header_resizeHandler(column, event.relatedObject))
     );
   }
   
@@ -700,9 +705,10 @@ class DataGrid extends ListBase {
       while (c == 0 && i < maxLen) {
         IHeaderItemRenderer H = _sortHandlers[i++];
         
-        c = H.isSortedAsc ? 
-            H.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(H)], H.data) :
-           -H.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(H)], H.data);
+        if (H.sortHandler != null)
+          c = H.isSortedAsc ? 
+              H.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(H)], H.data) :
+             -H.sortHandler(a, b, _columns[_headerItemRenderers.indexOf(H)], H.data);
       }
       
       return c;
@@ -896,5 +902,9 @@ class DataGrid extends ListBase {
   
   void _renderer_dataPropertyChangedHandler(FrameworkEvent<IItemRenderer> event) {
     if (_autoScrollOnDataChange) event.relatedObject.control.scrollIntoView(ScrollAlignment.CENTER);
+  }
+  
+  void _header_resizeHandler(DataGridColumn column, int newSize) {
+    column.width += newSize;
   }
 }
