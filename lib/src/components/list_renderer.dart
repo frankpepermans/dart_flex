@@ -456,6 +456,23 @@ class ListRenderer extends ListBase {
       _forceRefresh();
     }
   }
+  
+  //---------------------------------
+  // lockIndex
+  //---------------------------------
+  
+  int _lockIndex = -1;
+  bool _isLockIndexChanged = false;
+  
+  int get lockIndex => _lockIndex;
+  set lockIndex(int value) {
+    if (value != _lockIndex) {
+      _lockIndex = value;
+      _isLockIndexChanged = true;
+  
+      invalidateProperties();
+    }
+  }
 
   //---------------------------------
   //
@@ -528,8 +545,9 @@ class ListRenderer extends ListBase {
       );
     }
     
-    if (_isUseEvenOddChanged) {
+    if (_isUseEvenOddChanged || _isLockIndexChanged) {
       _isUseEvenOddChanged = false;
+      _isLockIndexChanged = false;
       
       _updateAfterScrollPositionChanged();
     }
@@ -799,7 +817,7 @@ class ListRenderer extends ListBase {
 
       dynamic data;
       bool isRendererShown;
-      int i, rendererIndex = 0;
+      int i, j, rendererIndex = 0;
 
       _itemRenderers.sort(_itemRenderer_sortHandler);
       
@@ -808,9 +826,11 @@ class ListRenderer extends ListBase {
       _childWrappers = new List<IItemRenderer>.from(_itemRenderers);
       
       for (i=_firstIndex; i<len; i++) {
-        isRendererShown = (i < dpLen);
+        j = (_lockIndex >= 0 && i - _firstIndex < _lockIndex) ? i - _firstIndex : i;
         
-        data = isRendererShown ? _dataProvider[i] : null;
+        isRendererShown = (j < dpLen);
+        
+        data = isRendererShown ? _dataProvider[j] : null;
         
         if (
             (data != null) &&
@@ -825,14 +845,14 @@ class ListRenderer extends ListBase {
             ..selected = (
                 _useSelectionEffects && 
                 (
-                    (i == _selectedIndex) ||
-                    (_selectedIndices.contains(i))
+                    (j == _selectedIndex) ||
+                    (_selectedIndices.contains(j))
                 )
             )
             ..data = data
             ..inactiveHandler = _inactiveHandler
             ..field = _field
-            ..cssClasses = _useEvenOdd ? ((i % 2 == 0) ? const <String>['even'] : const <String>['odd']) : null
+            ..cssClasses = _useEvenOdd ? ((j % 2 == 0) ? const <String>['even'] : const <String>['odd']) : null
         );
       }
     }

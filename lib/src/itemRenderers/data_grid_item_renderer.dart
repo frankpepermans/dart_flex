@@ -95,6 +95,23 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
   //---------------------------------
   
   set enableHighlight(bool value) => super.enableHighlight = false;
+  
+  //---------------------------------
+  // lockIndex
+  //---------------------------------
+  
+  int _lockIndex = -1;
+  bool _isLockIndexChanged = false;
+  
+  int get lockIndex => _lockIndex;
+  set lockIndex(int value) {
+    if (value != _lockIndex) {
+      _lockIndex = value;
+      _isLockIndexChanged = true;
+  
+      invalidateProperties();
+    }
+  }
 
   //---------------------------------
   //
@@ -143,15 +160,13 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
     ) {
       final int xMin = _grid._list._headerScrollPosition - _grid._headerContainer.x;
       final int xMax = xMin + _grid._width;
+      final Iterable<IItemRenderer> instances = _itemRendererInstances.where((IItemRenderer renderer) => (renderer.x + renderer.width >= xMin && renderer.x - renderer.width <= xMax));
       
-      
-      _itemRendererInstances.where((IItemRenderer renderer) => (renderer.x + renderer.width >= xMin && renderer.x - renderer.width <= xMax))
-        .forEach((IItemRenderer renderer) {
-          final DataGridColumn column = getColumn(renderer);
-          final dynamic D = (column != null) ? column.getItemRendererData(_data, renderer.index) : null;
-          
-          renderer.data = D;
-        });
+      instances.forEach((IItemRenderer renderer) {
+        final DataGridColumn column = getColumn(renderer);
+        
+        renderer.data = (column != null) ? column.getItemRendererData(_data, renderer.index) : null;
+      });
     }
   }
   

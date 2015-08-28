@@ -19,6 +19,8 @@ class DataGrid extends ListBase {
   @event Stream<FrameworkEvent> onRowSpacingChanged;
   @event Stream<FrameworkEvent> onAutoManageScrollBarsChanged;
   @event Stream<FrameworkEvent> onUseSelectionEffectsChanged;
+  @event Stream<FrameworkEvent> onRowLockIndexChanged;
+  @event Stream<FrameworkEvent> onColumnLockIndexChanged;
 
   //---------------------------------
   //
@@ -398,6 +400,50 @@ class DataGrid extends ListBase {
       invalidateProperties();
     }
   }
+  
+  //---------------------------------
+  // rowLockIndex
+  //---------------------------------
+  
+  int _rowLockIndex = -1;
+  
+  int get rowLockIndex => _rowLockIndex;
+  set rowLockIndex(int value) {
+    if (value != _rowLockIndex) {
+      _rowLockIndex = value;
+      
+      notify(
+        new FrameworkEvent<int>(
+          'rowLockIndexChanged',
+          relatedObject: value
+        )
+      );
+  
+      invalidateProperties();
+    }
+  }
+  
+  //---------------------------------
+  // columnLockIndex
+  //---------------------------------
+  
+  int _columnLockIndex = -1;
+  
+  int get columnLockIndex => _columnLockIndex;
+  set columnLockIndex(int value) {
+    if (value != _columnLockIndex) {
+      _columnLockIndex = value;
+      
+      notify(
+        new FrameworkEvent<int>(
+          'columnLockIndexChanged',
+          relatedObject: value
+        )
+      );
+  
+      invalidateProperties();
+    }
+  }
 
   //---------------------------------
   //
@@ -463,6 +509,10 @@ class DataGrid extends ListBase {
       _list.autoManageScrollBars = _autoManageScrollBars;
       _list.allowMultipleSelection = _allowMultipleSelection;
       _list.className = 'data-grid-list-renderer';
+      _list.lockIndex = _rowLockIndex;
+      
+      if (_list._itemRenderers != null) 
+        _list._itemRenderers.forEach((DataGridItemRenderer renderer) => renderer.lockIndex = _columnLockIndex);
     }
 
     if (
@@ -800,7 +850,8 @@ class DataGrid extends ListBase {
       ..className = 'data-grid-list-renderer-item-renderer'
       ..gap = _columnSpacing
       ..columns = _columns
-      ..grid = this;
+      ..grid = this
+      ..lockIndex = _columnLockIndex;
     
     renderer._streamSubscriptionManager.add(
         'data_grid_rendererDataPropertyChanged', 
