@@ -667,6 +667,11 @@ class DataGrid extends ListBase {
         'data_grid_headerResizeHandler', 
         header.onHeaderResize.listen((FrameworkEvent<int> event) => _header_resizeHandler(column, event.relatedObject))
     );
+    
+    header.streamSubscriptionManager.add(
+        'data_grid_headerResizeHandler', 
+        header.onResizeTargetHovered.listen(_header_resizeTargetHovered)
+    );
   }
   
   void _removeHeaderListeners(IHeaderItemRenderer header) => header.streamSubscriptionManager.flushAll();
@@ -906,5 +911,13 @@ class DataGrid extends ListBase {
   
   void _header_resizeHandler(DataGridColumn column, int newSize) {
     column.width += newSize;
+  }
+  
+  void _header_resizeTargetHovered(FrameworkEvent<bool> event) {
+    if (event.relatedObject) {
+      _headerItemRenderers.forEach((IHeaderItemRenderer renderer) {
+        if (renderer != event.currentTarget) renderer.isResizeTargetHovered = false;
+      });
+    }
   }
 }

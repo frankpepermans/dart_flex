@@ -8,6 +8,7 @@ abstract class IHeaderItemRenderer<D extends HeaderData> extends IItemRenderer<H
   
   Stream<FrameworkEvent<D>> get onButtonClick;
   Stream<FrameworkEvent<int>> get onHeaderResize;
+  Stream<FrameworkEvent<bool>> get onResizeTargetHovered;
   
   SortHandler sortHandler;
   
@@ -15,12 +16,16 @@ abstract class IHeaderItemRenderer<D extends HeaderData> extends IItemRenderer<H
   
   D get headerData;
   
+  bool get isResizeTargetHovered;
+  void set isResizeTargetHovered(bool value);
+  
 }
 
 class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> implements IHeaderItemRenderer {
   
   @event Stream<FrameworkEvent<D>> onButtonClick;
   @event Stream<FrameworkEvent<int>> onHeaderResize;
+  @event Stream<FrameworkEvent<bool>> onResizeTargetHovered;
 
   //---------------------------------
   //
@@ -41,6 +46,14 @@ class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> 
       _isResizeTargetHovered = value;
       
       if (value) streamSubscriptionManager.add('mouse-down', window.onMouseDown.listen(_mouseDown_handler));
+      else _resizeEnd_handler(null);
+      
+      notify(
+          new FrameworkEvent<bool>(
+              'resizeTargetHovered',
+              relatedObject: value
+          )
+      );
       
       invalidateData();
     }
@@ -160,6 +173,8 @@ class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> 
   }
   
   void _resizeEnd_handler(MouseEvent event) {
+    streamSubscriptionManager.flushIdent('mouse-move');
+    streamSubscriptionManager.flushIdent('mouse-down');
     streamSubscriptionManager.flushIdent('resize-mouse-end');
     streamSubscriptionManager.flushIdent('resize-mouse-move');
     
