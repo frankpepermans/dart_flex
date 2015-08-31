@@ -21,6 +21,7 @@ class DataGrid extends ListBase {
   @event Stream<FrameworkEvent> onUseSelectionEffectsChanged;
   @event Stream<FrameworkEvent> onRowLockIndexChanged;
   @event Stream<FrameworkEvent> onColumnLockIndexChanged;
+  @event Stream<FrameworkEvent<int>> onHeaderResize;
 
   //---------------------------------
   //
@@ -33,7 +34,8 @@ class DataGrid extends ListBase {
   List<IHeaderItemRenderer> get headerItemRenderers => _headerItemRenderers;
 
   VGroup _gridContainer;
-  HGroup _headerBounds, _headerContainer;
+  HGroup _headerBounds;
+  Group _headerContainer;
   ListRenderer _list;
   bool _isSelectedIndexUpdateRequired = false;
   
@@ -476,7 +478,11 @@ class DataGrid extends ListBase {
     }
     
     if (_headerContainer != null) {
-      _headerContainer.gap = _columnSpacing;
+      final SpreadsheetLayout L = _headerContainer.layout as SpreadsheetLayout;
+      
+      L.gap = _columnSpacing;
+      L.lockIndex = _columnLockIndex;
+      
       _headerContainer.percentWidth = 100.0;
       _headerContainer.height = _headerHeight;
       _headerContainer.visible = _headerContainer.includeInLayout = !_headless;
@@ -564,7 +570,9 @@ class DataGrid extends ListBase {
   @override
   void createChildren() {
     _gridContainer = new VGroup();
-    _headerContainer = new HGroup();
+    _headerContainer = new Group()
+      ..layout = new SpreadsheetLayout();
+    
     _headerBounds = new HGroup();
     _list = new ListRenderer();
     
@@ -893,6 +901,11 @@ class DataGrid extends ListBase {
   
   void _list_headerScrollChangedHandler(FrameworkEvent event) {
     final String newValue = (_headerContainer.x - _list._headerScrollPosition).toString() + 'px';
+    final SpreadsheetLayout L = _headerContainer.layout as SpreadsheetLayout;
+    
+    L.lockIndexPosition = _list._headerScrollPosition;
+    
+    if (_columnLockIndex > 0) _headerContainer.invalidateLayout(true);
     
     _reflowManager.invalidateCSS(_headerContainer._control, 'left', newValue);
   }
@@ -962,6 +975,13 @@ class DataGrid extends ListBase {
   
   void _header_resizeHandler(DataGridColumn column, int newSize) {
     column.width += newSize;
+    
+    notify(
+        new FrameworkEvent<int>(
+            'headerResize',
+            relatedObject: column.width
+        )
+    );
   }
   
   void _header_resizeTargetHovered(FrameworkEvent<bool> event) {

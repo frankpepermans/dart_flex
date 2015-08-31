@@ -50,19 +50,17 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
   //---------------------------------
   
   DataGrid _grid;
-  StreamSubscription _gridListHeaderSubscription;
   
   DataGrid get grid => _grid;
   void set grid(DataGrid value) {
     if (value != _grid) {
-      if (_gridListHeaderSubscription != null) _gridListHeaderSubscription.cancel();
+      streamSubscriptionManager.flushIdent('grid-h-scroll');
       
       _grid = value;
       
-      if (value != null) 
-        _gridListHeaderSubscription = value._list.onHeaderScrollPositionChanged.listen(
-            (_) => invalidateData()
-        );
+      if (value != null) streamSubscriptionManager.add('grid-h-scroll', value._list.onHeaderScrollPositionChanged.listen(
+          (_) => invalidateData()
+      ));
     }
   }
   
@@ -124,7 +122,7 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
 	
     _gap = gap;
 
-    _layout = new HorizontalLayout();
+    _layout = new SpreadsheetLayout();
 
     _layout.gap = gap;
 
@@ -148,6 +146,14 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
 
       _updateItemRenderers();
     }
+    
+    if (_isLockIndexChanged) {
+      _isLockIndexChanged = false;
+      
+      (layout as SpreadsheetLayout).lockIndex = _lockIndex;
+      
+      invalidateLayout();
+    }
   }
 
   @override
@@ -160,13 +166,20 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
     ) {
       final int xMin = _grid._list._headerScrollPosition - _grid._headerContainer.x;
       final int xMax = xMin + _grid._width;
-      final Iterable<IItemRenderer> instances = _itemRendererInstances.where((IItemRenderer renderer) => (renderer.x + renderer.width >= xMin && renderer.x - renderer.width <= xMax));
       
-      instances.forEach((IItemRenderer renderer) {
-        final DataGridColumn column = getColumn(renderer);
+      (layout as SpreadsheetLayout).lockIndexPosition = _grid._list._headerScrollPosition;
+      
+      for (int i=0, len=_itemRendererInstances.length; i<len; i++) {
+        IItemRenderer renderer = _itemRendererInstances[i];
         
-        renderer.data = (column != null) ? column.getItemRendererData(_data, renderer.index) : null;
-      });
+        if (renderer.x + renderer.width >= xMin && renderer.x - renderer.width <= xMax) {
+          final DataGridColumn column = getColumn(renderer);
+                  
+          renderer.data = (column != null) ? column.getItemRendererData(_data, renderer.index) : null;
+        } else if (renderer.x - renderer.width > xMax) break;
+      }
+      
+      if (_lockIndex >= 0) invalidateLayout(true);
     }
   }
   

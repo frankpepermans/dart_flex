@@ -4,7 +4,6 @@ class FrameManager {
   
   StreamController C;
   Stream S;
-  int fps = 120;
   int tick = 0;
   
   int _lastFrame = 0;
@@ -50,16 +49,9 @@ class FrameManager {
   void nextFrame() {
     window.animationFrame.then(
       (double T) {
-        if (T.isNaN || T.isInfinite) T = .0;
-        
-        final int interval = 1000 ~/ fps;
-        final int currentFrame = T ~/ interval;
-        
-        if (currentFrame > _lastFrame) {
-          _lastFrame = tick;
-          
-          C.add(++tick);
-        }
+        _lastFrame = tick;
+                
+        C.add(++tick);
         
         nextFrame();
       }

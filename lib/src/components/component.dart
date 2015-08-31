@@ -479,7 +479,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
   void invalidateLayout([bool immediatelyCommitProperties = false]) {
     _isLayoutUpdateRequired = _allowLayoutUpdate;
 
-    if (immediatelyCommitProperties) commitProperties();
+    if (immediatelyCommitProperties) scheduleMicrotask(commitProperties);
     else invokeLaterSingle('commitProperties', commitProperties);
   }
 

@@ -78,6 +78,7 @@ part 'src/layout/horizontal_layout.dart';
 part 'src/layout/scroll_binder.dart';
 part 'src/layout/tile_layout.dart';
 part 'src/layout/vertical_layout.dart';
+part 'src/layout/spreadsheet_layout.dart';
 
 part 'src/itemRenderers/accordion_header_item_renderer.dart';
 part 'src/itemRenderers/header_item_renderer.dart';
