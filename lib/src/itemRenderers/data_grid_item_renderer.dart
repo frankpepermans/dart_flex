@@ -122,7 +122,7 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
 	
     _gap = gap;
 
-    _layout = new SpreadsheetLayout();
+    _layout = new SpreadsheetLayout(constrainToBounds: false);
 
     _layout.gap = gap;
 
