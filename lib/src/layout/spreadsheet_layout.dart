@@ -109,6 +109,8 @@ class SpreadsheetLayout extends HorizontalLayout implements ILayout {
             if (_align == 'left') element.x = offset + element.paddingLeft;
             else if (_align == 'right') element.x = width - offset - element.paddingLeft - element.paddingRight - element.width;
           } else element.x = element.paddingLeft;
+          
+          element.reflowManager.invalidateCSS(element._control, 'z-index', '0');
         }
 
         if (_constrainToBounds && (h > 0)) element.y = ((height * .5) - (h * .5) + element.paddingTop).toInt();
