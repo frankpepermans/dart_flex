@@ -408,11 +408,13 @@ class DataGrid extends ListBase {
   //---------------------------------
   
   int _rowLockIndex = -1;
+  bool _isRowLockIndexChanged = false;
   
   int get rowLockIndex => _rowLockIndex;
   set rowLockIndex(int value) {
     if (value != _rowLockIndex) {
       _rowLockIndex = value;
+      _isRowLockIndexChanged = true;
       
       notify(
         new FrameworkEvent<int>(
@@ -430,11 +432,13 @@ class DataGrid extends ListBase {
   //---------------------------------
   
   int _columnLockIndex = -1;
+  bool _isColumnLockIndexChanged = false;
   
   int get columnLockIndex => _columnLockIndex;
   set columnLockIndex(int value) {
     if (value != _columnLockIndex) {
       _columnLockIndex = value;
+      _isColumnLockIndexChanged = true;
       
       notify(
         new FrameworkEvent<int>(
@@ -534,6 +538,24 @@ class DataGrid extends ListBase {
       _isSelectedIndexUpdateRequired = false;
       
       selectedIndex = (_selectedItem != null) ? _dataProvider.indexOf(_selectedItem) : -1;
+    }
+    
+    if (_isRowLockIndexChanged) {
+      _isRowLockIndexChanged = false;
+      
+      if (_list != null) {
+        _list.notify(
+          new FrameworkEvent(
+            'listScrollPositionChanged'
+          )
+        );
+        
+        _list._updateAfterScrollPositionChanged();
+      }
+    }
+    
+    if (_isColumnLockIndexChanged) {
+      _isColumnLockIndexChanged = false;
     }
   }
   

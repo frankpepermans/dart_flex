@@ -30,6 +30,7 @@ part 'src/components/editable_text.dart';
 part 'src/components/editable_text_area.dart';
 part 'src/components/editable_time.dart';
 part 'src/components/editable_time_extended.dart';
+part 'src/components/floating_window.dart';
 part 'src/components/file_upload_button.dart';
 part 'src/components/flash_embed.dart';
 part 'src/components/footer.dart';

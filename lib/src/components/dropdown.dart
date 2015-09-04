@@ -219,7 +219,7 @@ class Dropdown extends ListBase {
       ..percentWidth = 100.0
       ..percentHeight = 100.0
       ..onTextChanged.listen((_) => handleInput())
-      ..onControlChanged.listen((FrameworkEvent<Element> event) => event.relatedObject.onClick.listen((_) => open()));
+      ..onControlChanged.listen((FrameworkEvent<Element> event) => event.relatedObject.onClick.listen((_) => toggle()));
     
     _handle = new Button()
       ..className = 'dropdown-handle'
@@ -324,7 +324,7 @@ class Dropdown extends ListBase {
     
     _list.paddingLeft = x;
     _list.paddingTop = y;
-    _list.width = width;
+    _list.width = max(220, width);
     _list.height = h;
     
     invokeLaterSingle('updateLayout', updateLayout);
