@@ -7,7 +7,8 @@ class FloatingWindow extends VGroup {
   Group header, content, footer;
   Button closeButton;
   
-  final List<BaseComponent> _pendingElements = <BaseComponent>[];
+  final List<BaseComponent> _pendingHeaderElements = <BaseComponent>[];
+  final List<BaseComponent> _pendingContentElements = <BaseComponent>[];
   
   //---------------------------------
   //
@@ -26,7 +27,8 @@ class FloatingWindow extends VGroup {
     header = new HGroup()
       ..className = 'floating-window-header'
       ..percentWidth = 100.0
-      ..height = 24
+      ..height = 32
+      ..gap = 0
       ..onControlChanged.listen((FrameworkEvent<Element> event) => _addListeners(event.relatedObject));
     
     content = new VGroup()
@@ -37,6 +39,7 @@ class FloatingWindow extends VGroup {
     footer = new HGroup()
       ..className = 'floating-window-footer'
       ..percentWidth = 100.0
+      ..gap = 0
       ..height = 24;
     
     closeButton = new Button()
@@ -56,19 +59,25 @@ class FloatingWindow extends VGroup {
       ..height = 10
       ..onControlChanged.listen((FrameworkEvent<Element> event) => _addResizeListeners(event.relatedObject));
     
-    if (_pendingElements.isNotEmpty) {
-      _pendingElements.forEach((BaseComponent E) => content.addComponent(E));
+    if (_pendingHeaderElements.isNotEmpty) {
+      _pendingHeaderElements.forEach((BaseComponent E) => header.addComponent(E));
       
-      _pendingElements.clear();
+      _pendingHeaderElements.clear();
+    }
+    
+    if (_pendingContentElements.isNotEmpty) {
+      _pendingContentElements.forEach((BaseComponent E) => content.addComponent(E));
+      
+      _pendingContentElements.clear();
     }
     
     resizeHandleGroup.addComponent(new Spacer()..percentHeight = 100.0..width = 1);
     resizeHandleGroup.addComponent(resizeHandle);
     
-    header.addComponent(new Spacer()..percentWidth = 100.0..height = 1);
+    header.addComponent(new Spacer()..percentWidth = 100.0..percentHeight = 100.0.._className = 'floating-window-header-spacing');
     header.addComponent(closeButton);
     
-    footer.addComponent(new Spacer()..percentWidth = 100.0..height = 1);
+    footer.addComponent(new Spacer()..percentWidth = 100.0..percentHeight = 100.0);
     footer.addComponent(resizeHandleGroup);
     
     super.addComponent(header);
@@ -79,12 +88,22 @@ class FloatingWindow extends VGroup {
   @override
   void addComponent(BaseComponent element, {bool prepend: false}) {
     if (content == null) {
-      _pendingElements.add(element);
+      _pendingContentElements.add(element);
       
       return;
     }
     
     content.addComponent(element);
+  }
+  
+  void addHeaderComponent(BaseComponent element, {bool prepend: false}) {
+    if (content == null) {
+      _pendingHeaderElements.add(element);
+      
+      return;
+    }
+    
+    header.addComponent(element, prepend: true);
   }
   
   void _addListeners(Element e) {
@@ -99,7 +118,7 @@ class FloatingWindow extends VGroup {
     streamSubscriptionManager.add('mouse-up', document.onMouseUp.listen(_endDrag));
     streamSubscriptionManager.add('mouse-move', document.onMouseMove.listen(_doDrag));
     
-    event.preventDefault();
+    //event.preventDefault();
   }
   
   void _endDrag(MouseEvent event) {

@@ -168,8 +168,10 @@ class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> 
     streamSubscriptionManager.flushIdent('resize-mouse-end');
     streamSubscriptionManager.flushIdent('resize-mouse-move');
     
-    streamSubscriptionManager.add('resize-mouse-end', window.onMouseUp.listen(_resizeEnd_handler));
-    streamSubscriptionManager.add('resize-mouse-move', window.onMouseMove.listen(_resize_handler));
+    if (event.target == _button._control) {
+      streamSubscriptionManager.add('resize-mouse-end', window.onMouseUp.listen(_resizeEnd_handler));
+      streamSubscriptionManager.add('resize-mouse-move', window.onMouseMove.listen(_resize_handler));
+    }
   }
   
   void _resizeEnd_handler(MouseEvent event) {

@@ -312,8 +312,8 @@ class Dropdown extends ListBase {
   }
   
   void commitListPosition() {
-    final docElem = document.documentElement;
-    final box = _control.getBoundingClientRect();
+    final Element docElem = document.documentElement;
+    final Rectangle box = _control.getBoundingClientRect();
     final int offsetX = box.left + window.pageXOffset - docElem.clientLeft;
     final int offsetY = box.top  + window.pageYOffset - docElem.clientTop;
     final int h = min(_numRowsDisplayed, _list.dataProvider.length) * _rowHeight;
