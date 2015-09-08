@@ -8,12 +8,13 @@ abstract class IItemRenderer<D> implements BaseComponent {
   Stream<FrameworkEvent> get onDataChanged;
   Stream<FrameworkEvent> get onFieldChanged;
   Stream<FrameworkEvent> get onFieldsChanged;
-  Stream<FrameworkEvent> get onClick;
-  Stream<FrameworkEvent> get onMouseUp;
-  Stream<FrameworkEvent> get onMouseDown;
-  Stream<FrameworkEvent> get onMouseOver;
-  Stream<FrameworkEvent> get onMouseOut;
-  Stream<FrameworkEvent> get onMouseMove;
+  Stream<FrameworkEvent<MouseEvent>> get onClick;
+  Stream<FrameworkEvent<MouseEvent>> get onMouseUp;
+  Stream<FrameworkEvent<MouseEvent>> get onMouseDown;
+  Stream<FrameworkEvent<MouseEvent>> get onMouseOver;
+  Stream<FrameworkEvent<MouseEvent>> get onMouseOut;
+  Stream<FrameworkEvent<MouseEvent>> get onMouseMove;
+  Stream<FrameworkEvent<KeyboardEvent>> get onKey;
   Stream<FrameworkEvent> get onDataPropertyChanged;
 
   int get index;
@@ -77,12 +78,13 @@ class ItemRenderer<D> extends Component implements IItemRenderer {
   @event Stream<FrameworkEvent> onDataChanged;
   @event Stream<FrameworkEvent> onFieldChanged;
   @event Stream<FrameworkEvent> onFieldsChanged;
-  @event Stream<FrameworkEvent> onClick;
-  @event Stream<FrameworkEvent> onMouseUp;
-  @event Stream<FrameworkEvent> onMouseDown;
-  @event Stream<FrameworkEvent> onMouseOver;
-  @event Stream<FrameworkEvent> onMouseOut;
-  @event Stream<FrameworkEvent> onMouseMove;
+  @event Stream<FrameworkEvent<MouseEvent>> onClick;
+  @event Stream<FrameworkEvent<MouseEvent>> onMouseUp;
+  @event Stream<FrameworkEvent<MouseEvent>> onMouseDown;
+  @event Stream<FrameworkEvent<MouseEvent>> onMouseOver;
+  @event Stream<FrameworkEvent<MouseEvent>> onMouseOut;
+  @event Stream<FrameworkEvent<MouseEvent>> onMouseMove;
+  @event Stream<FrameworkEvent<KeyboardEvent>> onKey;
   @event Stream<FrameworkEvent> onDataPropertyChanged;
 
   //---------------------------------
@@ -412,6 +414,11 @@ class ItemRenderer<D> extends Component implements IItemRenderer {
         'item_renderer_containerMouseOut', 
         container.onMouseOut.listen(_mouseOutHandler)
     );
+    
+    _streamSubscriptionManager.add(
+        'item_renderer_containerKey', 
+        container.onKeyDown.listen(_keyHandler)
+    );
 
     invokeLaterSingle('invalidateData', invalidateData);
   }
@@ -474,6 +481,15 @@ class ItemRenderer<D> extends Component implements IItemRenderer {
     notify(
         new FrameworkEvent<MouseEvent>(
             'mouseMove',
+            relatedObject: event
+        )
+    );
+  }
+  
+  void _keyHandler(KeyboardEvent event) {
+    notify(
+        new FrameworkEvent<KeyboardEvent>(
+            'key',
             relatedObject: event
         )
     );
