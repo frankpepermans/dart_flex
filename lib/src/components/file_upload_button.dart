@@ -103,11 +103,7 @@ class FileUploadButton extends Button {
       (ProgressEvent event) {
         _content = fileReader.result as String;
         
-        notify(
-            new FrameworkEvent(
-                'contentChanged'
-            )
-        );
+        notify('contentChanged');
       }
     );
     

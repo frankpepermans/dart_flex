@@ -39,11 +39,7 @@ class Group extends Component {
 
       _isScrollPolicyInvalid = true;
 
-      notify(
-        new FrameworkEvent(
-          "horizontalScrollPolicyChanged"
-        )
-      );
+      notify('horizontalScrollPolicyChanged');
 
       invalidateProperties();
     }
@@ -62,11 +58,7 @@ class Group extends Component {
 
       _isScrollPolicyInvalid = true;
 
-      notify(
-        new FrameworkEvent(
-          "verticalScrollPolicyChanged"
-        )
-      );
+      notify('verticalScrollPolicyChanged');
 
       invalidateProperties();
     }

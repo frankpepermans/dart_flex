@@ -35,11 +35,7 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
       _columns = value;
       _isColumnsChanged = true;
 
-      notify(
-        new FrameworkEvent(
-          'columnsChanged'
-        )
-      );
+      notify('columnsChanged');
 
       invalidateProperties();
     }
@@ -233,11 +229,7 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
   void refreshColumns() {
     _isColumnsChanged = true;
 
-    notify(
-      new FrameworkEvent(
-        'columnsChanged'
-      )
-    );
+    notify('columnsChanged');
 
     invalidateProperties();
   }
@@ -273,12 +265,7 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
           (ItemRenderer renderer) {
             removeComponent(renderer);
             
-            notify(
-                new FrameworkEvent<IItemRenderer>(
-                    'rendererRemoved',
-                    relatedObject: renderer
-                )
-            );
+            notify('rendererRemoved', renderer);
           }
       );
       
@@ -311,12 +298,7 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
 
             addComponent(renderer);
             
-            notify(
-                new FrameworkEvent<IItemRenderer>(
-                    'rendererAdded',
-                    relatedObject: renderer
-                )
-            );
+            notify('rendererAdded', renderer);
           }
         }
       );
@@ -333,8 +315,6 @@ class DataGridItemRenderer<D extends dynamic> extends ItemRenderer<D> {
   void _renderer_dataPropertyChangedHandler(FrameworkEvent event) {
     IItemRenderer itemRenderer = event.currentTarget as IItemRenderer;
     
-    notify(
-        new FrameworkEvent<IItemRenderer>('dataPropertyChanged', relatedObject: itemRenderer)
-    );
+    notify('dataPropertyChanged', itemRenderer);
   }
 }

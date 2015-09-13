@@ -26,11 +26,7 @@ class Button extends Component {
     if (value != _label) {
       _label = value;
 
-      notify(
-        new FrameworkEvent(
-          'labelChanged'
-        )
-      );
+      notify('labelChanged');
 
       _commitLabel();
     }
@@ -93,11 +89,7 @@ class Button extends Component {
       
       lastClickEvent = event;
       
-      notify(
-          new FrameworkEvent(
-              'buttonClick'
-          )
-      );
+      notify('buttonClick');
       
       new Timer(
         const Duration(milliseconds: 50),

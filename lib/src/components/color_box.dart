@@ -21,9 +21,7 @@ class ColorBox extends Component {
     if (value != _color) {
       _color = value;
 
-      notify(
-          new FrameworkEvent('colorChanged')
-      );
+      notify('colorChanged');
 
       _commitColor();
     }

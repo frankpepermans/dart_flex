@@ -32,11 +32,7 @@ class Slider extends Component {
     if (value != _value) {
       _value = value;
 
-      notify(
-        new FrameworkEvent(
-          'valueChanged'
-        )
-      );
+      notify('valueChanged');
       
       _commit();
     }
@@ -53,11 +49,7 @@ class Slider extends Component {
     if (value != _min) {
       _min = value;
 
-      notify(
-        new FrameworkEvent(
-          'minChanged'
-        )
-      );
+      notify('minChanged');
       
       _commit();
     }
@@ -74,11 +66,7 @@ class Slider extends Component {
     if (value != _max) {
       _max = value;
 
-      notify(
-        new FrameworkEvent(
-          'maxChanged'
-        )
-      );
+      notify('maxChanged');
       
       _commit();
     }
@@ -95,11 +83,7 @@ class Slider extends Component {
     if (value != _step) {
       _step = value;
 
-      notify(
-        new FrameworkEvent(
-          'stepChanged'
-        )
-      );
+      notify('stepChanged');
       
       _commit();
     }

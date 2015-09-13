@@ -28,3 +28,4 @@ test/packages/
 .pub/
 .idea/
 dart_flex.iml
+.packages

@@ -31,11 +31,7 @@ class EditableTextArea extends Component {
     if (value != _text) {
       _text = value;
 
-      notify(
-        new FrameworkEvent(
-          'textChanged'
-        )
-      );
+      notify('textChanged');
 
       _commitText();
     }
@@ -52,11 +48,7 @@ class EditableTextArea extends Component {
     if (value != _align) {
       _align = value;
 
-      notify(
-        new FrameworkEvent(
-          'alignChanged'
-        )
-      );
+      notify('alignChanged');
 
       _commitTextAlign();
     }
@@ -73,11 +65,7 @@ class EditableTextArea extends Component {
     if (value != _verticalAlign) {
       _verticalAlign = value;
 
-      notify(
-        new FrameworkEvent(
-          'verticalAlignChanged'
-        )
-      );
+      notify('verticalAlignChanged');
 
       _commitTextVerticalAlign();
     }

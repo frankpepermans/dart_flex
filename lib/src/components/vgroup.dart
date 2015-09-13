@@ -21,11 +21,7 @@ class VGroup extends Group {
     if (value != _layout.gap) {
       _layout.gap = value;
 
-      notify(
-        new FrameworkEvent(
-          "gapChanged"
-        )
-      );
+      notify('gapChanged');
     }
   }
   
@@ -39,11 +35,7 @@ class VGroup extends Group {
     if (value != _layout.align) {
       _layout.align = value;
 
-      notify(
-        new FrameworkEvent(
-          "alignChanged"
-        )
-      );
+      notify('alignChanged');
     }
   }
 

@@ -137,9 +137,7 @@ class ViewStack extends Group {
     
     invalidateLayout();
     
-    notify(
-      new FrameworkEvent<ViewStackElementData>('viewChanged', relatedObject: currentData)    
-    );
+    notify('viewChanged', currentData);
     
     return true;
   }

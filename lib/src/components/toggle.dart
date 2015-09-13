@@ -29,11 +29,7 @@ class Toggle extends Component {
     if (value != _isToggled) {
       _isToggled = value;
 
-      notify(
-        new FrameworkEvent(
-          'isToggledChanged'
-        )
-      );
+      notify('isToggledChanged');
       
       _commitIsToggled();
     }

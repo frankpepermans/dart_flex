@@ -87,12 +87,7 @@ class DragDropArea extends HGroup {
     
     _drag_drop_end(event);
     
-    notify(
-      new FrameworkEvent<List<File>>(
-          'filesReceived',
-          relatedObject: event.dataTransfer.files
-      )    
-    );
+    notify('filesReceived', event.dataTransfer.files);
   }
   
   void _drag_drop_start(MouseEvent event) {

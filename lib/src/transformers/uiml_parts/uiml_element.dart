@@ -214,7 +214,7 @@ class UIMLElement extends UIMLPart {
   }
   
   String _getCreationEvent() {
-    if (!_isLocallyScoped) return "\r\t\tnotify(new FrameworkEvent<IUIWrapper>('skinPartAdded', relatedObject: ${_id}));";
+    if (!_isLocallyScoped) return "\r\t\tnotify('skinPartAdded', ${_id});";
     
     return '';
   }

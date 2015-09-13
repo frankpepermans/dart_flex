@@ -37,11 +37,7 @@ class Repeater extends Component {
   
       _isIterationInvalid = true;
   
-      notify(
-        new FrameworkEvent(
-          "fromChanged"
-        )
-      );
+      notify('fromChanged');
   
       invalidateProperties();
     }
@@ -60,11 +56,7 @@ class Repeater extends Component {
   
       _isIterationInvalid = true;
   
-      notify(
-        new FrameworkEvent(
-          "toChanged"
-        )
-      );
+      notify('toChanged');
   
       invalidateProperties();
     }
@@ -83,11 +75,7 @@ class Repeater extends Component {
   
       _isIterationInvalid = true;
   
-      notify(
-        new FrameworkEvent(
-          "creationHandlerChanged"
-        )
-      );
+      notify('creationHandlerChanged');
   
       invalidateProperties();
     }

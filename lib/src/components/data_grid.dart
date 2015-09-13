@@ -66,11 +66,7 @@ class DataGrid extends ListBase {
           flushExisting: true
       );
 
-      notify(
-        new FrameworkEvent(
-          'columnsChanged'
-        )
-      );
+      notify('columnsChanged');
 
       invalidateLayout();
     }
@@ -103,9 +99,7 @@ class DataGrid extends ListBase {
     if (value != _listCssClasses) {
       _listCssClasses = value;
 
-      notify(
-        new FrameworkEvent('listCssClassesChanged')
-      );
+      notify('listCssClassesChanged');
       
       invalidateProperties();
     }
@@ -232,11 +226,7 @@ class DataGrid extends ListBase {
     if (value != _headerHeight) {
       _headerHeight = value;
 
-      notify(
-        new FrameworkEvent(
-          'headerHeightChanged'
-        )
-      );
+      notify('headerHeightChanged');
 
       invalidateProperties();
     }
@@ -253,11 +243,7 @@ class DataGrid extends ListBase {
     if (value != _rowHeight) {
       _rowHeight = value;
 
-      notify(
-        new FrameworkEvent(
-          'rowHeightChanged'
-        )
-      );
+      notify('rowHeightChanged');
 
       invalidateProperties();
     }
@@ -274,11 +260,7 @@ class DataGrid extends ListBase {
     if (value != _columnSpacing) {
       _columnSpacing = value;
 
-      notify(
-        new FrameworkEvent(
-          'columnSpacingChanged'
-        )
-      );
+      notify('columnSpacingChanged');
 
       invalidateProperties();
     }
@@ -295,11 +277,7 @@ class DataGrid extends ListBase {
     if (value != _rowSpacing) {
       _rowSpacing = value;
 
-      notify(
-        new FrameworkEvent(
-          'rowSpacingChanged'
-        )
-      );
+      notify('rowSpacingChanged');
 
       invalidateProperties();
     }
@@ -316,11 +294,7 @@ class DataGrid extends ListBase {
     if (value != _autoManageScrollBars) {
       _autoManageScrollBars = value;
 
-      notify(
-        new FrameworkEvent(
-          'autoManageScrollBarsChanged'
-        )
-      );
+      notify('autoManageScrollBarsChanged');
 
       invalidateProperties();
     }
@@ -337,11 +311,7 @@ class DataGrid extends ListBase {
     if (value != _useSelectionEffects) {
       _useSelectionEffects = value;
 
-      notify(
-        new FrameworkEvent(
-          'useSelectionEffectsChanged'
-        )
-      );
+      notify('useSelectionEffectsChanged');
 
       invalidateProperties();
     }
@@ -416,12 +386,7 @@ class DataGrid extends ListBase {
       _rowLockIndex = value;
       _isRowLockIndexChanged = true;
       
-      notify(
-        new FrameworkEvent<int>(
-          'rowLockIndexChanged',
-          relatedObject: value
-        )
-      );
+      notify('rowLockIndexChanged', value);
   
       invalidateProperties();
     }
@@ -440,12 +405,7 @@ class DataGrid extends ListBase {
       _columnLockIndex = value;
       _isColumnLockIndexChanged = true;
       
-      notify(
-        new FrameworkEvent<int>(
-          'columnLockIndexChanged',
-          relatedObject: value
-        )
-      );
+      notify('columnLockIndexChanged', value);
   
       invalidateProperties();
     }
@@ -544,11 +504,7 @@ class DataGrid extends ListBase {
       _isRowLockIndexChanged = false;
       
       if (_list != null) {
-        _list.notify(
-          new FrameworkEvent(
-            'listScrollPositionChanged'
-          )
-        );
+        _list.notify('listScrollPositionChanged');
         
         _list._updateAfterScrollPositionChanged();
       }
@@ -574,11 +530,7 @@ class DataGrid extends ListBase {
   void refreshColumns() {
     _isColumnsChanged = true;
     
-    notify(
-      new FrameworkEvent(
-        'columnsChanged'
-      )
-    );
+    notify('columnsChanged');
 
     invalidateProperties();
   }
@@ -618,11 +570,7 @@ class DataGrid extends ListBase {
     _list._streamSubscriptionManager.add(
         'data_grid_listScrollPositionChange', 
         _list.onListScrollPositionChanged.listen(
-          (FrameworkEvent event) => notify(
-            new FrameworkEvent(
-              'listScrollPositionChanged'
-            )
-          )
+          (FrameworkEvent event) => notify('listScrollPositionChanged')
         )
     );
     
@@ -699,7 +647,7 @@ class DataGrid extends ListBase {
 
           _headerContainer.addComponent(header);
           
-          notify(new FrameworkEvent<IHeaderItemRenderer>('headerRendererAdded', relatedObject: header));
+          notify('headerRendererAdded', header);
         }
       }
 
@@ -891,12 +839,7 @@ class DataGrid extends ListBase {
     
     invalidateProperties();
     
-    notify(
-      new FrameworkEvent<DataGridItemRenderer>(
-        'rendererAdded',
-        relatedObject: renderer
-      )
-    );
+    notify('rendererAdded', renderer);
   }
   
   void _list_rendererRemovedHandler(FrameworkEvent<BaseComponent> event) {
@@ -907,12 +850,7 @@ class DataGrid extends ListBase {
           ..field = null
           ..fields = null;
       
-      notify(
-          new FrameworkEvent<DataGridItemRenderer>(
-              'rendererRemoved',
-              relatedObject: renderer
-          )
-      );
+      notify('rendererRemoved', renderer);
     }
   }
   
@@ -998,12 +936,7 @@ class DataGrid extends ListBase {
   void _header_resizeHandler(DataGridColumn column, int newSize) {
     column.width += newSize;
     
-    notify(
-        new FrameworkEvent<int>(
-            'headerResize',
-            relatedObject: column.width
-        )
-    );
+    notify('headerResize', column.width);
   }
   
   void _header_resizeTargetHovered(FrameworkEvent<bool> event) {

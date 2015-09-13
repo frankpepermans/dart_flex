@@ -48,12 +48,7 @@ class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> 
       if (value) streamSubscriptionManager.add('mouse-down', window.onMouseDown.listen(_mouseDown_handler));
       else _resizeEnd_handler(null);
       
-      notify(
-          new FrameworkEvent<bool>(
-              'resizeTargetHovered',
-              relatedObject: value
-          )
-      );
+      notify('resizeTargetHovered', value);
       
       invalidateData();
     }
@@ -148,12 +143,7 @@ class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> 
   void _button_buttonClickHandler(FrameworkEvent<dynamic> event) {
     lastClickEvent = _button.lastClickEvent;
     
-    notify(
-        new FrameworkEvent<D>(
-            'buttonClick',
-            relatedObject: headerData
-        )
-    );
+    notify('buttonClick', headerData);
   }
   
   void _mouseMove_handler(MouseEvent event) {
@@ -184,12 +174,7 @@ class HeaderItemRenderer<D extends HeaderData> extends ItemRenderer<HeaderData> 
   }
   
   void _resize_handler(MouseEvent event) {
-    notify(
-        new FrameworkEvent<int>(
-            'headerResize',
-            relatedObject: event.movement.x
-        )
-    );
+    notify('headerResize', event.movement.x);
   }
 }
 
@@ -225,7 +210,7 @@ class HeaderDataImpl extends EventDispatcherImpl implements HeaderData {
     if (value != _highlighted) {
       _highlighted = value;
       
-      notify(new FrameworkEvent<bool>('highlightedChanged', relatedObject: value));
+      notify('highlightedChanged', value);
     }
   }
   

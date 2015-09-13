@@ -124,9 +124,7 @@ class ItemRenderer<D> extends Component implements IItemRenderer {
       
       invokeLaterSingle('updateDefaultClass', _updateDefaultClass);
       
-      notify(
-        new FrameworkEvent<D>('dataChanged', relatedObject: value)
-      );
+      notify('dataChanged', value);
 
       invalidateData();//invokeLaterSingle('invalidateData', invalidateData);
     }
@@ -143,9 +141,7 @@ class ItemRenderer<D> extends Component implements IItemRenderer {
     if (value != _field) {
       _field = value;
       
-      notify(
-          new FrameworkEvent('fieldChanged')    
-      );
+      notify('fieldChanged');
       
       invokeLaterSingle('invalidateData', invalidateData);
     }
@@ -164,9 +160,7 @@ class ItemRenderer<D> extends Component implements IItemRenderer {
       
       getDataToObserve();
       
-      notify(
-          new FrameworkEvent('fieldsChanged')    
-      );
+      notify('fieldsChanged');
       
       invokeLaterSingle('invalidateData', invalidateData);
     }
@@ -424,30 +418,15 @@ class ItemRenderer<D> extends Component implements IItemRenderer {
   }
   
   void _clickHandler(MouseEvent event) {
-    notify(
-        new FrameworkEvent<MouseEvent>(
-            'click',
-            relatedObject: event
-        )
-    );
+    notify('click', event);
   }
   
   void _mouseUpHandler(MouseEvent event) {
-    notify(
-        new FrameworkEvent<MouseEvent>(
-            'mouseUp',
-            relatedObject: event
-        )
-    );
+    notify('mouseUp', event);
   }
   
   void _mouseDownHandler(MouseEvent event) {
-    notify(
-        new FrameworkEvent<MouseEvent>(
-            'mouseDown',
-            relatedObject: event
-        )
-    );
+    notify('mouseDown', event);
   }
   
   void _mouseOverHandler(MouseEvent event) {
@@ -458,41 +437,21 @@ class ItemRenderer<D> extends Component implements IItemRenderer {
         container.onMouseMove.listen(_mouseMoveHandler)
     );
     
-    notify(
-        new FrameworkEvent<MouseEvent>(
-            'mouseOver',
-            relatedObject: event
-        )
-    );
+    notify('mouseOver', event);
   }
   
   void _mouseOutHandler(MouseEvent event) {
     _streamSubscriptionManager.flushIdent('item_renderer_containerMouseMove');
     
-    notify(
-        new FrameworkEvent<MouseEvent>(
-            'mouseOut',
-            relatedObject: event
-        )
-    );
+    notify('mouseOut', event);
   }
   
   void _mouseMoveHandler(MouseEvent event) {
-    notify(
-        new FrameworkEvent<MouseEvent>(
-            'mouseMove',
-            relatedObject: event
-        )
-    );
+    notify('mouseMove', event);
   }
   
   void _keyHandler(KeyboardEvent event) {
-    notify(
-        new FrameworkEvent<KeyboardEvent>(
-            'key',
-            relatedObject: event
-        )
-    );
+    notify('key', event);
   }
 
   void invalidateData() {}
@@ -652,12 +611,7 @@ class ItemRenderer<D> extends Component implements IItemRenderer {
       );
       
       if (bindableRecord != null) {
-        notify(
-            new FrameworkEvent<D>(
-                'dataPropertyChanged',
-                relatedObject: _data
-            )
-        );
+        notify('dataPropertyChanged', _data);
         
         invokeLaterSingle('highlight', highlight);
       }
