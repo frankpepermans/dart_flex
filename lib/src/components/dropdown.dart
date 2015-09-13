@@ -342,8 +342,9 @@ class Dropdown extends ListBase {
   }
   
   void updateListDataProvider() {
-    final String f = (_input.text == null) ? null : _input.text.toLowerCase();
+    if (_dataProvider == null) return;
     
+    final String f = (_input.text == null) ? null : _input.text.toLowerCase();
     final dynamic exactMatch = _dataProvider.firstWhere((dynamic item) {
       if (f == null || f.isEmpty) return true;
       
