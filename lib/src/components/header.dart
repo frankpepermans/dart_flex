@@ -33,11 +33,7 @@ class Header extends HGroup {
       _label = value;
       _isLabelChanged = true;
 
-      notify(
-        new FrameworkEvent(
-          'labelChanged'
-        )
-      );
+      notify('labelChanged');
 
       invalidateProperties();
     }
@@ -94,11 +90,7 @@ class Header extends HGroup {
       );
       else _streamSubscriptionManager.flushIdent('header_leftListChanges');
 
-      notify(
-        new FrameworkEvent(
-          'leftSideItemsChanged'
-        )
-      );
+      notify('leftSideItemsChanged');
 
       invalidateProperties();
     }
@@ -124,11 +116,7 @@ class Header extends HGroup {
       );
       else _streamSubscriptionManager.flushIdent('header_rightListChanges');
 
-      notify(
-        new FrameworkEvent(
-          'rightSideItemsChanged'
-        )
-      );
+      notify('rightSideItemsChanged');
 
       invalidateProperties();
     }

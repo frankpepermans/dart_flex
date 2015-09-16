@@ -33,11 +33,7 @@ class Dropdown extends ListBase {
     if (value != _itemRendererFactory) {
       _itemRendererFactory = value;
   
-      notify(
-        new FrameworkEvent(
-          'itemRendererFactoryChanged'
-        )
-      );
+      notify('itemRendererFactoryChanged');
   
       invalidateProperties();
     }
@@ -54,11 +50,7 @@ class Dropdown extends ListBase {
     if (value != _numRowsDisplayed) {
       _numRowsDisplayed = value;
   
-      notify(
-        new FrameworkEvent(
-          'numRowsDisplayedChanged'
-        )
-      );
+      notify('numRowsDisplayedChanged');
   
       invalidateProperties();
     }
@@ -75,11 +67,7 @@ class Dropdown extends ListBase {
     if (value != _rowHeight) {
       _rowHeight = value;
   
-      notify(
-        new FrameworkEvent(
-          'rowHeightChanged'
-        )
-      );
+      notify('rowHeightChanged');
   
       invalidateProperties();
     }
@@ -314,8 +302,8 @@ class Dropdown extends ListBase {
   void commitListPosition() {
     final Element docElem = document.documentElement;
     final Rectangle box = _control.getBoundingClientRect();
-    final int offsetX = box.left + window.pageXOffset - docElem.clientLeft;
-    final int offsetY = box.top  + window.pageYOffset - docElem.clientTop;
+    final int offsetX = (box.left as double).toInt() + window.pageXOffset - docElem.clientLeft;
+    final int offsetY = (box.top as double).toInt() + window.pageYOffset - docElem.clientTop;
     final int h = min(_numRowsDisplayed, _list.dataProvider.length) * _rowHeight;
     int x = offsetX;
     int y = offsetY + _input.height;
@@ -354,8 +342,9 @@ class Dropdown extends ListBase {
   }
   
   void updateListDataProvider() {
-    final String f = (_input.text == null) ? null : _input.text.toLowerCase();
+    if (_dataProvider == null) return;
     
+    final String f = (_input.text == null) ? null : _input.text.toLowerCase();
     final dynamic exactMatch = _dataProvider.firstWhere((dynamic item) {
       if (f == null || f.isEmpty) return true;
       

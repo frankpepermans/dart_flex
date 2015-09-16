@@ -122,7 +122,7 @@ class ExampleView extends Component {
         ..fields = const <Symbol>[taskSymbol]
         ..field = taskNameSymbol
         ..percentWidth = 100.0
-        ..headerData = const HeaderDataImpl('', taskNameSymbol, 'task', 'Task name')
+        ..headerData = new HeaderDataImpl('', taskNameSymbol, 'task', 'Task name')
         ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
         ..columnItemRendererFactory = new ItemRendererFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct));
 
@@ -130,21 +130,21 @@ class ExampleView extends Component {
         ..fields = const <Symbol>[urgencySymbol]
         ..field = urgencyNameSymbol
         ..width = 130
-        ..headerData = const HeaderDataImpl('', urgencyNameSymbol, 'urgency', 'Urgency name')
+        ..headerData = new HeaderDataImpl('', urgencyNameSymbol, 'urgency', 'Urgency name')
         ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
         ..columnItemRendererFactory = new ItemRendererFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct));
 
     list.add(new DataGridColumn()
         ..field = dueDateSymbol
         ..width = 130
-        ..headerData = const HeaderDataImpl('', dueDateSymbol, 'due date', 'Due date')
+        ..headerData = new HeaderDataImpl('', dueDateSymbol, 'due date', 'Due date')
         ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
         ..columnItemRendererFactory = new ItemRendererFactory<DateItemRenderer>(constructorMethod: DateItemRenderer.construct));
 
     list.add(new DataGridColumn()
         ..field = statusSymbol
         ..width = 100
-        ..headerData = const HeaderDataImpl('', statusSymbol, 'status', 'Status')
+        ..headerData = new HeaderDataImpl('', statusSymbol, 'status', 'Status')
         ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
         ..columnItemRendererFactory = new ItemRendererFactory<StatusComboBoxItemRenderer>(constructorMethod: StatusComboBoxItemRenderer.construct));
 

@@ -20,11 +20,7 @@ class TileGroup extends Group {
     if (value != _layout.gap) {
       _layout.gap = value;
 
-      notify(
-        new FrameworkEvent(
-          "gapChanged"
-        )
-      );
+      notify('gapChanged');
     }
   }
 

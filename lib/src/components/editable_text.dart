@@ -37,11 +37,7 @@ class EditableText extends Component {
     if (value != _text) {
       _text = value;
 
-      notify(
-        new FrameworkEvent(
-          'textChanged'
-        )
-      );
+      notify('textChanged');
 
       _commitText();
     }
@@ -58,11 +54,7 @@ class EditableText extends Component {
     if (value != _align) {
       _align = value;
 
-      notify(
-        new FrameworkEvent(
-          'alignChanged'
-        )
-      );
+      notify('alignChanged');
 
       _commitTextAlign();
     }
@@ -79,11 +71,7 @@ class EditableText extends Component {
     if (value != _pattern) {
       _pattern = value;
 
-      notify(
-        new FrameworkEvent(
-          'patternChanged'
-        )
-      );
+      notify('patternChanged');
 
       _commitTextPattern();
     }
@@ -100,11 +88,7 @@ class EditableText extends Component {
     if (value != _verticalAlign) {
       _verticalAlign = value;
 
-      notify(
-        new FrameworkEvent(
-          'verticalAlignChanged'
-        )
-      );
+      notify('verticalAlignChanged');
 
       _commitTextVerticalAlign();
     }
@@ -184,11 +168,7 @@ class EditableText extends Component {
   void _inputHandler(Event event) {
     text = input.value;
     
-    notify(
-      new FrameworkEvent(
-        'input'
-      )
-    );
+    notify('input');
   }
 }
 
@@ -248,11 +228,7 @@ class EditableTextMask<T extends DateTime> extends EditableText {
     ) {
       _data = value;
 
-      notify(
-        new FrameworkEvent(
-          'dataChanged'
-        )
-      );
+      notify('dataChanged');
 
       text = _formatToString(value);
       
@@ -330,11 +306,7 @@ class EditableTextMask<T extends DateTime> extends EditableText {
   void _inputHandler(Event event) {
     text = _applyInputMask(input.value);
     
-    notify(
-        new FrameworkEvent(
-            'input'
-        )
-    );
+    notify('input');
   }
   
   String _applyInputMask(String incoming) => null;
@@ -344,11 +316,7 @@ class EditableTextMask<T extends DateTime> extends EditableText {
     
     _hasFocus = false;
     
-    notify(
-      new FrameworkEvent(
-        'dataFinalized'
-      )
-    );
+    notify('dataFinalized');
   }
   
   void _input_preventEvent(Event event) {

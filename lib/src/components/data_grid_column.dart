@@ -40,9 +40,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _width) {
       _width = value;
       
-      notify(
-        new FrameworkEvent('widthChanged')    
-      );
+      notify('widthChanged');
     }
   }
 
@@ -58,9 +56,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _percentWidth) {
       _percentWidth = value;
       
-      notify(
-        new FrameworkEvent('percentWidthChanged')    
-      );
+      notify('percentWidthChanged');
     }
   }
 
@@ -76,9 +72,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _minWidth) {
       _minWidth = value;
       
-      notify(
-        new FrameworkEvent('minWidthChanged')    
-      );
+      notify('minWidthChanged');
     }
   }
 
@@ -94,9 +88,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _headerData) {
       _headerData = value;
       
-      notify(
-        new FrameworkEvent('headerDataChanged')    
-      );
+      notify('headerDataChanged');
     }
   }
   
@@ -111,9 +103,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _field) {
       _field = value;
       
-      notify(
-        new FrameworkEvent('fieldChanged')    
-      );
+      notify('fieldChanged');
     }
   }
   
@@ -128,9 +118,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _fields) {
       _fields = value;
       
-      notify(
-        new FrameworkEvent('fieldsChanged')    
-      );
+      notify('fieldsChanged');
     }
   }
 
@@ -145,9 +133,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _columnItemRendererFactory) {
       _columnItemRendererFactory = value;
       
-      notify(
-        new FrameworkEvent('columnItemRendererFactoryChanged')    
-      );
+      notify('columnItemRendererFactoryChanged');
     }
   }
 
@@ -162,9 +148,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _headerItemRendererFactory) {
       _headerItemRendererFactory = value;
       
-      notify(
-        new FrameworkEvent('headerItemRendererFactoryChanged')    
-      );
+      notify('headerItemRendererFactoryChanged');
     }
   }
 
@@ -179,9 +163,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _property) {
       _property = value;
       
-      notify(
-        new FrameworkEvent('propertyChanged')    
-      );
+      notify('propertyChanged');
     }
   }
   
@@ -196,9 +178,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _isActive) {
       _isActive = value;
       
-      notify(
-        new FrameworkEvent('isActiveChanged')    
-      );
+      notify('isActiveChanged');
     }
   }
   
@@ -213,9 +193,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _isVisible) {
       _isVisible = value;
       
-      notify(
-        new FrameworkEvent('isVisibleChanged')    
-      );
+      notify('isVisibleChanged');
     }
   }
   
@@ -230,9 +208,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _labelHandler) {
       _labelHandler = value;
       
-      notify(
-        new FrameworkEvent('labelHandlerChanged')    
-      );
+      notify('labelHandlerChanged');
     }
   }
   
@@ -247,9 +223,7 @@ class DataGridColumn extends EventDispatcherImpl {
     if (value != _cssClasses) {
       _cssClasses = value;
       
-      notify(
-        new FrameworkEvent('cssClassesChanged')    
-      );
+      notify('cssClassesChanged');
     }
   }
 

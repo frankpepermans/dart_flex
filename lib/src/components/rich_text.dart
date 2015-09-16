@@ -44,11 +44,7 @@ class RichText extends Component {
       _text = value;
       _richText = null;
  
-      notify(
-        new FrameworkEvent(
-          'textChanged'
-        )
-      );
+      notify('textChanged');
  
       _commitText();
     }
@@ -66,11 +62,7 @@ class RichText extends Component {
       _text = null;
       _richText = value;
  
-      notify(
-        new FrameworkEvent(
-          'richTextChanged'
-        )
-      );
+      notify('richTextChanged');
  
       _commitText();
     }
@@ -87,11 +79,7 @@ class RichText extends Component {
     if (value != _align) {
       _align = value;
  
-      notify(
-        new FrameworkEvent(
-          'alignChanged'
-        )
-      );
+      notify('alignChanged');
  
       _commitTextAlign();
     }
@@ -108,11 +96,7 @@ class RichText extends Component {
     if (value != _verticalAlign) {
       _verticalAlign = value;
  
-      notify(
-        new FrameworkEvent(
-          'verticalAlignChanged'
-        )
-      );
+      notify('verticalAlignChanged');
  
       _commitTextVerticalAlign();
     }
@@ -129,11 +113,7 @@ class RichText extends Component {
     if (value != _autoTruncate) {
        _autoTruncate = value;
  
-      notify(
-        new FrameworkEvent(
-          'autoTruncateChangedEvent'
-        )
-      );
+      notify('autoTruncateChangedEvent');
  
       _commitTextAutoTruncate();
     }
@@ -150,11 +130,7 @@ class RichText extends Component {
     if (value != _titleHandler) {
        _titleHandler = value;
  
-      notify(
-        new FrameworkEvent(
-          'titleHandlerChangedEvent'
-        )
-      );
+      notify('titleHandlerChangedEvent');
  
       _commitTextAutoTruncate();
     }
@@ -183,7 +159,7 @@ class RichText extends Component {
     super.createChildren();
    
     _label = new LabelElement()
-      ..onClick.listen((_) => notify(new FrameworkEvent('click')));
+      ..onClick.listen((_) => notify('click'));
  
     _setControl(_label);
  

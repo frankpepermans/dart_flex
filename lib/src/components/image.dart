@@ -21,9 +21,7 @@ class Image extends Component {
     if (value != _source) {
       _source = value;
 
-      notify(
-          new FrameworkEvent('sourceChanged')
-      );
+      notify('sourceChanged');
 
       _commitSource();
     }

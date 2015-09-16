@@ -41,14 +41,14 @@ class FloatingWindow extends VGroup {
       ..className = 'floating-window-footer'
       ..percentWidth = 100.0
       ..gap = 0
-      ..height = 24;
+      ..height = 10;
     
     closeButton = new Button()
       ..className = 'floating-window-close-button'
       ..width = 22
       ..percentHeight = 100.0
       ..label = 'x'
-      ..onButtonClick.listen((_) => notify(new FrameworkEvent('close')));
+      ..onButtonClick.listen((_) => notify('close'));
     
     final VGroup resizeHandleGroup = new VGroup()
       ..width = 10

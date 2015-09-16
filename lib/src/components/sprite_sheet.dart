@@ -35,11 +35,7 @@ class SpriteSheet extends Group {
     if (value != _source) {
       _source = value;
 
-      notify(
-        new FrameworkEvent(
-          'sourceChanged'
-        )
-      );
+      notify('sourceChanged');
       
       _updateIndex();
     }
@@ -56,11 +52,7 @@ class SpriteSheet extends Group {
     if (value != _index) {
       _index = value;
 
-      notify(
-          new FrameworkEvent(
-              'indexChanged'
-          )
-      );
+      notify('indexChanged');
 
       _updateIndex();
     }
@@ -78,11 +70,7 @@ class SpriteSheet extends Group {
       _columnSize = value;
       width = value;
 
-      notify(
-          new FrameworkEvent(
-              'columnSizeChanged'
-          )
-      );
+      notify('columnSizeChanged');
 
       _updateIndex();
     }
@@ -100,11 +88,7 @@ class SpriteSheet extends Group {
       _rowSize = value;
       height = value;
 
-      notify(
-          new FrameworkEvent(
-              'rowSizeChanged'
-          )
-      );
+      notify('rowSizeChanged');
 
       _updateIndex();
     }
@@ -121,11 +105,7 @@ class SpriteSheet extends Group {
     if (value != _sheetWidth) {
       _sheetWidth = value;
 
-      notify(
-          new FrameworkEvent(
-              'sheetWidthChanged'
-          )
-      );
+      notify('sheetWidthChanged');
 
       _updateIndex();
     }
@@ -142,11 +122,7 @@ class SpriteSheet extends Group {
     if (value != _sheetHeight) {
       _sheetHeight = value;
 
-      notify(
-          new FrameworkEvent(
-              'sheetHeightChanged'
-          )
-      );
+      notify('sheetHeightChanged');
 
       _updateIndex();
     }
@@ -220,12 +196,7 @@ class SpriteSheet extends Group {
     if (_allowClick) {
       _allowClick = false;
       
-      notify(
-          new FrameworkEvent<MouseEvent>(
-              'buttonClick',
-              relatedObject: event
-          )
-      );
+      notify('buttonClick', event);
       
       new Timer(
         const Duration(milliseconds: 50),

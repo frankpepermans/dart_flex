@@ -32,12 +32,7 @@ class StatusComboBoxItemRenderer extends ItemRenderer {
     if (data[field] != event.relatedObject) {
       data[field] = event.relatedObject;
       
-      notify(
-          new FrameworkEvent<dynamic>(
-              'dataPropertyChanged',
-              relatedObject: data
-          )
-      );
+      notify('dataPropertyChanged', data);
     }
   }
 }

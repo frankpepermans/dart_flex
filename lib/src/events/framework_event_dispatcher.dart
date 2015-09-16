@@ -11,7 +11,7 @@ abstract class EventDispatcher {
   bool hasObserver(String type);
   void observeEventType(String type, Function eventHandler);
   void ignoreEventType(String type, Function eventHandler);
-  void notify(FrameworkEvent event);
+  void notify(String eventType, [dynamic relatedObject]);
 
 }
 
@@ -25,7 +25,7 @@ class EventDispatcherMixin implements EventDispatcher {
 
   void ignoreEventType(String type, Function eventHandler) => _eventDispatcher.ignoreEventType(type, eventHandler);
 
-  void notify(FrameworkEvent event) => _eventDispatcher.notify(event);
+  void notify(String eventType, [dynamic relatedObject]) => _eventDispatcher.notify(eventType, relatedObject);
   
 }
 
@@ -88,10 +88,11 @@ class EventDispatcherImpl implements EventDispatcher {
     _observers = <String, List<Function>>{};
   }
 
-  void notify(FrameworkEvent event) {
-    final List<Function> list = _observers[event.type];
+  void notify(String eventType, [dynamic relatedObject]) {
+    final List<Function> list = _observers[eventType];
     
-    if (list != null) {
+    if (list != null && list.isNotEmpty) {
+      final FrameworkEvent event = new FrameworkEvent(eventType, relatedObject: relatedObject);
       int i = list.length;
       
       event.currentTarget = _dispatcher;

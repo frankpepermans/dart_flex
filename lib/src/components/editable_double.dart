@@ -32,11 +32,7 @@ class EditableDouble extends Component {
     if (newValue != _value) {
       _value = newValue;
 
-      notify(
-        new FrameworkEvent(
-          'valueChanged'
-        )
-      );
+      notify('valueChanged');
 
       _commitValue();
     }
@@ -53,11 +49,7 @@ class EditableDouble extends Component {
     if (value != _min) {
       _min = value;
 
-      notify(
-        new FrameworkEvent(
-          'minChanged'
-        )
-      );
+      notify('minChanged');
 
       _commitValue();
     }
@@ -74,11 +66,7 @@ class EditableDouble extends Component {
     if (value != _max) {
       _max = value;
 
-      notify(
-        new FrameworkEvent(
-          'maxChanged'
-        )
-      );
+      notify('maxChanged');
 
       _commitValue();
     }
@@ -157,11 +145,7 @@ class EditableDouble extends Component {
   
     _commitValue();
     
-    notify(
-        new FrameworkEvent(
-            'input'
-        )
-    );
+    notify('input');
   }
   
   double _valueAsNumber(String value) => double.parse(value, (_) => .0);

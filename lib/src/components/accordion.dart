@@ -41,11 +41,7 @@ class Accordion extends Group {
       _orientation = value;
       _isOrientationChanged = true;
 
-      notify(
-        new FrameworkEvent(
-          'orientationChanged'
-        )
-      );
+      notify('orientationChanged');
 
       invalidateProperties();
     }
@@ -74,12 +70,7 @@ class Accordion extends Group {
       );
       else _streamSubscriptionManager.flushIdent('accordion_dataProviderChange');
       
-      notify(
-          new FrameworkEvent(
-            'dataProviderChanged',
-            relatedObject: value
-          )
-      );
+      notify('dataProviderChanged', value);
 
       invalidateProperties();
     }
@@ -97,11 +88,7 @@ class Accordion extends Group {
       _selectedIndex = value;
       _isPanelsUpdateRequired = true;
 
-      notify(
-        new FrameworkEvent(
-          'selectedIndexChanged'
-        )
-      );
+      notify('selectedIndexChanged');
 
       invalidateProperties();
     }
@@ -119,11 +106,7 @@ class Accordion extends Group {
       _headerHeight = value;
       _isPanelsUpdateRequired = true;
 
-      notify(
-        new FrameworkEvent(
-          'headerHeightChanged'
-        )
-      );
+      notify('headerHeightChanged');
 
       invalidateProperties();
     }
@@ -140,11 +123,7 @@ class Accordion extends Group {
     if (value != _headerItemRendererFactory) {
       _headerItemRendererFactory = value;
 
-      notify(
-        new FrameworkEvent(
-          'headerItemRendererFactoryChanged'
-        )
-      );
+      notify('headerItemRendererFactoryChanged');
 
       invalidateProperties();
     }
@@ -191,11 +170,7 @@ class Accordion extends Group {
     if (value != _contentItemRendererFactory) {
       _contentItemRendererFactory = value;
 
-      notify(
-        new FrameworkEvent(
-          'contentItemRendererFactoryChanged'
-        )
-      );
+      notify('contentItemRendererFactoryChanged');
       
       _removeAllPanels();
 
@@ -214,11 +189,7 @@ class Accordion extends Group {
     if (value != _contentItemRendererFactoryHandler) {
       _contentItemRendererFactoryHandler = value;
 
-      notify(
-        new FrameworkEvent(
-          'contentItemRendererFactoryHandlerChanged'
-        )
-      );
+      notify('contentItemRendererFactoryHandlerChanged');
       
       _removeAllPanels();
 
@@ -374,12 +345,7 @@ class Accordion extends Group {
       
       _panels.remove(panel);
       
-      notify(
-          new FrameworkEvent<IItemRenderer>(
-              'rendererRemoved',
-              relatedObject: panel._contentItemRenderer
-          )
-      );
+      notify('rendererRemoved', panel._contentItemRenderer);
     }
     
     j = _panels.length;
@@ -407,12 +373,7 @@ class Accordion extends Group {
       addComponent(panel._headerItemRenderer);
       addComponent(panel._contentItemRenderer);
       
-      notify(
-          new FrameworkEvent<IItemRenderer>(
-              'rendererAdded',
-              relatedObject: contentItemRenderer
-          )
-      );
+      notify('rendererAdded', contentItemRenderer);
     }
     
     j = _panels.length;

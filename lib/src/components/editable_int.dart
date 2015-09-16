@@ -34,11 +34,7 @@ class EditableInt extends Component {
     if (newValue != _value) {
       _value = newValue;
 
-      notify(
-        new FrameworkEvent(
-          'valueChanged'
-        )
-      );
+      notify('valueChanged');
 
       _commitValue();
     }
@@ -55,11 +51,7 @@ class EditableInt extends Component {
     if (value != _min) {
       _min = value;
 
-      notify(
-        new FrameworkEvent(
-          'minChanged'
-        )
-      );
+      notify('minChanged');
 
       _commitValue();
     }
@@ -76,11 +68,7 @@ class EditableInt extends Component {
     if (value != _max) {
       _max = value;
 
-      notify(
-        new FrameworkEvent(
-          'maxChanged'
-        )
-      );
+      notify('maxChanged');
 
       _commitValue();
     }
@@ -164,11 +152,7 @@ class EditableInt extends Component {
   
     _commitValue();
     
-    notify(
-        new FrameworkEvent(
-            'input'
-        )
-    );
+    notify('input');
   }
   
   int _valueAsNumber(String value) => int.parse(value, onError: (_) => 0);

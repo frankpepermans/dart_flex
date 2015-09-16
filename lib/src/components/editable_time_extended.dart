@@ -87,11 +87,7 @@ class EditableTimeExtended<T extends DateTime> extends EditableTextMask<T> {
     
     _data = _toDateTime(_text);
     
-    notify(
-      new FrameworkEvent(
-        'dataChanged'
-      )
-    );
+    notify('dataChanged');
     
     invokeLaterSingle('setSelectionRange', _setSelectionRange);
   }

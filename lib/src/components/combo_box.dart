@@ -21,12 +21,7 @@ class ComboBox extends ListBase {
   set selectedIndex(int value) {
     _selectedIndex = value;
 
-    notify(
-      new FrameworkEvent<int>(
-          'selectedIndexChanged',
-          relatedObject: value
-        )
-    );
+    notify('selectedIndexChanged', value);
 
     invokeLaterSingle('updateSelection', _updateSelection);
   }

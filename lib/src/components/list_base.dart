@@ -57,12 +57,7 @@ class ListBase extends Group {
       );
       else _streamSubscriptionManager.flushIdent('list_base_dataProviderChanges');
       
-      notify(
-          new FrameworkEvent(
-            'dataProviderChanged',
-            relatedObject: value
-          )
-      );
+      notify('dataProviderChanged', value);
       
       invalidatePresentation();
 
@@ -98,11 +93,7 @@ class ListBase extends Group {
     if (value != _field) {
       _field = value;
       
-      notify(
-          new FrameworkEvent(
-            'fieldChanged'
-          )
-      );
+      notify('fieldChanged');
       
       invalidateProperties();
     }
@@ -119,11 +110,7 @@ class ListBase extends Group {
     if (value != _labelFunction) {
       _labelFunction = value;
       
-      notify(
-          new FrameworkEvent(
-            'labelFunctionChanged'
-          )
-      );
+      notify('labelFunctionChanged');
       
       invalidateProperties();
     }
@@ -140,12 +127,7 @@ class ListBase extends Group {
     if (value != _allowMultipleSelection) {
       _allowMultipleSelection = value;
       
-      notify(
-          new FrameworkEvent<bool>(
-            'allowMultipleSelectionChanged',
-            relatedObject: value
-          )
-      );
+      notify('allowMultipleSelectionChanged', value);
       
       invalidateProperties();
     }
@@ -169,20 +151,10 @@ class ListBase extends Group {
       ) {
         _selectedItem = _dataProvider[value];
         
-        notify(
-            new FrameworkEvent<dynamic>(
-                'selectedItemChanged',
-                relatedObject: _selectedItem
-            )
-        );
+        notify('selectedItemChanged', _selectedItem);
       }
 
-      notify(
-          new FrameworkEvent(
-            'selectedIndexChanged',
-            relatedObject: value
-          )
-      );
+      notify('selectedIndexChanged', value);
 
       invokeLaterSingle('updateSelection', _updateSelection);
     }
@@ -208,19 +180,9 @@ class ListBase extends Group {
         }
       }
       
-      notify(
-          new FrameworkEvent<Iterable<dynamic>>(
-              'selectedItemsChanged',
-              relatedObject: _selectedItems
-          )
-      );
+      notify('selectedItemsChanged', _selectedItems);
 
-      notify(
-          new FrameworkEvent<Iterable<int>>(
-            'selectedIndicesChanged',
-            relatedObject: value
-          )
-      );
+      notify('selectedIndicesChanged', value);
 
       invokeLaterSingle('updateSelection', _updateSelection);
     }
@@ -240,20 +202,10 @@ class ListBase extends Group {
       if (_dataProvider != null) {
         _selectedIndex = _dataProvider.indexOf(value);
         
-        notify(
-            new FrameworkEvent(
-                'selectedIndexChanged',
-                relatedObject: _selectedIndex
-            )
-        );
+        notify('selectedIndexChanged', _selectedIndex);
       }
 
-      notify(
-          new FrameworkEvent<dynamic>(
-            'selectedItemChanged',
-            relatedObject: value
-          )
-      );
+      notify('selectedItemChanged', value);
 
       invokeLaterSingle('updateSelection', _updateSelection);
     }
@@ -279,19 +231,9 @@ class ListBase extends Group {
         }
       }
       
-      notify(
-          new FrameworkEvent<Iterable<int>>(
-              'selectedIndicesChanged',
-              relatedObject: _selectedIndices
-          )
-      );
+      notify('selectedIndicesChanged', _selectedIndices);
   
-      notify(
-          new FrameworkEvent<Iterable<dynamic>>(
-            'selectedItemsChanged',
-            relatedObject: value
-          )
-      );
+      notify('selectedItemsChanged', value);
   
       invokeLaterSingle('updateSelection', _updateSelection);
     }

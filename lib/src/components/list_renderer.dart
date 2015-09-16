@@ -132,11 +132,7 @@ class ListRenderer extends ListBase {
       
       if (_control != null) _control.scrollLeft = _control.scrollTop = 0;
 
-      notify(
-        new FrameworkEvent(
-          'orientationChanged'
-        )
-      );
+      notify('orientationChanged');
 
       invalidateProperties();
       
@@ -156,11 +152,7 @@ class ListRenderer extends ListBase {
       _autoManageScrollBars = value;
       _isOrientationChanged = true;
 
-      notify(
-        new FrameworkEvent(
-          'autoManageScrollBarsChanged'
-        )
-      );
+      notify('autoManageScrollBarsChanged');
 
       invalidateProperties();
     }
@@ -179,11 +171,7 @@ class ListRenderer extends ListBase {
       _useSelectionEffects = value;
       _isUseSelectionEffectsChanged = true;
 
-      notify(
-        new FrameworkEvent(
-          'useSelectionEffectsChanged'
-        )
-      );
+      notify('useSelectionEffectsChanged');
 
       invalidateProperties();
     }
@@ -202,11 +190,7 @@ class ListRenderer extends ListBase {
       _useEvenOdd = value;
       _isUseEvenOddChanged = true;
   
-      notify(
-        new FrameworkEvent(
-          'useEvenOddChanged'
-        )
-      );
+      notify('useEvenOddChanged');
   
       invalidateProperties();
     }
@@ -225,11 +209,7 @@ class ListRenderer extends ListBase {
       
       _removeAllElements();
 
-      notify(
-        new FrameworkEvent(
-          'itemRendererFactoryChanged'
-        )
-      );
+      notify('itemRendererFactoryChanged');
 
       invalidateProperties();
       
@@ -248,11 +228,7 @@ class ListRenderer extends ListBase {
     if (value != _colWidth) {
       _colWidth = value;
 
-      notify(
-        new FrameworkEvent(
-          'colWidthChanged'
-        )
-      );
+      notify('colWidthChanged');
       
       _forceRefresh();
     }
@@ -269,11 +245,7 @@ class ListRenderer extends ListBase {
     if (value != _colPercentWidth) {
       _colPercentWidth = value;
 
-      notify(
-        new FrameworkEvent(
-          'colPercentWidthChanged'
-        )
-      );
+      notify('colPercentWidthChanged');
       
       _forceRefresh();
     }
@@ -290,11 +262,7 @@ class ListRenderer extends ListBase {
     if (value != _rowHeight) {
       _rowHeight = value;
 
-      notify(
-        new FrameworkEvent(
-          'rowHeightChanged'
-        )
-      );
+      notify('rowHeightChanged');
       
       _forceRefresh();
     }
@@ -311,11 +279,7 @@ class ListRenderer extends ListBase {
     if (value != _rowPercentHeight) {
       _rowPercentHeight = value;
 
-      notify(
-        new FrameworkEvent(
-          'rowPercentHeightChanged'
-        )
-      );
+      notify('rowPercentHeightChanged');
       
       _forceRefresh();
     }
@@ -343,11 +307,7 @@ class ListRenderer extends ListBase {
     if (value != _scrollPosition) {
       _scrollPosition = value;
       
-      notify(
-        new FrameworkEvent(
-          'listScrollPositionChanged'
-        )
-      );
+      notify('listScrollPositionChanged');
 
       _updateAfterScrollPositionChanged();
     }
@@ -364,11 +324,7 @@ class ListRenderer extends ListBase {
     if (value != _headerScrollPosition) {
       _headerScrollPosition = value;
 
-      notify(
-        new FrameworkEvent(
-          'headerScrollPositionChanged'
-        )
-      );
+      notify('headerScrollPositionChanged');
     }
   }
 
@@ -634,12 +590,7 @@ class ListRenderer extends ListBase {
 
     addComponent(renderer);
 
-    notify(
-        new FrameworkEvent<IItemRenderer>(
-            'rendererAdded',
-            relatedObject: renderer
-        )
-    );
+    notify('rendererAdded', renderer);
   }
   
   void _rendererControlChangedHandler(FrameworkEvent event) {
@@ -681,12 +632,7 @@ class ListRenderer extends ListBase {
 
     if (_itemRenderers != null) _itemRenderers.remove(element);
     
-    notify(
-      new FrameworkEvent<BaseComponent>(
-          'rendererRemoved',
-          relatedObject: element
-      )    
-    );
+    notify('rendererRemoved', element);
   }
 
   bool _updateElements() {
@@ -791,9 +737,7 @@ class ListRenderer extends ListBase {
     
     updateLayout();
     
-    notify(
-      new FrameworkEvent('redraw')    
-    );
+    notify('redraw');
   }
 
   void _updateVisibleItemRenderers({bool ignorePreviousIndex: false}) {
@@ -895,19 +839,9 @@ class ListRenderer extends ListBase {
             selectedItems.add(_dataProvider[index]);
           }
           
-          notify(
-              new FrameworkEvent<Iterable<int>>(
-                  'selectedIndicesChanged',
-                  relatedObject: _selectedIndices
-              )
-          );
+          notify('selectedIndicesChanged', _selectedIndices);
       
-          notify(
-              new FrameworkEvent<Iterable<dynamic>>(
-                'selectedItemsChanged',
-                relatedObject: _selectedItems
-              )
-          );
+          notify('selectedItemsChanged', _selectedItems);
           
           invokeLaterSingle('updateSelection', _updateSelection);
           

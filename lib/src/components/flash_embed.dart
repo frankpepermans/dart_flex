@@ -28,9 +28,7 @@ class FlashEmbed extends Component {
     if (value != _source) {
       _source = value;
 
-      notify(
-          new FrameworkEvent('sourceChanged')
-      );
+      notify('sourceChanged');
 
       invokeLaterSingle('commitSource', _commitSource);
     }

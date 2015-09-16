@@ -93,9 +93,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _includeInLayout) {
       _includeInLayout = value;
 
-      notify(
-        new FrameworkEvent('includeInLayoutChanged')
-      );
+      notify('includeInLayoutChanged');
 
       invalidateOwnerProperties();
 
@@ -115,9 +113,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _allowLayoutUpdate) {
       _allowLayoutUpdate = value;
 
-      notify(
-        new FrameworkEvent('allowLayoutUpdateChanged')
-      );
+      notify('allowLayoutUpdateChanged');
 
       invalidateOwnerProperties();
 
@@ -137,9 +133,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _autoSize) {
       _autoSize = value;
 
-      notify(
-        new FrameworkEvent('autoSizeChanged')
-      );
+      notify('autoSizeChanged');
 
       invalidateOwnerProperties();
 
@@ -159,9 +153,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _x) {
       _x = value;
 
-      notify(
-        new FrameworkEvent('xChanged')
-      );
+      notify('xChanged');
 
       _updateControl(1);
     }
@@ -179,9 +171,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _y) {
       _y = value;
 
-      notify(
-        new FrameworkEvent('yChanged')
-      );
+      notify('yChanged');
 
       _updateControl(2);
     }
@@ -200,9 +190,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _width) {
       _width = value;
 
-      notify(
-        new FrameworkEvent('widthChanged')
-      );
+      notify('widthChanged');
 
       _updateControl(3);
 
@@ -222,9 +210,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _percentWidth) {
       _percentWidth = value;
 
-      notify(
-        new FrameworkEvent('percentWidthChanged')
-      );
+      notify('percentWidthChanged');
 
       invalidateProperties();
     }
@@ -243,9 +229,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _height) {
       _height = value;
 
-      notify(
-        new FrameworkEvent('heightChanged')
-      );
+      notify('heightChanged');
 
       _updateControl(4);
 
@@ -265,9 +249,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _percentHeight) {
       _percentHeight = value;
 
-      notify(
-        new FrameworkEvent('percentHeightChanged')
-      );
+      notify('percentHeightChanged');
 
       invalidateProperties();
     }
@@ -285,9 +267,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _paddingLeft) {
       _paddingLeft = value;
 
-      notify(
-        new FrameworkEvent('paddingLeftChanged')
-      );
+      notify('paddingLeftChanged');
 
       invalidateProperties();
     }
@@ -305,9 +285,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _paddingRight) {
       _paddingRight = value;
 
-      notify(
-        new FrameworkEvent('paddingRightChanged')
-      );
+      notify('paddingRightChanged');
 
       invalidateProperties();
     }
@@ -325,9 +303,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _paddingTop) {
       _paddingTop = value;
 
-      notify(
-        new FrameworkEvent('paddingTopChanged')
-      );
+      notify('paddingTopChanged');
 
       invalidateProperties();
     }
@@ -345,9 +321,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _paddingBottom) {
       _paddingBottom = value;
 
-      notify(
-        new FrameworkEvent('paddingBottomChanged')
-      );
+      notify('paddingBottomChanged');
 
       invalidateProperties();
     }
@@ -364,9 +338,7 @@ abstract class BaseComponentMixin implements ComponentLayout, ComponentLifeCycle
     if (value != _layout) {
       _layout = value;
 
-      notify(
-        new FrameworkEvent('layoutChanged')
-      );
+      notify('layoutChanged');
 
       invalidateProperties();
     }

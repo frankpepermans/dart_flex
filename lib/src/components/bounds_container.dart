@@ -30,11 +30,7 @@ class BoundsContainer extends VGroup {
       
       invalidateProperties();
   
-      notify(
-        new FrameworkEvent(
-          'leftChanged'
-        )
-      );
+      notify('leftChanged');
     }
   }
   
@@ -51,11 +47,7 @@ class BoundsContainer extends VGroup {
       
       invalidateProperties();
   
-      notify(
-        new FrameworkEvent(
-          'rightChanged'
-        )
-      );
+      notify('rightChanged');
     }
   }
   
@@ -72,11 +64,7 @@ class BoundsContainer extends VGroup {
       
       invalidateProperties();
   
-      notify(
-        new FrameworkEvent(
-          'topChanged'
-        )
-      );
+      notify('topChanged');
     }
   }
   
@@ -93,11 +81,7 @@ class BoundsContainer extends VGroup {
       
       invalidateProperties();
   
-      notify(
-        new FrameworkEvent(
-          'bottomChanged'
-        )
-      );
+      notify('bottomChanged');
     }
   }
 

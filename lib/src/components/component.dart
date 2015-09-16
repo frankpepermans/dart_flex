@@ -153,9 +153,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
     if (value != _stylePrefix) {
       _stylePrefix = value;
 
-      notify(
-        new FrameworkEvent('stylePrefixChanged')
-      );
+      notify('stylePrefixChanged');
 
       invalidateProperties();
     }
@@ -202,12 +200,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
     if (value != _currentSkinStates) {
       _currentSkinStates = value;
       
-      notify(
-        new FrameworkEvent(
-            'currentSkinStatesChanged',
-            relatedObject: value
-        )
-      );
+      notify('currentSkinStatesChanged', value);
     }
   }
   
@@ -222,12 +215,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
     if (value != _includeIn) {
       _includeIn = value;
       
-      notify(
-        new FrameworkEvent(
-            'includeInChanged',
-            relatedObject: value
-        )
-      );
+      notify('includeInChanged', value);
     }
   }
   
@@ -242,12 +230,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
     if (value != _excludeFrom) {
       _excludeFrom = value;
       
-      notify(
-        new FrameworkEvent(
-            'excludeFromChanged',
-            relatedObject: value
-        )
-      );
+      notify('excludeFromChanged', value);
     }
   }
   
@@ -311,9 +294,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
       if (hasDelta) {
         _cssClasses = value;
   
-        notify(
-          new FrameworkEvent('cssClassesChanged')
-        );
+        notify('cssClassesChanged');
   
         refreshStyle();
       }
@@ -338,9 +319,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
     if (value != _visible) {
       _visible = value;
 
-      notify(
-        new FrameworkEvent('visibleChanged')
-      );
+      notify('visibleChanged');
 
       invokeLaterSingle('updateVisibility', updateVisibility);
     }
@@ -359,9 +338,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
       
       if (_isInitialized) invokeLaterSingle('updateDefaultClass', _updateDefaultClass);
 
-      notify(
-        new FrameworkEvent('inheritsDefaultCSSChanged')
-      );
+      notify('inheritsDefaultCSSChanged');
     }
   }
 
@@ -416,9 +393,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
       
       if (_isInitialized) invokeLaterSingle('updateDefaultClass', _updateDefaultClass);
 
-      notify(
-        new FrameworkEvent('classNameChanged')
-      );
+      notify('classNameChanged');
     }
   }
 
@@ -466,12 +441,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
   void preInitialize(BaseComponent forOwner) {
     _owner = forOwner;
     
-    notify(
-        new FrameworkEvent<BaseComponent>(
-            'ownerChanged',
-            relatedObject: forOwner
-        )
-    );
+    notify('ownerChanged', forOwner);
     
     initialize();
   }
@@ -499,11 +469,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
       
       createChildren();
       
-      notify(
-          new FrameworkEvent(
-              'initializationComplete'
-          )
-      );
+      notify('initializationComplete');
 
       invalidateProperties();
     }
@@ -589,12 +555,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
       if (elementCast._owner != this) {
         elementCast._owner = this;
         
-        elementCast.notify(
-            new FrameworkEvent<BaseComponent>(
-                'ownerChanged',
-                relatedObject: this
-            )
-        );
+        elementCast.notify('ownerChanged', this);
       }
       
       if (
@@ -679,13 +640,9 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
             _childWrappers
         );
         
-        if (_layout.layoutWidth != dw) notify(
-          new FrameworkEvent('layoutWidthChanged')    
-        );
+        if (_layout.layoutWidth != dw) notify('layoutWidthChanged');
         
-        if (_layout.layoutHeight != dh) notify(
-          new FrameworkEvent('layoutHeightChanged')    
-        );
+        if (_layout.layoutHeight != dh) notify('layoutHeightChanged');
         
         if ((_layout.layoutWidth != dw || _layout.layoutHeight != dh) && owner != null) owner.invalidateLayout();
       } else _childWrappers.forEach(
@@ -805,6 +762,8 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
     
     return true;
   }
+  
+  void setControl(Element element) => _setControl(element);
 
   void _setControl(Element element) {
     _control = element;
@@ -815,12 +774,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
 
     _updateControl(5);
 
-    notify(
-      new FrameworkEvent<Element>(
-          'controlChanged',
-          relatedObject: element
-      )
-    );
+    notify('controlChanged', element);
 
     invalidateProperties();
     
@@ -926,12 +880,7 @@ class Component extends Object with BaseComponentMixin, EventDispatcherMixin imp
       
       _streamSubscriptionManager.add('windowResize', window.onResize.listen(invalidateSize), flushExisting: true);
       
-      notify(
-          new FrameworkEvent<Element>(
-              'controlChanged',
-              relatedObject: target
-          )
-      );
+      notify('controlChanged', target);
       
       initialize();
       
