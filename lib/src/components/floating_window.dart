@@ -9,6 +9,7 @@ class FloatingWindow extends VGroup {
   
   final List<BaseComponent> _pendingHeaderElements = <BaseComponent>[];
   final List<BaseComponent> _pendingContentElements = <BaseComponent>[];
+  final List<BaseComponent> _pendingFooterElements = <BaseComponent>[];
   
   //---------------------------------
   //
@@ -71,6 +72,12 @@ class FloatingWindow extends VGroup {
       _pendingContentElements.clear();
     }
     
+    if (_pendingFooterElements.isNotEmpty) {
+      _pendingFooterElements.forEach((BaseComponent E) => footer.addComponent(E));
+      
+      _pendingFooterElements.clear();
+    }
+    
     resizeHandleGroup.addComponent(new Spacer()..percentHeight = 100.0..width = 1);
     resizeHandleGroup.addComponent(resizeHandle);
     
@@ -104,6 +111,16 @@ class FloatingWindow extends VGroup {
     }
     
     header.addComponent(element, prepend: true);
+  }
+  
+  void addFooterComponent(BaseComponent element, {bool prepend: false}) {
+    if (content == null) {
+      _pendingFooterElements.add(element);
+      
+      return;
+    }
+    
+    footer.addComponent(element, prepend: true);
   }
   
   void _addListeners(Element e) {
