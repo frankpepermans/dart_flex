@@ -60,7 +60,10 @@ class FloatingWindow extends VGroup {
       ..height = 10
       ..onControlChanged.listen((FrameworkEvent<Element> event) => _addResizeListeners(event.relatedObject));
     
-    if (_pendingHeaderElements.isNotEmpty) {
+    final bool hasHeaderElements = _pendingHeaderElements.isNotEmpty;
+    final bool hasFooterElements = _pendingFooterElements.isNotEmpty;
+    
+    if (hasHeaderElements) {
       _pendingHeaderElements.forEach((BaseComponent E) => header.addComponent(E));
       
       _pendingHeaderElements.clear();
@@ -72,7 +75,7 @@ class FloatingWindow extends VGroup {
       _pendingContentElements.clear();
     }
     
-    if (_pendingFooterElements.isNotEmpty) {
+    if (hasFooterElements) {
       _pendingFooterElements.forEach((BaseComponent E) => footer.addComponent(E));
       
       _pendingFooterElements.clear();
@@ -84,7 +87,7 @@ class FloatingWindow extends VGroup {
     header.addComponent(new Spacer()..percentWidth = 100.0..percentHeight = 100.0.._className = 'floating-window-header-spacing');
     header.addComponent(closeButton);
     
-    footer.addComponent(new Spacer()..percentWidth = 100.0..percentHeight = 100.0);
+    if (!hasFooterElements) footer.addComponent(new Spacer()..percentWidth = 100.0..percentHeight = 100.0);
     footer.addComponent(resizeHandleGroup);
     
     super.addComponent(header);
